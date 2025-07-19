@@ -5,11 +5,12 @@ type CurlRequest struct {
 	Method  string            `json:"method"`
 	Headers map[string]string `json:"headers,omitempty"`
 	Body    string            `json:"body,omitempty"`
+	RawCurl string            `json:"rawCurl,omitempty"`
 }
 
 type CurlResponse struct {
 	Status     int               `json:"status"`
 	Headers    map[string]string `json:"headers"`
-	Body       string            `json:"body"`
+	Body       interface{}       `json:"body"`
 	ErrMessage string            `json:"error,omitempty"`
 }

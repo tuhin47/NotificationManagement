@@ -17,7 +17,6 @@ func NewCurlController(service domain.CurlService) *CurlController {
 	return &CurlController{Service: service}
 }
 
-// Handler for POST /api/curl
 func (cc *CurlController) CurlHandler(c echo.Context) error {
 	var req types.CurlRequest
 	if err := c.Bind(&req); err != nil {
