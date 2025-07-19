@@ -1,0 +1,43 @@
+{
+  "app": {
+    "name": "NotificationManagement",
+    "version": "1.0.0",
+    "port": 8080,
+    "env": "development"
+  },
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "user": "postgres",
+    "password": "",
+    "name": "notification_management",
+    "ssl_mode": "disable"
+  },
+  "redis": {
+    "host": "localhost",
+    "port": 6379,
+    "password": "",
+    "db": 0
+  },
+  "email": {
+    "host": "localhost",
+    "port": 587,
+    "username": "",
+    "password": "",
+    "from": "noreply@example.com"
+  },
+  "aws": {
+    "region": "us-east-1",
+    "access_key_id": "",
+    "secret_access_key": "",
+    "endpoint": "",
+    "use_localstack": false,
+    "config_service": {
+      "enabled": true
+    }
+  },
+  "logger": {
+    "level": "info",
+    "file_path": "logs/app.log"
+  }
+} 

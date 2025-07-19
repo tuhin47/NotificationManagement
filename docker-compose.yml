@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  config-server:
+    image: localstack/localstack:3.2.0
+    container_name: config-server
+    ports:
+      - "4566:4566"
+    environment:
+        - SERVICES=config,ssm
+        - DEBUG=1
+        - PERSISTENCE=1
+        - DATA_DIR=/tmp/localstack/data
+        - LAMBDA_EXECUTOR=docker
+    volumes:
+        # - "./localstack-data:/tmp/localstack/data"
+        - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+        - localstack-network
+
+  # Optional: Add a simple web UI to manage LocalStack
+  # The localstack-web service has been removed due to image pull issues.
+
+networks:
+  localstack-network:
+    driver: bridge 
