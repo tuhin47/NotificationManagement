@@ -74,11 +74,6 @@ func parseBasicCurl(raw string) (method, url string, headers map[string]string, 
 }
 
 func (s *CurlServiceImpl) ExecuteCurl(req types.CurlRequest) (types.CurlResponse, error) {
-	// Store the request in the database
-	modelReq, err := req.ToModel()
-	if err == nil {
-		_ = s.Repo.Create(context.Background(), modelReq)
-	}
 
 	var method, urlStr, body string
 	headers := map[string]string{}
@@ -101,6 +96,13 @@ func (s *CurlServiceImpl) ExecuteCurl(req types.CurlRequest) (types.CurlResponse
 
 	logger.Info("Executing HTTP request", "method", method, "url", urlStr, "headers", headers, "body", body)
 
+	// Store the request in the database
+	modelReq, err := req.ToModel()
+	modelReq.Method = method
+	modelReq.URL = urlStr
+	if err == nil {
+		_ = s.Repo.Create(context.Background(), modelReq)
+	}
 	client := &http.Client{}
 	request, err := http.NewRequest(method, urlStr, io.NopCloser(strings.NewReader(body)))
 	if err != nil {
