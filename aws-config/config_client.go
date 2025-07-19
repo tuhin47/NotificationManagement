@@ -3,9 +3,9 @@ package aws_config
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"NotificationManagement/config"
+	"NotificationManagement/logger"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
@@ -109,7 +109,7 @@ func (c *ConfigClient) CreateConfigRule(ctx context.Context, ruleName, descripti
 		return fmt.Errorf("failed to create config rule %s: %v", ruleName, err)
 	}
 
-	log.Printf("Successfully created config rule: %s", ruleName)
+	logger.Info("Successfully created config rule", "ruleName", ruleName)
 	return nil
 }
 
@@ -124,7 +124,7 @@ func (c *ConfigClient) DeleteConfigRule(ctx context.Context, ruleName string) er
 		return fmt.Errorf("failed to delete config rule %s: %v", ruleName, err)
 	}
 
-	log.Printf("Successfully deleted config rule: %s", ruleName)
+	logger.Info("Successfully deleted config rule", "ruleName", ruleName)
 	return nil
 }
 
@@ -157,7 +157,7 @@ func (c *ConfigClient) StartConfigRulesEvaluation(ctx context.Context, ruleNames
 		return fmt.Errorf("failed to start config rules evaluation: %v", err)
 	}
 
-	log.Printf("Started evaluation for config rules: %v", ruleNames)
+	logger.Info("Started evaluation for config rules", "ruleNames", ruleNames)
 	return nil
 }
 
@@ -188,7 +188,7 @@ func (c *ConfigClient) StartConfigurationRecorder(ctx context.Context, recorderN
 		return fmt.Errorf("failed to start configuration recorder %s: %v", recorderName, err)
 	}
 
-	log.Printf("Successfully started configuration recorder: %s", recorderName)
+	logger.Info("Successfully started configuration recorder", "recorderName", recorderName)
 	return nil
 }
 
@@ -203,6 +203,6 @@ func (c *ConfigClient) StopConfigurationRecorder(ctx context.Context, recorderNa
 		return fmt.Errorf("failed to stop configuration recorder %s: %v", recorderName, err)
 	}
 
-	log.Printf("Successfully stopped configuration recorder: %s", recorderName)
+	logger.Info("Successfully stopped configuration recorder", "recorderName", recorderName)
 	return nil
 }

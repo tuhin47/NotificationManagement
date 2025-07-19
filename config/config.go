@@ -69,6 +69,7 @@ type ConfigServiceConfig struct {
 type LoggerConfig struct {
 	Level    string `mapstructure:"level"`
 	FilePath string `mapstructure:"file_path"`
+	Format   string `mapstructure:"format"`
 }
 
 var (
@@ -111,6 +112,7 @@ const (
 
 	EnvLogLevel    = "LOG_LEVEL"
 	EnvLogFilePath = "LOG_FILE_PATH"
+	EnvLogFormat   = "LOGGER_FORMAT"
 )
 
 // LoadConfig loads configuration from file, environment variables, or SSM Parameter Store
@@ -221,6 +223,7 @@ func setDefaults() {
 	// Logger defaults
 	viper.SetDefault("logger.level", "info")
 	viper.SetDefault("logger.file_path", "logs/app.log")
+	viper.SetDefault("logger.format", "console")
 }
 
 func loadFromEnv() {
@@ -262,6 +265,7 @@ func loadFromEnv() {
 	// Logger environment variables
 	viper.BindEnv("logger.level", EnvLogLevel)
 	viper.BindEnv("logger.file_path", EnvLogFilePath)
+	viper.BindEnv("logger.format", EnvLogFormat)
 }
 
 // GetConfig returns the application configuration

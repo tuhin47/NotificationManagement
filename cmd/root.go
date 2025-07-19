@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"NotificationManagement/config"
+	"NotificationManagement/logger"
 
 	"github.com/spf13/cobra"
 )
@@ -24,7 +24,8 @@ func Execute() {
 	config.LoadConfig()
 
 	// Initialize logger
-	initLogger()
+	logger.Init()
+	defer logger.Sync()
 
 	// TODO: Initialize connections when conn package is available
 	// conn.ConnectDb()
@@ -38,14 +39,7 @@ func Execute() {
 	// conn.InitAsyncInspector()
 
 	if err := RootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		logger.Error("command execution failed", "error", err)
 		os.Exit(1)
 	}
-}
-
-func initLogger() {
-	fmt.Println("Initializing logger...")
-	fmt.Println("Logger file path:", config.Logger().FilePath)
-	// TODO: Initialize logger when logger package is available
-	// logger.SetFileLogger(config.Logger().FilePath)
 }

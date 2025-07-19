@@ -3,8 +3,8 @@ package cmd
 import (
 	aws "NotificationManagement/aws-config"
 	"NotificationManagement/config"
+	"NotificationManagement/logger"
 	"context"
-	"fmt"
 
 	"github.com/spf13/cobra"
 )
@@ -21,20 +21,20 @@ var listRulesCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		client, err := aws.NewConfigClient()
 		if err != nil {
-			fmt.Printf("Error creating AWS Config client: %v\n", err)
+			logger.Error("Error creating AWS Config client", "error", err)
 			return
 		}
 
 		ctx := context.Background()
 		rules, err := client.ListConfigRules(ctx)
 		if err != nil {
-			fmt.Printf("Error listing config rules: %v\n", err)
+			logger.Error("Error listing config rules", "error", err)
 			return
 		}
 
-		fmt.Printf("Found %d config rules:\n", len(rules))
+		logger.Info("Found config rules", "count", len(rules))
 		for _, rule := range rules {
-			fmt.Printf("- %s: %s\n", *rule.ConfigRuleName, *rule.Description)
+			logger.Info("Config rule", "name", *rule.ConfigRuleName, "description", *rule.Description)
 		}
 	},
 }
@@ -45,23 +45,23 @@ var checkStatusCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		client, err := aws.NewConfigClient()
 		if err != nil {
-			fmt.Printf("Error creating AWS Config client: %v\n", err)
+			logger.Error("Error creating AWS Config client", "error", err)
 			return
 		}
 
 		ctx := context.Background()
 		status, err := client.GetConfigurationRecorderStatus(ctx)
 		if err != nil {
-			fmt.Printf("Error getting recorder status: %v\n", err)
+			logger.Error("Error getting recorder status", "error", err)
 			return
 		}
 
-		fmt.Printf("Configuration Recorder Status:\n")
-		fmt.Printf("- Name: %s\n", *status.Name)
-		fmt.Printf("- Recording: %v\n", status.Recording)
-		fmt.Printf("- Last Status: %s\n", status.LastStatus)
+		logger.Info("Configuration Recorder Status")
+		logger.Info("Name", "name", *status.Name)
+		logger.Info("Recording", "recording", status.Recording)
+		logger.Info("Last Status", "last_status", string(status.LastStatus))
 		if status.LastErrorCode != nil {
-			fmt.Printf("- Last Error: %s - %s\n", *status.LastErrorCode, *status.LastErrorMessage)
+			logger.Info("Last Error", "error_code", *status.LastErrorCode, "error_message", *status.LastErrorMessage)
 		}
 	},
 }
@@ -70,30 +70,30 @@ var testConnectionCmd = &cobra.Command{
 	Use:   "test-connection",
 	Short: "Test AWS Config service connection",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Testing AWS Config service connection...\n")
-		fmt.Printf("Region: %s\n", config.AWS().Region)
-		fmt.Printf("Using LocalStack: %v\n", config.AWS().UseLocalStack)
+		logger.Info("Testing AWS Config service connection...")
+		logger.Info("Region", "region", config.AWS().Region)
+		logger.Info("Using LocalStack", "use_local_stack", config.AWS().UseLocalStack)
 		if config.AWS().UseLocalStack {
-			fmt.Printf("LocalStack Endpoint: %s\n", config.AWS().Endpoint)
+			logger.Info("LocalStack Endpoint", "endpoint", config.AWS().Endpoint)
 		}
 
 		client, err := aws.NewConfigClient()
 		if err != nil {
-			fmt.Printf("Error creating AWS Config client: %v\n", err)
+			logger.Error("Error creating AWS Config client", "error", err)
 			return
 		}
 
-		fmt.Println("✅ AWS Config client created successfully!")
+		logger.Info("✅ AWS Config client created successfully!")
 
 		// Try to list rules to test the connection
 		ctx := context.Background()
 		_, err = client.ListConfigRules(ctx)
 		if err != nil {
-			fmt.Printf("❌ Error listing config rules: %v\n", err)
+			logger.Error("❌ Error listing config rules", "error", err)
 			return
 		}
 
-		fmt.Println("✅ AWS Config service connection successful!")
+		logger.Info("✅ AWS Config service connection successful!")
 	},
 }
 

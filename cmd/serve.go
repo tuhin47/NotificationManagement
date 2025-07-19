@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 
+	"NotificationManagement/logger"
+
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/cobra"
 )
@@ -28,11 +30,11 @@ var serveCmd = &cobra.Command{
 		}
 		addr := fmt.Sprintf(":%d", port)
 
-		fmt.Printf("Starting %s server on port %d\n", config.App().Name, port)
-		fmt.Println("Server is running in", config.App().Env, "mode")
+		logger.Info("Starting server", "name", config.App().Name, "port", port)
+		logger.Info("Server mode", "env", config.App().Env)
 
 		if err := e.Start(addr); err != nil && err != http.ErrServerClosed {
-			fmt.Fprintf(os.Stderr, "Failed to start server: %v\n", err)
+			logger.Error("Failed to start server", "error", err)
 			os.Exit(1)
 		}
 	},
