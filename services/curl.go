@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"NotificationManagement/domain"
+	"NotificationManagement/logger"
 	"NotificationManagement/types"
 )
 
@@ -88,6 +89,8 @@ func (s *CurlServiceImpl) ExecuteCurl(req types.CurlRequest) (types.CurlResponse
 		headers = req.Headers
 		body = req.Body
 	}
+
+	logger.Info("Executing HTTP request", "method", method, "url", urlStr, "headers", headers, "body", body)
 
 	client := &http.Client{}
 	request, err := http.NewRequest(method, urlStr, io.NopCloser(strings.NewReader(body)))

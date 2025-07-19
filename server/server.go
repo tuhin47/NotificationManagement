@@ -2,6 +2,7 @@ package server
 
 import (
 	"NotificationManagement/controllers"
+	"NotificationManagement/logger"
 	"NotificationManagement/routes"
 	"NotificationManagement/services"
 
@@ -10,7 +11,21 @@ import (
 )
 
 func NewEcho() *echo.Echo {
-	return echo.New()
+	e := echo.New()
+	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			req := c.Request()
+			logger.Info("Incoming request",
+				"method", req.Method,
+				"path", req.URL.Path,
+				"query", req.URL.RawQuery,
+				"remote_ip", c.RealIP(),
+				"user_agent", req.UserAgent(),
+			)
+			return next(c)
+		}
+	})
+	return e
 }
 
 func RegisterRoutes(e *echo.Echo, curlController *controllers.CurlController) {
