@@ -13,6 +13,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 var serveCmd = &cobra.Command{
@@ -21,6 +23,16 @@ var serveCmd = &cobra.Command{
 	Long:  `Start the notification management server with the specified configuration`,
 	Run: func(cmd *cobra.Command, args []string) {
 		app := fx.New(
+			fx.Provide(
+				func() (*gorm.DB, error) {
+					db, err := gorm.Open(postgres.Open(config.GetDSN()), &gorm.Config{})
+					if err != nil {
+						logger.Error("Failed to connect to database", "error", err)
+						return nil, err
+					}
+					return db, nil
+				},
+			),
 			server.Module,
 			fx.Invoke(func(lc fx.Lifecycle, e *echo.Echo) {
 				// Health check route

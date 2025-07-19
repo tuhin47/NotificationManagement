@@ -3,6 +3,7 @@ package server
 import (
 	"NotificationManagement/controllers"
 	"NotificationManagement/logger"
+	"NotificationManagement/repositories"
 	"NotificationManagement/routes"
 	"NotificationManagement/services"
 
@@ -37,6 +38,7 @@ var Module = fx.Options(
 		NewEcho,
 		services.NewCurlServiceImpl,
 		controllers.NewCurlController,
+		repositories.NewCurlRequestRepository,
 	),
 	fx.Invoke(RegisterRoutes),
 )

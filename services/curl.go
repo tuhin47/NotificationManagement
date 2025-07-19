@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -13,10 +14,12 @@ import (
 	"NotificationManagement/types"
 )
 
-type CurlServiceImpl struct{}
+type CurlServiceImpl struct {
+	Repo domain.CurlRequestRepository
+}
 
-func NewCurlServiceImpl() domain.CurlService {
-	return &CurlServiceImpl{}
+func NewCurlServiceImpl(repo domain.CurlRequestRepository) domain.CurlService {
+	return &CurlServiceImpl{Repo: repo}
 }
 
 func parseBasicCurl(raw string) (method, url string, headers map[string]string, body string, err error) {
@@ -71,6 +74,12 @@ func parseBasicCurl(raw string) (method, url string, headers map[string]string, 
 }
 
 func (s *CurlServiceImpl) ExecuteCurl(req types.CurlRequest) (types.CurlResponse, error) {
+	// Store the request in the database
+	modelReq, err := req.ToModel()
+	if err == nil {
+		_ = s.Repo.Create(context.Background(), modelReq)
+	}
+
 	var method, urlStr, body string
 	headers := map[string]string{}
 
