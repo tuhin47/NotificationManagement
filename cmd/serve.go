@@ -2,14 +2,17 @@ package cmd
 
 import (
 	"NotificationManagement/config"
+	"NotificationManagement/logger"
+	"NotificationManagement/server"
 	"fmt"
 	"net/http"
 	"os"
 
-	"NotificationManagement/logger"
+	"context"
 
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/cobra"
+	"go.uber.org/fx"
 )
 
 var serveCmd = &cobra.Command{
@@ -17,25 +20,40 @@ var serveCmd = &cobra.Command{
 	Short: "Start the notification management server",
 	Long:  `Start the notification management server with the specified configuration`,
 	Run: func(cmd *cobra.Command, args []string) {
-		e := echo.New()
+		app := fx.New(
+			server.Module,
+			fx.Invoke(func(lc fx.Lifecycle, e *echo.Echo) {
+				// Health check route
+				e.GET("/health", func(c echo.Context) error {
+					return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
+				})
 
-		// Health check route
-		e.GET("/health", func(c echo.Context) error {
-			return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
-		})
+				port := config.App().Port
+				if port == 0 {
+					port = 8080
+				}
+				addr := fmt.Sprintf(":%d", port)
 
-		port := config.App().Port
-		if port == 0 {
-			port = 8080
-		}
-		addr := fmt.Sprintf(":%d", port)
+				logger.Info("Starting server", "name", config.App().Name, "port", port)
+				logger.Info("Server mode", "env", config.App().Env)
 
-		logger.Info("Starting server", "name", config.App().Name, "port", port)
-		logger.Info("Server mode", "env", config.App().Env)
-
-		if err := e.Start(addr); err != nil && err != http.ErrServerClosed {
-			logger.Error("Failed to start server", "error", err)
-			os.Exit(1)
-		}
+				lc.Append(fx.Hook{
+					OnStart: func(startCtx context.Context) error {
+						go func() {
+							if err := e.Start(addr); err != nil && err != http.ErrServerClosed {
+								logger.Error("Failed to start server", "error", err)
+								os.Exit(1)
+							}
+						}()
+						return nil
+					},
+					OnStop: func(stopCtx context.Context) error {
+						return e.Shutdown(stopCtx)
+					},
+				})
+			},
+			),
+		)
+		app.Run()
 	},
 }
