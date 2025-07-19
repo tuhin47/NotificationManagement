@@ -9,12 +9,14 @@ import (
 	"os"
 
 	"context"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	gormlogger "gorm.io/gorm/logger"
 )
 
 var serveCmd = &cobra.Command{
@@ -25,7 +27,13 @@ var serveCmd = &cobra.Command{
 		app := fx.New(
 			fx.Provide(
 				func() (*gorm.DB, error) {
-					db, err := gorm.Open(postgres.Open(config.GetDSN()), &gorm.Config{})
+					gormLogger := logger.NewGormZapLogger(
+						gormlogger.Info,      // log level
+						200*time.Millisecond, // slow query threshold
+					)
+					db, err := gorm.Open(postgres.Open(config.GetDSN()), &gorm.Config{
+						Logger: gormLogger,
+					})
 					if err != nil {
 						logger.Error("Failed to connect to database", "error", err)
 						return nil, err
