@@ -84,7 +84,7 @@ func (s *CurlServiceImpl) ExecuteCurl(req types.CurlRequest) (types.CurlResponse
 		m, u, h, b, err := parseBasicCurl(req.RawCurl)
 		if err != nil {
 			return types.CurlResponse{}, errutil.NewAppErrorWithMessage(
-				errutil.ErrInvalidInput,
+				errutil.ErrInvalidRequestBody,
 				err,
 				"Failed to parse raw curl command",
 			)
@@ -167,7 +167,7 @@ func (s *CurlServiceImpl) UpdateCurlRequest(id uint, req types.CurlRequest) (*mo
 	// Convert the request to model
 	modelReq, err := req.ToModel()
 	if err != nil {
-		return nil, errutil.NewAppError(errutil.ErrInvalidInput, err)
+		return nil, errutil.NewAppError(errutil.ErrInvalidRequestBody, err)
 	}
 
 	// Update the existing record with new data

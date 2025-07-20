@@ -13,13 +13,10 @@ import (
 func ErrorHandler() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			// Execute the handler
 			err := next(c)
 			if err == nil {
 				return nil
 			}
-
-			// Handle different types of errors
 			return handleError(c, err)
 		}
 	}
@@ -27,14 +24,17 @@ func ErrorHandler() echo.MiddlewareFunc {
 
 // handleError processes different types of errors and returns appropriate HTTP responses
 func handleError(c echo.Context, err error) error {
+
 	// Check if it's an AppError
-	if appError, ok := err.(*errutil.AppError); ok {
+	var appError *errutil.AppError
+	if errors.As(err, &appError) {
 		errResp := errutil.AppErrorToErrorResponse(appError)
 		return c.JSON(errResp.StatusCode, errResp)
 	}
 
 	// Check if it's a ValidationError
-	if validationError, ok := err.(*ValidationError); ok {
+	var validationError *ValidationError
+	if errors.As(err, &validationError) {
 		errResp := errutil.ErrorResponse{
 			Message:    validationError.Message,
 			Error:      err.Error(),
@@ -46,7 +46,8 @@ func handleError(c echo.Context, err error) error {
 	}
 
 	// Check if it's a BusinessError
-	if businessError, ok := err.(*BusinessError); ok {
+	var businessError *BusinessError
+	if errors.As(err, &businessError) {
 		errResp := errutil.ErrorResponse{
 			Message:    businessError.Message,
 			Error:      err.Error(),
@@ -67,17 +68,6 @@ func handleError(c echo.Context, err error) error {
 			ErrorCode:  "HTTP_ERROR",
 		}
 		return c.JSON(httpError.Code, errResp)
-	}
-
-	// Check for specific error types and map them to appropriate responses
-	if errutil.IsRecordNotFound(err) {
-		errResp := errutil.CreateErrorResponse(errutil.ErrRecordNotFound, err)
-		return c.JSON(errResp.StatusCode, errResp)
-	}
-
-	if errutil.IsInvalidInput(err) {
-		errResp := errutil.CreateErrorResponse(errutil.ErrInvalidInput, err)
-		return c.JSON(errResp.StatusCode, errResp)
 	}
 
 	// Default to internal server error

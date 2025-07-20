@@ -23,7 +23,7 @@ func NewCurlController(service domain.CurlService) *CurlController {
 func (cc *CurlController) CurlHandler(c echo.Context) error {
 	var req types.CurlRequest
 	if err := c.Bind(&req); err != nil {
-		return err
+		return throw.AppError(errutil.ErrInvalidRequestBody, err)
 	}
 	resp, err := cc.Service.ExecuteCurl(req)
 	if err != nil {
