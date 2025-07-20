@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -10,13 +11,16 @@ import (
 
 	"NotificationManagement/domain"
 	"NotificationManagement/logger"
+	"NotificationManagement/models"
 	"NotificationManagement/types"
 )
 
-type CurlServiceImpl struct{}
+type CurlServiceImpl struct {
+	Repo domain.CurlRequestRepository
+}
 
-func NewCurlServiceImpl() domain.CurlService {
-	return &CurlServiceImpl{}
+func NewCurlServiceImpl(repo domain.CurlRequestRepository) domain.CurlService {
+	return &CurlServiceImpl{Repo: repo}
 }
 
 func parseBasicCurl(raw string) (method, url string, headers map[string]string, body string, err error) {
@@ -71,6 +75,7 @@ func parseBasicCurl(raw string) (method, url string, headers map[string]string, 
 }
 
 func (s *CurlServiceImpl) ExecuteCurl(req types.CurlRequest) (types.CurlResponse, error) {
+
 	var method, urlStr, body string
 	headers := map[string]string{}
 
@@ -92,6 +97,13 @@ func (s *CurlServiceImpl) ExecuteCurl(req types.CurlRequest) (types.CurlResponse
 
 	logger.Info("Executing HTTP request", "method", method, "url", urlStr, "headers", headers, "body", body)
 
+	// Store the request in the database
+	modelReq, err := req.ToModel()
+	modelReq.Method = method
+	modelReq.URL = urlStr
+	if err == nil {
+		_ = s.Repo.Create(context.Background(), modelReq)
+	}
 	client := &http.Client{}
 	request, err := http.NewRequest(method, urlStr, io.NopCloser(strings.NewReader(body)))
 	if err != nil {
@@ -130,4 +142,41 @@ func (s *CurlServiceImpl) ExecuteCurl(req types.CurlRequest) (types.CurlResponse
 		Headers: respHeaders,
 		Body:    respBodyVal,
 	}, nil
+}
+
+func (s *CurlServiceImpl) GetCurlRequestByID(id uint) (*models.CurlRequest, error) {
+	return s.Repo.GetByID(context.Background(), id)
+}
+
+func (s *CurlServiceImpl) UpdateCurlRequest(id uint, req types.CurlRequest) (*models.CurlRequest, error) {
+	// First check if the record exists
+	existing, err := s.Repo.GetByID(context.Background(), id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert the request to model
+	modelReq, err := req.ToModel()
+	if err != nil {
+		return nil, err
+	}
+
+	// Update the existing record with new data
+	existing.URL = modelReq.URL
+	existing.Method = modelReq.Method
+	existing.Headers = modelReq.Headers
+	existing.Body = modelReq.Body
+	existing.RawCurl = modelReq.RawCurl
+
+	// Save the updated record
+	err = s.Repo.Update(context.Background(), existing)
+	if err != nil {
+		return nil, err
+	}
+
+	return existing, nil
+}
+
+func (s *CurlServiceImpl) DeleteCurlRequest(id uint) error {
+	return s.Repo.Delete(context.Background(), id)
 }

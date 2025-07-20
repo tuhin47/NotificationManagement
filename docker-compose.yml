@@ -18,9 +18,23 @@ services:
     networks:
         - localstack-network
 
-  # Optional: Add a simple web UI to manage LocalStack
-  # The localstack-web service has been removed due to image pull issues.
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    ports:
+      - "54322:5432"
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=notification_management
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - localstack-network
 
 networks:
   localstack-network:
     driver: bridge 
+volumes:
+  postgres-data: 
