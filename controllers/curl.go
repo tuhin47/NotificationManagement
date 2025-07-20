@@ -6,6 +6,7 @@ import (
 
 	"NotificationManagement/domain"
 	"NotificationManagement/types"
+	"NotificationManagement/utils/errutil"
 
 	"github.com/labstack/echo/v4"
 )
@@ -21,12 +22,14 @@ func NewCurlController(service domain.CurlService) *CurlController {
 func (cc *CurlController) CurlHandler(c echo.Context) error {
 	var req types.CurlRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, types.CurlResponse{ErrMessage: "Invalid request payload"})
+		errResp := errutil.CreateErrorResponse(errutil.ErrInvalidInput, err)
+		return c.JSON(errResp.StatusCode, errResp)
 	}
 
 	resp, err := cc.Service.ExecuteCurl(req)
 	if err != nil {
-		return c.JSON(http.StatusBadGateway, resp)
+		errResp := errutil.HandleServiceError(err)
+		return c.JSON(errResp.StatusCode, errResp)
 	}
 	return c.JSON(http.StatusOK, resp)
 }
@@ -35,12 +38,14 @@ func (cc *CurlController) GetCurlRequestByID(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID format"})
+		errResp := errutil.CreateErrorResponse(errutil.ErrInvalidInput, err)
+		return c.JSON(errResp.StatusCode, errResp)
 	}
 
 	curlRequest, err := cc.Service.GetCurlRequestByID(uint(id))
 	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{"error": "CurlRequest not found"})
+		errResp := errutil.HandleServiceError(err)
+		return c.JSON(errResp.StatusCode, errResp)
 	}
 
 	return c.JSON(http.StatusOK, curlRequest)
@@ -50,17 +55,20 @@ func (cc *CurlController) UpdateCurlRequest(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID format"})
+		errResp := errutil.CreateErrorResponse(errutil.ErrInvalidInput, err)
+		return c.JSON(errResp.StatusCode, errResp)
 	}
 
 	var req types.CurlRequest
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
+		errResp := errutil.CreateErrorResponse(errutil.ErrInvalidInput, err)
+		return c.JSON(errResp.StatusCode, errResp)
 	}
 
 	updatedRequest, err := cc.Service.UpdateCurlRequest(uint(id), req)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{"error": "CurlRequest not found or update failed"})
+		errResp := errutil.HandleServiceError(err)
+		return c.JSON(errResp.StatusCode, errResp)
 	}
 
 	return c.JSON(http.StatusOK, updatedRequest)
@@ -70,12 +78,14 @@ func (cc *CurlController) DeleteCurlRequest(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID format"})
+		errResp := errutil.CreateErrorResponse(errutil.ErrInvalidInput, err)
+		return c.JSON(errResp.StatusCode, errResp)
 	}
 
 	err = cc.Service.DeleteCurlRequest(uint(id))
 	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{"error": "CurlRequest not found or delete failed"})
+		errResp := errutil.HandleServiceError(err)
+		return c.JSON(errResp.StatusCode, errResp)
 	}
 
 	return c.JSON(http.StatusOK, map[string]string{"message": "CurlRequest deleted successfully"})

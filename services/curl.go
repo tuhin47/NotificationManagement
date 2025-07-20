@@ -13,6 +13,7 @@ import (
 	"NotificationManagement/logger"
 	"NotificationManagement/models"
 	"NotificationManagement/types"
+	"NotificationManagement/utils/errutil"
 )
 
 type CurlServiceImpl struct {
@@ -82,7 +83,11 @@ func (s *CurlServiceImpl) ExecuteCurl(req types.CurlRequest) (types.CurlResponse
 	if req.RawCurl != "" {
 		m, u, h, b, err := parseBasicCurl(req.RawCurl)
 		if err != nil {
-			return types.CurlResponse{ErrMessage: "Failed to parse raw curl: " + err.Error()}, err
+			return types.CurlResponse{}, errutil.NewAppErrorWithMessage(
+				errutil.ErrInvalidInput,
+				err,
+				"Failed to parse raw curl command",
+			)
 		}
 		method = m
 		urlStr = u
@@ -107,7 +112,7 @@ func (s *CurlServiceImpl) ExecuteCurl(req types.CurlRequest) (types.CurlResponse
 	client := &http.Client{}
 	request, err := http.NewRequest(method, urlStr, io.NopCloser(strings.NewReader(body)))
 	if err != nil {
-		return types.CurlResponse{ErrMessage: err.Error()}, err
+		return types.CurlResponse{}, errutil.NewAppError(errutil.ErrExternalServiceError, err)
 	}
 	for k, v := range headers {
 		request.Header.Set(k, v)
@@ -115,7 +120,7 @@ func (s *CurlServiceImpl) ExecuteCurl(req types.CurlRequest) (types.CurlResponse
 
 	resp, err := client.Do(request)
 	if err != nil {
-		return types.CurlResponse{ErrMessage: err.Error()}, err
+		return types.CurlResponse{}, errutil.NewAppError(errutil.ErrExternalServiceError, err)
 	}
 	defer resp.Body.Close()
 	respBody, _ := io.ReadAll(resp.Body)
@@ -145,20 +150,24 @@ func (s *CurlServiceImpl) ExecuteCurl(req types.CurlRequest) (types.CurlResponse
 }
 
 func (s *CurlServiceImpl) GetCurlRequestByID(id uint) (*models.CurlRequest, error) {
-	return s.Repo.GetByID(context.Background(), id)
+	curlRequest, err := s.Repo.GetByID(context.Background(), id)
+	if err != nil {
+		return nil, errutil.NewAppError(errutil.ErrRecordNotFound, err)
+	}
+	return curlRequest, nil
 }
 
 func (s *CurlServiceImpl) UpdateCurlRequest(id uint, req types.CurlRequest) (*models.CurlRequest, error) {
 	// First check if the record exists
 	existing, err := s.Repo.GetByID(context.Background(), id)
 	if err != nil {
-		return nil, err
+		return nil, errutil.NewAppError(errutil.ErrRecordNotFound, err)
 	}
 
 	// Convert the request to model
 	modelReq, err := req.ToModel()
 	if err != nil {
-		return nil, err
+		return nil, errutil.NewAppError(errutil.ErrInvalidInput, err)
 	}
 
 	// Update the existing record with new data
@@ -171,12 +180,23 @@ func (s *CurlServiceImpl) UpdateCurlRequest(id uint, req types.CurlRequest) (*mo
 	// Save the updated record
 	err = s.Repo.Update(context.Background(), existing)
 	if err != nil {
-		return nil, err
+		return nil, errutil.NewAppError(errutil.ErrDatabaseQuery, err)
 	}
 
 	return existing, nil
 }
 
 func (s *CurlServiceImpl) DeleteCurlRequest(id uint) error {
-	return s.Repo.Delete(context.Background(), id)
+	// First check if the record exists
+	_, err := s.Repo.GetByID(context.Background(), id)
+	if err != nil {
+		return errutil.NewAppError(errutil.ErrRecordNotFound, err)
+	}
+
+	err = s.Repo.Delete(context.Background(), id)
+	if err != nil {
+		return errutil.NewAppError(errutil.ErrDatabaseQuery, err)
+	}
+
+	return nil
 }
