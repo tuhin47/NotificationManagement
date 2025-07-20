@@ -3,6 +3,7 @@ package repositories
 import (
 	"NotificationManagement/utils/errutil"
 	"context"
+	"errors"
 
 	"gorm.io/gorm"
 )
@@ -27,7 +28,7 @@ func (r *SQLRepository[T]) GetByID(ctx context.Context, id uint) (*T, error) {
 	var entity T
 	err := r.db.WithContext(ctx).First(&entity, id).Error
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errutil.NewAppError(errutil.ErrRecordNotFound, err)
 		}
 		return nil, errutil.NewAppError(errutil.ErrDatabaseQuery, err)

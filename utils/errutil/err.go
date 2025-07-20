@@ -1,6 +1,8 @@
 package errutil
 
 import (
+	"errors"
+	"net/http"
 	"time"
 )
 
@@ -169,6 +171,19 @@ var (
 		Message: "External service error",
 		Status:  502,
 	}
+
+	// ErrInvalidIdParam Common Errors
+	ErrInvalidIdParam = ErrorCode{
+		Code:    "INVALID_PARAM",
+		Message: "Invalid Parameter",
+		Status:  http.StatusBadRequest,
+	}
+	// ErrInvalidRequestBody Common Errors
+	ErrInvalidRequestBody = ErrorCode{
+		Code:    "INVALID_BODY",
+		Message: "Invalid Body",
+		Status:  http.StatusBadRequest,
+	}
 )
 
 // CreateErrorResponse creates a new ErrorResponse with the given error code and actual error
@@ -263,4 +278,14 @@ func IsErrorCode(err error, errCode ErrorCode) bool {
 	// This is a simple implementation - you might want to enhance this
 	// based on your specific error handling needs
 	return err != nil && err.Error() == errCode.Message
+}
+
+// GetCurrentTime returns the current time for error responses
+func GetCurrentTime() time.Time {
+	return time.Now()
+}
+
+// NewError creates a new error with the given message
+func NewError(message string) error {
+	return errors.New(message)
 }
