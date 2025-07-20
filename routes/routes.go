@@ -8,4 +8,5 @@ import (
 
 func RegisterCurlRoutes(e *echo.Echo, curlController *controllers.CurlController) {
 	e.POST("/api/curl", curlController.CurlHandler)
+	e.GET("/api/curl/:id", curlController.GetCurlRequestByID)
 }

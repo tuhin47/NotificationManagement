@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"strconv"
 
 	"NotificationManagement/domain"
 	"NotificationManagement/types"
@@ -28,4 +29,19 @@ func (cc *CurlController) CurlHandler(c echo.Context) error {
 		return c.JSON(http.StatusBadGateway, resp)
 	}
 	return c.JSON(http.StatusOK, resp)
+}
+
+func (cc *CurlController) GetCurlRequestByID(c echo.Context) error {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid ID format"})
+	}
+
+	curlRequest, err := cc.Service.GetCurlRequestByID(uint(id))
+	if err != nil {
+		return c.JSON(http.StatusNotFound, map[string]string{"error": "CurlRequest not found"})
+	}
+
+	return c.JSON(http.StatusOK, curlRequest)
 }

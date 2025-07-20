@@ -7,6 +7,7 @@ import (
 
 type CurlService interface {
 	ExecuteCurl(req types.CurlRequest) (types.CurlResponse, error)
+	GetCurlRequestByID(id uint) (*models.CurlRequest, error)
 }
 
 type CurlRequestRepository interface {

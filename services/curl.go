@@ -11,6 +11,7 @@ import (
 
 	"NotificationManagement/domain"
 	"NotificationManagement/logger"
+	"NotificationManagement/models"
 	"NotificationManagement/types"
 )
 
@@ -141,4 +142,8 @@ func (s *CurlServiceImpl) ExecuteCurl(req types.CurlRequest) (types.CurlResponse
 		Headers: respHeaders,
 		Body:    respBodyVal,
 	}, nil
+}
+
+func (s *CurlServiceImpl) GetCurlRequestByID(id uint) (*models.CurlRequest, error) {
+	return s.Repo.GetByID(context.Background(), id)
 }
