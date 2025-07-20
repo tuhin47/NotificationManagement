@@ -147,3 +147,36 @@ func (s *CurlServiceImpl) ExecuteCurl(req types.CurlRequest) (types.CurlResponse
 func (s *CurlServiceImpl) GetCurlRequestByID(id uint) (*models.CurlRequest, error) {
 	return s.Repo.GetByID(context.Background(), id)
 }
+
+func (s *CurlServiceImpl) UpdateCurlRequest(id uint, req types.CurlRequest) (*models.CurlRequest, error) {
+	// First check if the record exists
+	existing, err := s.Repo.GetByID(context.Background(), id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert the request to model
+	modelReq, err := req.ToModel()
+	if err != nil {
+		return nil, err
+	}
+
+	// Update the existing record with new data
+	existing.URL = modelReq.URL
+	existing.Method = modelReq.Method
+	existing.Headers = modelReq.Headers
+	existing.Body = modelReq.Body
+	existing.RawCurl = modelReq.RawCurl
+
+	// Save the updated record
+	err = s.Repo.Update(context.Background(), existing)
+	if err != nil {
+		return nil, err
+	}
+
+	return existing, nil
+}
+
+func (s *CurlServiceImpl) DeleteCurlRequest(id uint) error {
+	return s.Repo.Delete(context.Background(), id)
+}
