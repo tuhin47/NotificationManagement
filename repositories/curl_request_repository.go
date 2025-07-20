@@ -6,12 +6,12 @@ import (
 	"gorm.io/gorm"
 )
 
-type GormCurlRequestRepository struct {
+type CurlRequestRepositoryImpl struct {
 	*SQLRepository[models.CurlRequest]
 }
 
 func NewCurlRequestRepository(db *gorm.DB) domain.CurlRequestRepository {
-	return &GormCurlRequestRepository{
+	return &CurlRequestRepositoryImpl{
 		SQLRepository: NewSQLRepository[models.CurlRequest](db),
 	}
 }

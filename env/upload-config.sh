@@ -4,4 +4,5 @@
 aws --endpoint-url=http://localhost:4566 ssm put-parameter \
   --name "/myapp/config" \
   --type "String" \
-  --value "$(cat env/app-config.json)" 
+  --value "$(cat env/app-config.json)" \
+  --overwrite

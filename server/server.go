@@ -3,6 +3,7 @@ package server
 import (
 	"NotificationManagement/controllers"
 	"NotificationManagement/logger"
+	"NotificationManagement/middleware"
 	"NotificationManagement/repositories"
 	"NotificationManagement/routes"
 	"NotificationManagement/services"
@@ -13,6 +14,10 @@ import (
 
 func NewEcho() *echo.Echo {
 	e := echo.New()
+
+	// Add global error handler middleware (similar to @ControllerAdvice)
+	e.Use(middleware.ErrorHandler())
+
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			req := c.Request()

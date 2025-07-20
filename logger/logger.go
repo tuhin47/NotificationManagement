@@ -54,7 +54,7 @@ func Init() {
 			zapcore.NewMultiWriteSyncer(writers...),
 			level,
 		)
-		logger = zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1))
+		logger = zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1), zap.AddStacktrace(zapcore.DPanicLevel))
 	})
 }
 
