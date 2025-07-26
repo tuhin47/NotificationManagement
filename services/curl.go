@@ -152,7 +152,7 @@ func (s *CurlServiceImpl) ExecuteCurl(req types.CurlRequest) (types.CurlResponse
 func (s *CurlServiceImpl) GetCurlRequestByID(id uint) (*models.CurlRequest, error) {
 	curlRequest, err := s.Repo.GetByID(context.Background(), id)
 	if err != nil {
-		return nil, errutil.NewAppError(errutil.ErrRecordNotFound, err)
+		return nil, err
 	}
 	return curlRequest, nil
 }
@@ -190,7 +190,7 @@ func (s *CurlServiceImpl) DeleteCurlRequest(id uint) error {
 	// First check if the record exists
 	_, err := s.Repo.GetByID(context.Background(), id)
 	if err != nil {
-		return errutil.NewAppError(errutil.ErrRecordNotFound, err)
+		return err
 	}
 
 	err = s.Repo.Delete(context.Background(), id)

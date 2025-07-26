@@ -14,28 +14,27 @@ import (
 
 func NewEcho() *echo.Echo {
 	e := echo.New()
-
-	// Add global error handler middleware (similar to @ControllerAdvice)
+	e.Use(interceptLogger)
 	e.Use(middleware.ErrorHandler())
-
-	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			req := c.Request()
-			logger.Info("Incoming request",
-				"method", req.Method,
-				"path", req.URL.Path,
-				"query", req.URL.RawQuery,
-				"remote_ip", c.RealIP(),
-				"user_agent", req.UserAgent(),
-			)
-			return next(c)
-		}
-	})
 	return e
 }
 
 func RegisterRoutes(e *echo.Echo, curlController *controllers.CurlController) {
 	routes.RegisterCurlRoutes(e, curlController)
+}
+
+func interceptLogger(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		req := c.Request()
+		logger.Info("Incoming request",
+			"method", req.Method,
+			"path", req.URL.Path,
+			"query", req.URL.RawQuery,
+			"remote_ip", c.RealIP(),
+			"user_agent", req.UserAgent(),
+		)
+		return next(c)
+	}
 }
 
 var Module = fx.Options(

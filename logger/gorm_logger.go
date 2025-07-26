@@ -2,7 +2,6 @@ package logger
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -45,18 +44,6 @@ func (l *GormZapLogger) Error(ctx context.Context, msg string, data ...interface
 	if l.LogLevel >= gormlogger.Error {
 		l.ZLogger.Sugar().Errorf(msg, data...)
 	}
-}
-
-func prettySQL(sql string) string {
-	keywords := []string{
-		"SELECT", "FROM", "WHERE", "GROUP BY", "ORDER BY", "LIMIT", "OFFSET", "JOIN", "LEFT JOIN", "RIGHT JOIN", "INNER JOIN", "OUTER JOIN", "ON", "AND", "OR", "VALUES", "SET", "INSERT", "UPDATE", "DELETE",
-	}
-	s := sql
-	for _, kw := range keywords {
-		s = strings.ReplaceAll(s, " "+kw+" ", "\n"+kw+" ")
-		s = strings.ReplaceAll(s, " "+kw+"\n", "\n"+kw+"\n")
-	}
-	return strings.TrimSpace(s)
 }
 
 func (l *GormZapLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {

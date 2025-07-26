@@ -4,6 +4,7 @@ import (
 	"NotificationManagement/config"
 	"NotificationManagement/logger"
 	"NotificationManagement/server"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -25,22 +26,7 @@ var serveCmd = &cobra.Command{
 	Long:  `Start the notification management server with the specified configuration`,
 	Run: func(cmd *cobra.Command, args []string) {
 		app := fx.New(
-			fx.Provide(
-				func() (*gorm.DB, error) {
-					gormLogger := logger.NewGormZapLogger(
-						gormlogger.Info,      // log level
-						200*time.Millisecond, // slow query threshold
-					)
-					db, err := gorm.Open(postgres.Open(config.GetDSN()), &gorm.Config{
-						Logger: gormLogger,
-					})
-					if err != nil {
-						logger.Error("Failed to connect to database", "error", err)
-						return nil, err
-					}
-					return db, nil
-				},
-			),
+			fx.Provide(NewDB),
 			server.Module,
 			fx.Invoke(func(lc fx.Lifecycle, e *echo.Echo) {
 				// Health check route
@@ -60,7 +46,7 @@ var serveCmd = &cobra.Command{
 				lc.Append(fx.Hook{
 					OnStart: func(startCtx context.Context) error {
 						go func() {
-							if err := e.Start(addr); err != nil && err != http.ErrServerClosed {
+							if err := e.Start(addr); err != nil && !errors.Is(err, http.ErrServerClosed) {
 								logger.Error("Failed to start server", "error", err)
 								os.Exit(1)
 							}
@@ -76,4 +62,19 @@ var serveCmd = &cobra.Command{
 		)
 		app.Run()
 	},
+}
+
+func NewDB() (*gorm.DB, error) {
+	gormLogger := logger.NewGormZapLogger(
+		gormlogger.Info,
+		200*time.Millisecond,
+	)
+	db, err := gorm.Open(postgres.Open(config.GetDSN()), &gorm.Config{
+		Logger: gormLogger,
+	})
+	if err != nil {
+		logger.Fatal("Failed to connect to database", "error", err)
+		return nil, err
+	}
+	return db, nil
 }

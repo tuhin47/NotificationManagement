@@ -76,7 +76,7 @@ func (cc *CurlController) DeleteCurlRequest(c echo.Context) error {
 
 	err = cc.Service.DeleteCurlRequest(uint(id))
 	if err != nil {
-		return err // Let the global error handler deal with it
+		return err
 	}
 
 	return c.JSON(http.StatusOK, map[string]string{"message": "CurlRequest deleted successfully"})
