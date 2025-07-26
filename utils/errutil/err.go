@@ -3,8 +3,8 @@ package errutil
 import (
 	"NotificationManagement/logger"
 	"NotificationManagement/types"
-	"NotificationManagement/utils"
 	"errors"
+	"time"
 )
 
 // ErrorCode represents different types of errors with their codes
@@ -60,7 +60,7 @@ func CreateErrorResponse(errCode ErrorCode, actualError error) types.ErrorRespon
 		Message:    errCode.Message,
 		Error:      actualError.Error(),
 		StatusCode: errCode.Status,
-		Timestamp:  utils.GetCurrentTime(),
+		Timestamp:  GetCurrentTime(),
 		ErrorCode:  errCode.Code,
 	}
 }
@@ -71,7 +71,7 @@ func CreateErrorResponseWithMessage(errCode ErrorCode, actualError error, custom
 		Message:    customMessage,
 		Error:      actualError.Error(),
 		StatusCode: errCode.Status,
-		Timestamp:  utils.GetCurrentTime(),
+		Timestamp:  GetCurrentTime(),
 		ErrorCode:  errCode.Code,
 	}
 }
@@ -84,11 +84,16 @@ func AppErrorToErrorResponse(appErr error) types.ErrorResponse {
 			Message:    appError.Message,
 			Error:      appError.Err.Error(),
 			StatusCode: appError.Code.Status,
-			Timestamp:  utils.GetCurrentTime(),
+			Timestamp:  GetCurrentTime(),
 			ErrorCode:  appError.Code.Code,
 		}
 	}
 
 	// If it's not an AppError, treat it as internal server error
 	return CreateErrorResponse(ErrInternalServer, appErr)
+}
+
+// GetCurrentTime returns the current time for error responses
+func GetCurrentTime() time.Time {
+	return time.Now()
 }

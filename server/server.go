@@ -2,11 +2,12 @@ package server
 
 import (
 	"NotificationManagement/controllers"
+	"NotificationManagement/domain"
 	"NotificationManagement/logger"
-	"NotificationManagement/middleware"
 	"NotificationManagement/repositories"
 	"NotificationManagement/routes"
 	"NotificationManagement/services"
+	"NotificationManagement/utils/errutil"
 
 	"github.com/labstack/echo/v4"
 	"go.uber.org/fx"
@@ -15,12 +16,14 @@ import (
 func NewEcho() *echo.Echo {
 	e := echo.New()
 	e.Use(interceptLogger)
-	e.Use(middleware.ErrorHandler())
+	e.Use(errutil.ErrorHandler())
 	return e
 }
 
-func RegisterRoutes(e *echo.Echo, curlController *controllers.CurlController) {
+func RegisterRoutes(e *echo.Echo, curlController domain.CurlController, llmController domain.LLMController, reminderController domain.ReminderController) {
 	routes.RegisterCurlRoutes(e, curlController)
+	routes.RegisterLLMRoutes(e, llmController)
+	routes.RegisterReminderRoutes(e, reminderController)
 }
 
 func interceptLogger(next echo.HandlerFunc) echo.HandlerFunc {
@@ -40,9 +43,15 @@ func interceptLogger(next echo.HandlerFunc) echo.HandlerFunc {
 var Module = fx.Options(
 	fx.Provide(
 		NewEcho,
-		services.NewCurlServiceImpl,
+		services.NewCurlService,
 		controllers.NewCurlController,
 		repositories.NewCurlRequestRepository,
+		services.NewLLMService,
+		controllers.NewLLMController,
+		repositories.NewLLMRepository,
+		services.NewReminderService,
+		controllers.NewReminderController,
+		repositories.NewReminderRepository,
 	),
 	fx.Invoke(RegisterRoutes),
 )

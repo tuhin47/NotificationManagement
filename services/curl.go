@@ -20,7 +20,7 @@ type CurlServiceImpl struct {
 	Repo domain.CurlRequestRepository
 }
 
-func NewCurlServiceImpl(repo domain.CurlRequestRepository) domain.CurlService {
+func NewCurlService(repo domain.CurlRequestRepository) domain.CurlService {
 	return &CurlServiceImpl{Repo: repo}
 }
 
@@ -161,7 +161,7 @@ func (s *CurlServiceImpl) UpdateCurlRequest(id uint, req types.CurlRequest) (*mo
 	// First check if the record exists
 	existing, err := s.Repo.GetByID(context.Background(), id)
 	if err != nil {
-		return nil, errutil.NewAppError(errutil.ErrRecordNotFound, err)
+		return nil, err
 	}
 
 	// Convert the request to model
@@ -180,22 +180,17 @@ func (s *CurlServiceImpl) UpdateCurlRequest(id uint, req types.CurlRequest) (*mo
 	// Save the updated record
 	err = s.Repo.Update(context.Background(), existing)
 	if err != nil {
-		return nil, errutil.NewAppError(errutil.ErrDatabaseQuery, err)
+		return nil, err
 	}
 
 	return existing, nil
 }
 
 func (s *CurlServiceImpl) DeleteCurlRequest(id uint) error {
-	// First check if the record exists
-	_, err := s.Repo.GetByID(context.Background(), id)
+
+	err := s.Repo.Delete(context.Background(), id)
 	if err != nil {
 		return err
-	}
-
-	err = s.Repo.Delete(context.Background(), id)
-	if err != nil {
-		return errutil.NewAppError(errutil.ErrDatabaseQuery, err)
 	}
 
 	return nil

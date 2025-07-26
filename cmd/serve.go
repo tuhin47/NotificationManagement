@@ -3,21 +3,20 @@ package cmd
 import (
 	"NotificationManagement/config"
 	"NotificationManagement/logger"
+	"NotificationManagement/models"
 	"NotificationManagement/server"
+	"context"
 	"errors"
 	"fmt"
-	"net/http"
-	"os"
-
-	"context"
-	"time"
-
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	gormlogger "gorm.io/gorm/logger"
+	"net/http"
+	"os"
+	"time"
 )
 
 var serveCmd = &cobra.Command{
@@ -74,6 +73,15 @@ func NewDB() (*gorm.DB, error) {
 	})
 	if err != nil {
 		logger.Fatal("Failed to connect to database", "error", err)
+		return nil, err
+	}
+	// Auto-migrate all models
+	if err := db.AutoMigrate(
+		&models.CurlRequest{},
+		&models.Reminder{},
+		&models.UserLLM{},
+	); err != nil {
+		logger.Fatal("Failed to auto-migrate database schema", "error", err)
 		return nil, err
 	}
 	return db, nil

@@ -1,9 +1,7 @@
-package middleware
+package errutil
 
 import (
 	"NotificationManagement/types"
-	"NotificationManagement/utils"
-	"NotificationManagement/utils/errutil"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -28,9 +26,9 @@ func ErrorHandler() echo.MiddlewareFunc {
 func handleError(c echo.Context, err error) error {
 
 	// Check if it's an AppError
-	var appError *errutil.AppError
+	var appError *AppError
 	if errors.As(err, &appError) {
-		errResp := errutil.AppErrorToErrorResponse(appError)
+		errResp := AppErrorToErrorResponse(appError)
 		return c.JSON(errResp.StatusCode, errResp)
 	}
 
@@ -41,7 +39,7 @@ func handleError(c echo.Context, err error) error {
 			Message:    businessError.Message,
 			Error:      err.Error(),
 			StatusCode: 400,
-			Timestamp:  utils.GetCurrentTime(),
+			Timestamp:  GetCurrentTime(),
 			ErrorCode:  businessError.Code,
 		}
 		return c.JSON(400, errResp)
@@ -53,14 +51,14 @@ func handleError(c echo.Context, err error) error {
 			Message:    getErrorMessage(err),
 			Error:      err.Error(),
 			StatusCode: httpError.Code,
-			Timestamp:  utils.GetCurrentTime(),
+			Timestamp:  GetCurrentTime(),
 			ErrorCode:  "HTTP_ERROR",
 		}
 		return c.JSON(httpError.Code, errResp)
 	}
 
 	// Default to internal server error
-	errResp := errutil.CreateErrorResponse(errutil.ErrInternalServer, err)
+	errResp := CreateErrorResponse(ErrInternalServer, err)
 	return c.JSON(http.StatusInternalServerError, errResp)
 }
 

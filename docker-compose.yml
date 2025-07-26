@@ -29,7 +29,7 @@ services:
       - POSTGRES_DB=notification_management
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./scripts/public:/docker-entrypoint-initdb.d/
     networks:
       - localstack-network
 

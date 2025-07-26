@@ -3,6 +3,7 @@ package domain
 import (
 	"NotificationManagement/models"
 	"NotificationManagement/types"
+	"github.com/labstack/echo/v4"
 )
 
 type CurlService interface {
@@ -14,4 +15,11 @@ type CurlService interface {
 
 type CurlRequestRepository interface {
 	Repository[models.CurlRequest, uint]
+}
+
+type CurlController interface {
+	CurlHandler(c echo.Context) error
+	GetCurlRequestByID(c echo.Context) error
+	UpdateCurlRequest(c echo.Context) error
+	DeleteCurlRequest(c echo.Context) error
 }

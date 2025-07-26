@@ -1,13 +1,12 @@
 package throw
 
 import (
-	"NotificationManagement/middleware"
 	"NotificationManagement/utils/errutil"
 )
 
 // BusinessError throws a business error that will be caught by the global error handler
 func BusinessError(code, message string) error {
-	return middleware.NewBusinessError(code, message)
+	return errutil.NewBusinessError(code, message)
 }
 
 // AppError throws an AppError that will be caught by the global error handler
