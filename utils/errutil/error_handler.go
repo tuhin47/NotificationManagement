@@ -1,7 +1,7 @@
-package middleware
+package errutil
 
 import (
-	"NotificationManagement/utils/errutil"
+	"NotificationManagement/types"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -26,33 +26,20 @@ func ErrorHandler() echo.MiddlewareFunc {
 func handleError(c echo.Context, err error) error {
 
 	// Check if it's an AppError
-	var appError *errutil.AppError
+	var appError *AppError
 	if errors.As(err, &appError) {
-		errResp := errutil.AppErrorToErrorResponse(appError)
+		errResp := AppErrorToErrorResponse(appError)
 		return c.JSON(errResp.StatusCode, errResp)
-	}
-
-	// Check if it's a ValidationError
-	var validationError *ValidationError
-	if errors.As(err, &validationError) {
-		errResp := errutil.ErrorResponse{
-			Message:    validationError.Message,
-			Error:      err.Error(),
-			StatusCode: 400,
-			Timestamp:  errutil.GetCurrentTime(),
-			ErrorCode:  "VALIDATION_ERROR",
-		}
-		return c.JSON(400, errResp)
 	}
 
 	// Check if it's a BusinessError
 	var businessError *BusinessError
 	if errors.As(err, &businessError) {
-		errResp := errutil.ErrorResponse{
+		errResp := types.ErrorResponse{
 			Message:    businessError.Message,
 			Error:      err.Error(),
 			StatusCode: 400,
-			Timestamp:  errutil.GetCurrentTime(),
+			Timestamp:  GetCurrentTime(),
 			ErrorCode:  businessError.Code,
 		}
 		return c.JSON(400, errResp)
@@ -60,18 +47,18 @@ func handleError(c echo.Context, err error) error {
 
 	// Check if it's an HTTPError (Echo's built-in error)
 	if httpError, ok := err.(*echo.HTTPError); ok {
-		errResp := errutil.ErrorResponse{
+		errResp := types.ErrorResponse{
 			Message:    getErrorMessage(err),
 			Error:      err.Error(),
 			StatusCode: httpError.Code,
-			Timestamp:  errutil.GetCurrentTime(),
+			Timestamp:  GetCurrentTime(),
 			ErrorCode:  "HTTP_ERROR",
 		}
 		return c.JSON(httpError.Code, errResp)
 	}
 
 	// Default to internal server error
-	errResp := errutil.CreateErrorResponse(errutil.ErrInternalServer, err)
+	errResp := CreateErrorResponse(ErrInternalServer, err)
 	return c.JSON(http.StatusInternalServerError, errResp)
 }
 
@@ -83,24 +70,6 @@ func getErrorMessage(err error) string {
 
 	return err.Error()
 
-}
-
-// ValidationError represents validation errors that can be thrown from controllers
-type ValidationError struct {
-	Field   string
-	Message string
-}
-
-func (e *ValidationError) Error() string {
-	return e.Message
-}
-
-// NewValidationError creates a new validation error
-func NewValidationError(field, message string) error {
-	return &ValidationError{
-		Field:   field,
-		Message: message,
-	}
 }
 
 // BusinessError represents business logic errors that can be thrown from services

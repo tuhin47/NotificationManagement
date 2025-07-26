@@ -55,10 +55,15 @@ func (r *SQLRepository[T]) Update(ctx context.Context, entity *T) error {
 
 func (r *SQLRepository[T]) Delete(ctx context.Context, id uint) error {
 	var entity T
-	err := r.db.WithContext(ctx).Delete(&entity, id).Error
+	res := r.db.WithContext(ctx).Delete(&entity, id)
+	err := res.Error
 	if err != nil {
 		return errutil.NewAppError(errutil.ErrDatabaseQuery, err)
 	}
+	if res.RowsAffected < 1 {
+		return errutil.NewAppError(errutil.ErrRecordNotFound, gorm.ErrRecordNotFound)
+	}
+
 	return nil
 }
 

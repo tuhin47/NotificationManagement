@@ -283,13 +283,3 @@ func DPanic(msg string, fields ...interface{}) {
 	}
 	L().DPanic(msg, zapFields...)
 }
-
-// allStrings returns true if all elements are strings.
-func allStrings(fields []interface{}) bool {
-	for _, f := range fields {
-		if _, ok := f.(string); !ok {
-			return false
-		}
-	}
-	return true
-}

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	aws "NotificationManagement/aws-config"
 	"NotificationManagement/config"
 	"NotificationManagement/logger"
 	"context"
@@ -19,7 +18,7 @@ var listRulesCmd = &cobra.Command{
 	Use:   "list-rules",
 	Short: "List all AWS Config rules",
 	Run: func(cmd *cobra.Command, args []string) {
-		client, err := aws.NewConfigClient()
+		client, err := config.NewConfigClient()
 		if err != nil {
 			logger.Error("Error creating AWS Config client", "error", err)
 			return
@@ -43,7 +42,7 @@ var checkStatusCmd = &cobra.Command{
 	Use:   "check-status",
 	Short: "Check AWS Config recorder status",
 	Run: func(cmd *cobra.Command, args []string) {
-		client, err := aws.NewConfigClient()
+		client, err := config.NewConfigClient()
 		if err != nil {
 			logger.Error("Error creating AWS Config client", "error", err)
 			return
@@ -77,7 +76,7 @@ var testConnectionCmd = &cobra.Command{
 			logger.Info("LocalStack Endpoint", "endpoint", config.AWS().Endpoint)
 		}
 
-		client, err := aws.NewConfigClient()
+		client, err := config.NewConfigClient()
 		if err != nil {
 			logger.Error("Error creating AWS Config client", "error", err)
 			return

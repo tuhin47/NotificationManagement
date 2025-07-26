@@ -1,18 +1,12 @@
 package throw
 
 import (
-	"NotificationManagement/middleware"
 	"NotificationManagement/utils/errutil"
 )
 
-// ValidationError throws a validation error that will be caught by the global error handler
-func ValidationError(field, message string) error {
-	return middleware.NewValidationError(field, message)
-}
-
 // BusinessError throws a business error that will be caught by the global error handler
 func BusinessError(code, message string) error {
-	return middleware.NewBusinessError(code, message)
+	return errutil.NewBusinessError(code, message)
 }
 
 // AppError throws an AppError that will be caught by the global error handler
