@@ -27,11 +27,11 @@ func (s *DeepseekModelServiceImpl) GetDeepseekModelByID(id uint) (*models.Deepse
 }
 
 func (s *DeepseekModelServiceImpl) GetAllDeepseekModels(limit, offset int) ([]models.DeepseekModel, error) {
-	models, err := s.Repo.GetAll(context.Background(), limit, offset)
+	m, err := s.Repo.GetAll(context.Background(), limit, offset)
 	if err != nil {
 		return nil, err
 	}
-	return models, nil
+	return m, nil
 }
 
 func (s *DeepseekModelServiceImpl) UpdateDeepseekModel(id uint, model *models.DeepseekModel) error {

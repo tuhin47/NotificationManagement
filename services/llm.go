@@ -44,6 +44,7 @@ func (s *LLMServiceImpl) UpdateLLM(id uint, llm *models.UserLLM) error {
 	// Update the existing record with new data
 	existing.RequestID = llm.RequestID
 	existing.IsActive = llm.IsActive
+	existing.AiModelID = llm.AiModelID
 
 	// Save the updated record
 	err = s.Repo.Update(context.Background(), existing)

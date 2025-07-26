@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS public.reminders
     message           text NOT NULL,
     triggered_time    timestamp with time zone,
     next_trigger_time timestamp with time zone,
+    occurrence        bigint DEFAULT 0,
     recurrence        varchar(50)
         CONSTRAINT chk_reminders_recurrence
             CHECK ((recurrence)::text = ANY

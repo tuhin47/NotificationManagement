@@ -4,7 +4,7 @@ import (
 	"NotificationManagement/utils/errutil"
 	"context"
 	"errors"
-
+	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"
 )
 
@@ -19,6 +19,11 @@ func NewSQLRepository[T any](db *gorm.DB) *SQLRepository[T] {
 func (r *SQLRepository[T]) Create(ctx context.Context, entity *T) error {
 	err := r.db.WithContext(ctx).Create(entity).Error
 	if err != nil {
+		var target *pgconn.PgError
+		//https://www.postgresql.org/docs/current/errcodes-appendix.html
+		if errors.As(err, &target) && target.Code == "23505" {
+			return errutil.NewAppErrorWithMessage(errutil.ErrDuplicateEntry, err, target.Detail)
+		}
 		return errutil.NewAppError(errutil.ErrDatabaseQuery, err)
 	}
 	return nil

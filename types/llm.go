@@ -35,7 +35,7 @@ func FromLLMModel(model *models.UserLLM) *LLMResponse {
 		RequestID: model.RequestID,
 		AIModelID: model.AiModelID,
 		IsActive:  model.IsActive,
-		CreatedAt: model.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
-		UpdatedAt: model.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		CreatedAt: model.CreatedAt.Format(ResponseDateFormat),
+		UpdatedAt: model.UpdatedAt.Format(ResponseDateFormat),
 	}
 }

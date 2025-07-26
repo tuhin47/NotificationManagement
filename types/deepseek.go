@@ -23,7 +23,11 @@ type DeepseekModelResponse struct {
 
 // ToModel converts a types.DeepseekModelRequest to a models.DeepseekModel
 func (dr *DeepseekModelRequest) ToModel() *models.DeepseekModel {
+	m := &models.AIModel{
+		Type: "local",
+	}
 	return &models.DeepseekModel{
+		AIModel:    *m,
 		Name:       dr.Name,
 		ModelName:  dr.ModelName,
 		ModifiedAt: dr.ModifiedAt,
@@ -31,7 +35,6 @@ func (dr *DeepseekModelRequest) ToModel() *models.DeepseekModel {
 	}
 }
 
-// FromDeepseekModel converts a models.DeepseekModel to a types.DeepseekModelResponse
 func FromDeepseekModel(model *models.DeepseekModel) *DeepseekModelResponse {
 	return &DeepseekModelResponse{
 		ID:         model.ID,
@@ -39,7 +42,7 @@ func FromDeepseekModel(model *models.DeepseekModel) *DeepseekModelResponse {
 		ModelName:  model.ModelName,
 		ModifiedAt: model.ModifiedAt,
 		Size:       model.Size,
-		CreatedAt:  model.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
-		UpdatedAt:  model.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		CreatedAt:  model.CreatedAt.Format(ResponseDateFormat),
+		UpdatedAt:  model.UpdatedAt.Format(ResponseDateFormat),
 	}
 }
