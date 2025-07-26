@@ -38,13 +38,13 @@ services:
     container_name: ollama
     ports:
       - "11434:11434"
-    environment:
-      - OLLAMA_MODELS
-    deploy:
-      resources:
-        limits:
-          memory: 2g
-          cpus: '0.5'
+#    environment:
+#      - OLLAMA_MODELS
+#    deploy:
+#      resources:
+#        limits:
+#          memory: 2g
+#          cpus: '0.5'
     networks:
       - localstack-network
 

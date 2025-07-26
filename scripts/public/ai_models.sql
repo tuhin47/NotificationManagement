@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS public.ai_models
             CHECK ((type)::text = ANY ((ARRAY ['local'::character varying, 'openai'::character varying, 'gemini'::character varying])::text[])),
     name        varchar(255) NOT NULL,
     model_name  varchar(255) NOT NULL,
-    modified_at varchar(50)  NOT NULL,
+    modified_at varchar(50),
     size        bigint       NOT NULL
 );
 

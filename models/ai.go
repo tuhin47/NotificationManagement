@@ -10,7 +10,7 @@ type AIModel struct {
 type DeepseekModel struct {
 	AIModel
 	Name       string `gorm:"size:255;not null" json:"name"`
-	ModelName  string `gorm:"size:255;not null;uniqueIndex" json:"model"`
+	ModelName  string `gorm:"size:255;not null;uniqueIndex;check:model_name <> ''" json:"model"`
 	ModifiedAt string `gorm:"size:50" json:"modified_at"`
 	Size       int64  `gorm:"not null" json:"size"`
 }
