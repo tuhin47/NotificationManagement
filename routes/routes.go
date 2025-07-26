@@ -28,3 +28,11 @@ func RegisterReminderRoutes(e *echo.Echo, reminderController domain.ReminderCont
 	e.PUT("/api/reminder/:id", reminderController.UpdateReminder)
 	e.DELETE("/api/reminder/:id", reminderController.DeleteReminder)
 }
+
+func RegisterDeepseekModelRoutes(e *echo.Echo, deepseekController domain.DeepseekModelController) {
+	e.POST("/api/deepseek-model", deepseekController.CreateDeepseekModel)
+	e.GET("/api/deepseek-model/:id", deepseekController.GetDeepseekModelByID)
+	e.GET("/api/deepseek-model", deepseekController.GetAllDeepseekModels)
+	e.PUT("/api/deepseek-model/:id", deepseekController.UpdateDeepseekModel)
+	e.DELETE("/api/deepseek-model/:id", deepseekController.DeleteDeepseekModel)
+}

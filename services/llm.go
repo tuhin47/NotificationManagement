@@ -43,8 +43,6 @@ func (s *LLMServiceImpl) UpdateLLM(id uint, llm *models.UserLLM) error {
 
 	// Update the existing record with new data
 	existing.RequestID = llm.RequestID
-	existing.ModelName = llm.ModelName
-	existing.Type = llm.Type
 	existing.IsActive = llm.IsActive
 
 	// Save the updated record
