@@ -5,7 +5,6 @@ import (
 	"NotificationManagement/types"
 	"NotificationManagement/utils"
 	"NotificationManagement/utils/errutil"
-	"NotificationManagement/utils/throw"
 	"net/http"
 	"strconv"
 
@@ -40,7 +39,7 @@ func (dc *DeepseekModelControllerImpl) GetDeepseekModelByID(c echo.Context) erro
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		return throw.AppError(errutil.ErrInvalidIdParam, err)
+		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
 	}
 
 	model, err := dc.Service.GetDeepseekModelByID(uint(id))
@@ -88,7 +87,7 @@ func (dc *DeepseekModelControllerImpl) UpdateDeepseekModel(c echo.Context) error
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		return throw.AppError(errutil.ErrInvalidIdParam, err)
+		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
 	}
 
 	var req types.DeepseekModelRequest
@@ -116,7 +115,7 @@ func (dc *DeepseekModelControllerImpl) DeleteDeepseekModel(c echo.Context) error
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		return throw.AppError(errutil.ErrInvalidIdParam, err)
+		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
 	}
 
 	err = dc.Service.DeleteDeepseekModel(uint(id))

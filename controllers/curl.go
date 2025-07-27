@@ -8,8 +8,6 @@ import (
 
 	"NotificationManagement/domain"
 	"NotificationManagement/types"
-	"NotificationManagement/utils/throw"
-
 	"github.com/labstack/echo/v4"
 )
 
@@ -26,18 +24,22 @@ func (cc *CurlControllerImpl) CurlHandler(c echo.Context) error {
 	if err := utils.BindAndValidate(c, &req); err != nil {
 		return err
 	}
-	resp, err := cc.Service.ExecuteCurl(req)
+	curl, err := cc.Service.SaveCurlRequest(&req)
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, resp)
+	resp, err := cc.Service.ExecuteCurl(curl)
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusOK, *resp)
 }
 
 func (cc *CurlControllerImpl) GetCurlRequestByID(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		return throw.AppError(errutil.ErrInvalidIdParam, err)
+		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
 	}
 
 	curlRequest, err := cc.Service.GetCurlRequestByID(uint(id))
@@ -52,7 +54,7 @@ func (cc *CurlControllerImpl) UpdateCurlRequest(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		return throw.AppError(errutil.ErrInvalidIdParam, err)
+		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
 	}
 
 	var req types.CurlRequest
@@ -60,7 +62,7 @@ func (cc *CurlControllerImpl) UpdateCurlRequest(c echo.Context) error {
 		return err
 	}
 
-	updatedRequest, err := cc.Service.UpdateCurlRequest(uint(id), req)
+	updatedRequest, err := cc.Service.UpdateCurlRequest(uint(id), &req)
 	if err != nil {
 		return err
 	}
@@ -72,7 +74,7 @@ func (cc *CurlControllerImpl) DeleteCurlRequest(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		return throw.AppError(errutil.ErrInvalidIdParam, err)
+		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
 	}
 
 	err = cc.Service.DeleteCurlRequest(uint(id))

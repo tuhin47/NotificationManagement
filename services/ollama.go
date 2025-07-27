@@ -13,28 +13,40 @@ import (
 )
 
 type OllamaServiceImpl struct {
-	Repo domain.DeepseekModelRepository
+	Repo        domain.DeepseekModelRepository
+	CurlService domain.CurlService
 }
 
-func NewOllamaService(repo domain.DeepseekModelRepository) domain.OllamaService {
-	return &OllamaServiceImpl{Repo: repo}
+func NewOllamaService(repo domain.DeepseekModelRepository, curlService domain.CurlService) domain.OllamaService {
+	return &OllamaServiceImpl{Repo: repo, CurlService: curlService}
 }
 
-func (s *OllamaServiceImpl) MakeAIRequest(request models.DeepseekModel, response types.CurlResponse) (types.OllamaResponse, error) {
+func (s *OllamaServiceImpl) MakeAIRequest(mod *models.DeepseekModel, requestId uint) (*types.OllamaResponse, error) {
 
-	// Make HTTP request to Ollama
-	respBody, err := deepseekCall(request, response)
+	// Get the CurlRequest by ID
+	curlRequest, err := s.CurlService.GetCurlRequestByID(requestId)
 	if err != nil {
-		return types.OllamaResponse{}, errutil.NewAppError(errutil.ErrExternalServiceError, err)
+		return nil, errutil.NewAppError(errutil.ErrRecordNotFound, err)
+	}
+
+	curlResponse, err := s.CurlService.ExecuteCurl(curlRequest)
+
+	if err != nil {
+		return nil, err
+	}
+	// Make HTTP request to Ollama
+	respBody, err := deepseekCall(mod, curlResponse)
+	if err != nil {
+		return nil, errutil.NewAppError(errutil.ErrExternalServiceError, err)
 	}
 
 	// Parse the response
 	var ollamaResp types.OllamaResponse
 	if err := json.Unmarshal(respBody, &ollamaResp); err != nil {
-		return types.OllamaResponse{}, errutil.NewAppError(errutil.ErrExternalServiceError, err)
+		return nil, errutil.NewAppError(errutil.ErrExternalServiceError, err)
 	}
 
-	return ollamaResp, nil
+	return &ollamaResp, nil
 }
 
 func (s *OllamaServiceImpl) PullModel(model models.DeepseekModel) error {
@@ -42,7 +54,7 @@ func (s *OllamaServiceImpl) PullModel(model models.DeepseekModel) error {
 	return fmt.Errorf("PullModel not implemented yet")
 }
 
-func deepseekCall(model models.DeepseekModel, response types.CurlResponse) ([]byte, error) {
+func deepseekCall(model *models.DeepseekModel, response *types.CurlResponse) ([]byte, error) {
 	// Build assistant content from CurlResponse.Body
 	var assistantContent string
 	if response.ErrMessage == "" && response.Body != nil {
@@ -55,6 +67,20 @@ func deepseekCall(model models.DeepseekModel, response types.CurlResponse) ([]by
 		assistantContent = "No content available"
 	}
 
+	properties := &map[string]types.OllamaFormatProperty{
+		"IsCorrect": {
+			Type:        "boolean",
+			Description: "This holds the true or false value for the Statement",
+		},
+		"Rate": {
+			Type:        "number",
+			Description: "Rate from Json",
+		},
+		"TargetRate": {
+			Type:        "number",
+			Description: "Targeted Rate",
+		},
+	}
 	ollamaReq := types.OllamaRequest{
 		Model: model.ModelName,
 		Messages: []*types.OllamaMessage{
@@ -69,22 +95,9 @@ func deepseekCall(model models.DeepseekModel, response types.CurlResponse) ([]by
 		},
 		Stream: false,
 		Format: &types.OllamaFormat{
-			Type: "object",
-			Properties: map[string]types.OllamaFormatProperty{
-				"IsCorrect": {
-					Type:        "boolean",
-					Description: "This holds the true or false value for the Statement",
-				},
-				"Rate": {
-					Type:        "number",
-					Description: "Rate from Json",
-				},
-				"TargetRate": {
-					Type:        "number",
-					Description: "Targeted Rate",
-				},
-			},
-			Required: []string{"IsCorrect", "Rate", "TargetRate"},
+			Type:       "object",
+			Properties: *properties,
+			Required:   []string{"IsCorrect", "Rate", "TargetRate"},
 		},
 		Options: &types.OllamaOptions{
 			Temperature: 0.5,

@@ -3,16 +3,15 @@ package domain
 import (
 	"NotificationManagement/models"
 	"NotificationManagement/types"
-
 	"github.com/labstack/echo/v4"
 )
 
 type AIService[T any, Y any] interface {
-	MakeAIRequest(request T, response types.CurlResponse) (Y, error)
+	MakeAIRequest(mod T, requestId uint) (Y, error)
 }
 
 type OllamaService interface {
-	AIService[models.DeepseekModel, types.OllamaResponse]
+	AIService[*models.DeepseekModel, *types.OllamaResponse]
 	PullModel(model models.DeepseekModel) error
 }
 

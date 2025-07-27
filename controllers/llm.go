@@ -5,7 +5,6 @@ import (
 	"NotificationManagement/types"
 	"NotificationManagement/utils"
 	"NotificationManagement/utils/errutil"
-	"NotificationManagement/utils/throw"
 	"net/http"
 	"strconv"
 
@@ -40,7 +39,7 @@ func (lc *LLMControllerImpl) GetLLMByID(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		return throw.AppError(errutil.ErrInvalidIdParam, err)
+		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
 	}
 
 	llm, err := lc.Service.GetLLMByID(uint(id))
@@ -88,7 +87,7 @@ func (lc *LLMControllerImpl) UpdateLLM(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		return throw.AppError(errutil.ErrInvalidIdParam, err)
+		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
 	}
 
 	var req types.LLMRequest
@@ -116,7 +115,7 @@ func (lc *LLMControllerImpl) DeleteLLM(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		return throw.AppError(errutil.ErrInvalidIdParam, err)
+		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
 	}
 
 	err = lc.Service.DeleteLLM(uint(id))

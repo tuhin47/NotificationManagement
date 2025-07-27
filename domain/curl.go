@@ -3,13 +3,15 @@ package domain
 import (
 	"NotificationManagement/models"
 	"NotificationManagement/types"
+
 	"github.com/labstack/echo/v4"
 )
 
 type CurlService interface {
-	ExecuteCurl(req types.CurlRequest) (types.CurlResponse, error)
+	SaveCurlRequest(req *types.CurlRequest) (*models.CurlRequest, error)
+	ExecuteCurl(req *models.CurlRequest) (*types.CurlResponse, error)
 	GetCurlRequestByID(id uint) (*models.CurlRequest, error)
-	UpdateCurlRequest(id uint, req types.CurlRequest) (*models.CurlRequest, error)
+	UpdateCurlRequest(id uint, req *types.CurlRequest) (*models.CurlRequest, error)
 	DeleteCurlRequest(id uint) error
 }
 
