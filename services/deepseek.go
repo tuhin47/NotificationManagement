@@ -42,6 +42,7 @@ func (s *DeepseekModelServiceImpl) UpdateDeepseekModel(id uint, model *models.De
 
 	existing.Name = model.Name
 	existing.ModelName = model.ModelName
+	existing.BaseURL = model.BaseURL
 	existing.ModifiedAt = model.ModifiedAt
 	existing.Size = model.Size
 

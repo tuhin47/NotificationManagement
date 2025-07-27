@@ -20,6 +20,7 @@ curl -X POST ${base_url}/api/deepseek-model \
   -d '{
     "name": "deepseek-r1:1.5b",
     "model": "deepseek-r1:1.5b",
+    "base_url": "http://localhost:11434",
     "modified_at": "2025-07-20T07:44:29.156565162Z",
     "size": 1117322768
   }'
@@ -32,6 +33,7 @@ curl -X POST ${base_url}/api/deepseek-model \
   "id": 1,
   "name": "deepseek-r1:1.5b",
   "model": "deepseek-r1:1.5b",
+  "base_url": "http://localhost:11434",
   "modified_at": "2025-07-20T07:44:29.156565162Z",
   "size": 1117322768,
   "created_at": "2025-07-26T22:17:40+06:00",
@@ -56,6 +58,7 @@ curl ${base_url}/api/deepseek-model/1
   "id": 1,
   "name": "deepseek-r1:1.5b",
   "model": "deepseek-r1:1.5b",
+  "base_url": "http://localhost:11434",
   "modified_at": "2025-07-20T07:44:29.156565162Z",
   "size": 1117322768,
   "created_at": "2025-07-20T08:00:00Z",
@@ -81,6 +84,7 @@ curl "${base_url}/api/deepseek-model?limit=10&offset=0"
     "id": 1,
     "name": "deepseek-r1:1.5b",
     "model": "deepseek-r1:1.5b",
+    "base_url": "http://localhost:11434",
     "modified_at": "2025-07-20T07:44:29.156565162Z",
     "size": 1117322768,
     "created_at": "2025-07-20T08:00:00Z",
@@ -101,6 +105,7 @@ curl -X PUT ${base_url}/api/deepseek-model/1 \
   -d '{
     "name": "deepseek-r1:1.5b-v2",
     "model": "deepseek-r1:1.5b-v2",
+    "base_url": "http://localhost:11435",
     "modified_at": "2025-08-01T10:00:00.000000000Z",
     "size": 1200000000
   }'
@@ -113,6 +118,7 @@ curl -X PUT ${base_url}/api/deepseek-model/1 \
   "id": 1,
   "name": "deepseek-r1:1.5b-v2",
   "model": "deepseek-r1:1.5b-v2",
+  "base_url": "http://localhost:11435",
   "modified_at": "2025-08-01T10:00:00.000000000Z",
   "size": 1200000000,
   "created_at": "2025-07-20T08:00:00Z",

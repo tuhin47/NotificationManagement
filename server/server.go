@@ -20,11 +20,12 @@ func NewEcho() *echo.Echo {
 	return e
 }
 
-func RegisterRoutes(e *echo.Echo, curlController domain.CurlController, llmController domain.LLMController, reminderController domain.ReminderController, deepseekController domain.DeepseekModelController) {
+func RegisterRoutes(e *echo.Echo, curlController domain.CurlController, llmController domain.LLMController, reminderController domain.ReminderController, deepseekController domain.DeepseekModelController, aiController domain.AIController) {
 	routes.RegisterCurlRoutes(e, curlController)
 	routes.RegisterLLMRoutes(e, llmController)
 	routes.RegisterReminderRoutes(e, reminderController)
 	routes.RegisterDeepseekModelRoutes(e, deepseekController)
+	routes.RegisterAIRoutes(e, aiController)
 }
 
 func interceptLogger(next echo.HandlerFunc) echo.HandlerFunc {
@@ -48,6 +49,7 @@ var Module = fx.Options(
 		controllers.NewDeepseekModelController,
 		controllers.NewLLMController,
 		controllers.NewReminderController,
+		controllers.NewAIController,
 
 		repositories.NewCurlRequestRepository,
 		repositories.NewDeepseekModelRepository,
@@ -58,6 +60,7 @@ var Module = fx.Options(
 		services.NewDeepseekModelService,
 		services.NewReminderService,
 		services.NewCurlService,
+		services.NewOllamaService,
 	),
 	fx.Invoke(RegisterRoutes),
 )

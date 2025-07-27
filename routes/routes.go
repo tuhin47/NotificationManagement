@@ -36,3 +36,7 @@ func RegisterDeepseekModelRoutes(e *echo.Echo, deepseekController domain.Deepsee
 	e.PUT("/api/deepseek-model/:id", deepseekController.UpdateDeepseekModel)
 	e.DELETE("/api/deepseek-model/:id", deepseekController.DeleteDeepseekModel)
 }
+
+func RegisterAIRoutes(e *echo.Echo, aiController domain.AIController) {
+	e.POST("/api/ai/make-request", aiController.MakeAIRequestHandler)
+}
