@@ -13,6 +13,7 @@ import (
 	"NotificationManagement/logger"
 	"NotificationManagement/models"
 	"NotificationManagement/types"
+	"NotificationManagement/utils"
 	"NotificationManagement/utils/errutil"
 )
 
@@ -174,7 +175,7 @@ func (s *CurlServiceImpl) ExecuteCurl(req *models.CurlRequest) (*types.CurlRespo
 }
 
 func (s *CurlServiceImpl) GetCurlRequestByID(id uint) (*models.CurlRequest, error) {
-	curlRequest, err := s.Repo.GetByID(context.Background(), id)
+	curlRequest, err := s.Repo.GetByID(context.Background(), id, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +184,8 @@ func (s *CurlServiceImpl) GetCurlRequestByID(id uint) (*models.CurlRequest, erro
 
 func (s *CurlServiceImpl) UpdateCurlRequest(id uint, req *types.CurlRequest) (*models.CurlRequest, error) {
 	// First check if the record exists
-	existing, err := s.Repo.GetByID(context.Background(), id)
+	ctx := context.Background()
+	existing, err := s.Repo.GetByID(ctx, id, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -200,11 +202,23 @@ func (s *CurlServiceImpl) UpdateCurlRequest(id uint, req *types.CurlRequest) (*m
 	existing.Headers = modelReq.Headers
 	existing.Body = modelReq.Body
 	existing.RawCurl = modelReq.RawCurl
-
-	// Save the updated record
-	err = s.Repo.Update(context.Background(), existing)
+	updatedAssoc, err := utils.SyncHasManyAssociation(s.Repo.GetDB(ctx), &existing, "OllamaFormatProperties", modelReq.OllamaFormatProperties)
 	if err != nil {
 		return nil, err
+	}
+
+	// Save the updated record
+	err = s.Repo.Update(ctx, existing)
+	if err != nil {
+		return nil, err
+	}
+	if updatedAssoc != nil {
+		// Handle pointer to slice assignment
+		if props, ok := updatedAssoc.(*[]models.OllamaFormatProperty); ok {
+			existing.OllamaFormatProperties = props
+		} else if propsVal, ok := updatedAssoc.([]models.OllamaFormatProperty); ok {
+			existing.OllamaFormatProperties = &propsVal
+		}
 	}
 
 	return existing, nil

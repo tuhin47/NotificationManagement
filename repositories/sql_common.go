@@ -15,6 +15,9 @@ type SQLRepository[T any] struct {
 func NewSQLRepository[T any](db *gorm.DB) *SQLRepository[T] {
 	return &SQLRepository[T]{db: db}
 }
+func (r *SQLRepository[T]) GetDB(ctx context.Context) *gorm.DB {
+	return r.db
+}
 
 func (r *SQLRepository[T]) Create(ctx context.Context, entity *T) error {
 	err := r.db.WithContext(ctx).Create(entity).Error
@@ -41,9 +44,15 @@ func handleDbError(err error) error {
 	return errutil.NewAppError(errutil.ErrDatabaseQuery, err)
 }
 
-func (r *SQLRepository[T]) GetByID(ctx context.Context, id uint) (*T, error) {
+func (r *SQLRepository[T]) GetByID(ctx context.Context, id uint, preloads *[]string) (*T, error) {
 	var entity T
-	err := r.db.WithContext(ctx).First(&entity, id).Error
+	dbContext := r.db.WithContext(ctx)
+	if preloads != nil {
+		for _, it := range *preloads {
+			dbContext = dbContext.Preload(it)
+		}
+	}
+	err := dbContext.First(&entity, id).Error
 	if err != nil {
 		return nil, handleDbError(err)
 	}

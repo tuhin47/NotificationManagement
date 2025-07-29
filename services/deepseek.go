@@ -19,7 +19,7 @@ func (s *DeepseekModelServiceImpl) CreateDeepseekModel(model *models.DeepseekMod
 }
 
 func (s *DeepseekModelServiceImpl) GetDeepseekModelByID(id uint) (*models.DeepseekModel, error) {
-	model, err := s.Repo.GetByID(context.Background(), id)
+	model, err := s.Repo.GetByID(context.Background(), id, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +35,7 @@ func (s *DeepseekModelServiceImpl) GetAllDeepseekModels(limit, offset int) ([]mo
 }
 
 func (s *DeepseekModelServiceImpl) UpdateDeepseekModel(id uint, model *models.DeepseekModel) error {
-	existing, err := s.Repo.GetByID(context.Background(), id)
+	existing, err := s.Repo.GetByID(context.Background(), id, nil)
 	if err != nil {
 		return err
 	}

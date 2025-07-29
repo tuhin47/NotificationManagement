@@ -19,7 +19,7 @@ func (s *ReminderServiceImpl) CreateReminder(reminder *models.Reminder) error {
 }
 
 func (s *ReminderServiceImpl) GetReminderByID(id uint) (*models.Reminder, error) {
-	reminder, err := s.Repo.GetByID(context.Background(), id)
+	reminder, err := s.Repo.GetByID(context.Background(), id, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func (s *ReminderServiceImpl) GetAllReminders(limit, offset int) ([]models.Remin
 
 func (s *ReminderServiceImpl) UpdateReminder(id uint, reminder *models.Reminder) error {
 	// First check if the record exists
-	existing, err := s.Repo.GetByID(context.Background(), id)
+	existing, err := s.Repo.GetByID(context.Background(), id, nil)
 	if err != nil {
 		return err
 	}

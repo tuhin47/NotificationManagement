@@ -20,3 +20,6 @@ CREATE INDEX IF NOT EXISTS idx_user_llms_request_id
 CREATE INDEX IF NOT EXISTS idx_user_llms_deleted_at
     ON public.user_llms (deleted_at);
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_request_ai_model
+    ON public.user_llms (request_id, ai_model_id);
+

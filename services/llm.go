@@ -19,7 +19,7 @@ func (s *LLMServiceImpl) CreateLLM(llm *models.UserLLM) error {
 }
 
 func (s *LLMServiceImpl) GetLLMByID(id uint) (*models.UserLLM, error) {
-	llm, err := s.Repo.GetByID(context.Background(), id)
+	llm, err := s.Repo.GetByID(context.Background(), id, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func (s *LLMServiceImpl) GetAllLLMs(limit, offset int) ([]models.UserLLM, error)
 
 func (s *LLMServiceImpl) UpdateLLM(id uint, llm *models.UserLLM) error {
 	// First check if the record exists
-	existing, err := s.Repo.GetByID(context.Background(), id)
+	existing, err := s.Repo.GetByID(context.Background(), id, nil)
 	if err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ func (s *LLMServiceImpl) UpdateLLM(id uint, llm *models.UserLLM) error {
 
 func (s *LLMServiceImpl) DeleteLLM(id uint) error {
 	// First check if the record exists
-	_, err := s.Repo.GetByID(context.Background(), id)
+	_, err := s.Repo.GetByID(context.Background(), id, nil)
 	if err != nil {
 		return err
 	}

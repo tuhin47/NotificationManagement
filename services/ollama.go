@@ -72,14 +72,6 @@ func deepseekCall(model *models.DeepseekModel, response *types.CurlResponse) ([]
 			Type:        "boolean",
 			Description: "This holds the true or false value for the Statement",
 		},
-		"Rate": {
-			Type:        "number",
-			Description: "Rate from Json",
-		},
-		"TargetRate": {
-			Type:        "number",
-			Description: "Targeted Rate",
-		},
 	}
 	ollamaReq := types.OllamaRequest{
 		Model: model.ModelName,
