@@ -19,6 +19,7 @@ type Config struct {
 	Email    EmailConfig    `mapstructure:"email"`
 	AWS      AWSConfig      `mapstructure:"aws"`
 	Logger   LoggerConfig   `mapstructure:"logger"`
+	Keycloak KeycloakConfig `mapstructure:"keycloak"`
 }
 
 type AppConfig struct {
@@ -59,6 +60,13 @@ type AWSConfig struct {
 	Endpoint        string              `mapstructure:"endpoint"`
 	UseLocalStack   bool                `mapstructure:"use_localstack"`
 	ConfigService   ConfigServiceConfig `mapstructure:"config_service"`
+}
+
+type KeycloakConfig struct {
+	ServerURL    string `json:"server_url"`
+	Realm        string `json:"realm"`
+	ClientID     string `json:"client_id"`
+	ClientSecret string `json:"client_secret"`
 }
 
 type ConfigServiceConfig struct {
@@ -113,6 +121,12 @@ const (
 	EnvLogLevel    = "LOG_LEVEL"
 	EnvLogFilePath = "LOG_FILE_PATH"
 	EnvLogFormat   = "LOGGER_FORMAT"
+
+	// Keycloak environment variables
+	EnvKeycloakServerURL    = "KEYCLOAK_SERVER_URL"
+	EnvKeycloakRealm        = "KEYCLOAK_REALM"
+	EnvKeycloakClientID     = "KEYCLOAK_CLIENT_ID"
+	EnvKeycloakClientSecret = "KEYCLOAK_CLIENT_SECRET"
 )
 
 // LoadConfig loads configuration from file, environment variables, or SSM Parameter Store
@@ -224,6 +238,12 @@ func setDefaults() {
 	viper.SetDefault("logger.level", "info")
 	viper.SetDefault("logger.file_path", "logs/app.log")
 	viper.SetDefault("logger.format", "console")
+
+	// Keycloak defaults
+	viper.SetDefault("keycloak.server_url", "http://localhost:8081")
+	viper.SetDefault("keycloak.realm", "gocloak")
+	viper.SetDefault("keycloak.client_id", "gocloak")
+	viper.SetDefault("keycloak.client_secret", "gocloak-secret")
 }
 
 func loadFromEnv() {
@@ -266,6 +286,12 @@ func loadFromEnv() {
 	viper.BindEnv("logger.level", EnvLogLevel)
 	viper.BindEnv("logger.file_path", EnvLogFilePath)
 	viper.BindEnv("logger.format", EnvLogFormat)
+
+	// Keycloak environment variables
+	viper.BindEnv("keycloak.server_url", EnvKeycloakServerURL)
+	viper.BindEnv("keycloak.realm", EnvKeycloakRealm)
+	viper.BindEnv("keycloak.client_id", EnvKeycloakClientID)
+	viper.BindEnv("keycloak.client_secret", EnvKeycloakClientSecret)
 }
 
 // GetConfig returns the application configuration
@@ -301,6 +327,11 @@ func AWS() AWSConfig {
 // Logger returns the logger configuration
 func Logger() LoggerConfig {
 	return appConfig.Logger
+}
+
+// Keycloak returns the keycloak configuration
+func Keycloak() KeycloakConfig {
+	return appConfig.Keycloak
 }
 
 // GetDSN returns the database connection string

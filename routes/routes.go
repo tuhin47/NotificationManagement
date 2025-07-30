@@ -2,41 +2,52 @@ package routes
 
 import (
 	"NotificationManagement/domain"
+	"NotificationManagement/middleware"
 
 	"github.com/labstack/echo/v4"
 )
 
 func RegisterCurlRoutes(e *echo.Echo, curlController domain.CurlController) {
-	e.POST("/api/curl", curlController.CurlHandler)
-	e.GET("/api/curl/:id", curlController.GetCurlRequestByID)
-	e.PUT("/api/curl/:id", curlController.UpdateCurlRequest)
-	e.DELETE("/api/curl/:id", curlController.DeleteCurlRequest)
+	curlGroup := e.Group("/api/curl", middleware.KeycloakMiddleware())
+
+	curlGroup.POST("", curlController.CurlHandler, middleware.RequireRoles("curl_create"))
+	curlGroup.GET("/:id", curlController.GetCurlRequestByID, middleware.RequireRoles("curl_read"))
+	curlGroup.PUT("/:id", curlController.UpdateCurlRequest, middleware.RequireRoles("curl_update"))
+	curlGroup.DELETE("/:id", curlController.DeleteCurlRequest, middleware.RequireRoles("curl_delete"))
 }
 
 func RegisterLLMRoutes(e *echo.Echo, llmController domain.LLMController) {
-	e.POST("/api/llm", llmController.CreateLLM)
-	e.GET("/api/llm/:id", llmController.GetLLMByID)
-	e.GET("/api/llm", llmController.GetAllLLMs)
-	e.PUT("/api/llm/:id", llmController.UpdateLLM)
-	e.DELETE("/api/llm/:id", llmController.DeleteLLM)
+	llmGroup := e.Group("/api/llm", middleware.KeycloakMiddleware())
+
+	llmGroup.POST("", llmController.CreateLLM, middleware.RequireRoles("llm_create"))
+	llmGroup.GET("/:id", llmController.GetLLMByID, middleware.RequireRoles("llm_read"))
+	llmGroup.GET("", llmController.GetAllLLMs, middleware.RequireRoles("llm_read"))
+	llmGroup.PUT("/:id", llmController.UpdateLLM, middleware.RequireRoles("llm_update"))
+	llmGroup.DELETE("/:id", llmController.DeleteLLM, middleware.RequireRoles("llm_delete"))
 }
 
 func RegisterReminderRoutes(e *echo.Echo, reminderController domain.ReminderController) {
-	e.POST("/api/reminder", reminderController.CreateReminder)
-	e.GET("/api/reminder/:id", reminderController.GetReminderByID)
-	e.GET("/api/reminder", reminderController.GetAllReminders)
-	e.PUT("/api/reminder/:id", reminderController.UpdateReminder)
-	e.DELETE("/api/reminder/:id", reminderController.DeleteReminder)
+	reminderGroup := e.Group("/api/reminder", middleware.KeycloakMiddleware())
+
+	reminderGroup.POST("", reminderController.CreateReminder, middleware.RequireRoles("reminder_create"))
+	reminderGroup.GET("/:id", reminderController.GetReminderByID, middleware.RequireRoles("reminder_read"))
+	reminderGroup.GET("", reminderController.GetAllReminders, middleware.RequireRoles("reminder_read"))
+	reminderGroup.PUT("/:id", reminderController.UpdateReminder, middleware.RequireRoles("reminder_update"))
+	reminderGroup.DELETE("/:id", reminderController.DeleteReminder, middleware.RequireRoles("reminder_delete"))
 }
 
 func RegisterDeepseekModelRoutes(e *echo.Echo, deepseekController domain.DeepseekModelController) {
-	e.POST("/api/deepseek-model", deepseekController.CreateDeepseekModel)
-	e.GET("/api/deepseek-model/:id", deepseekController.GetDeepseekModelByID)
-	e.GET("/api/deepseek-model", deepseekController.GetAllDeepseekModels)
-	e.PUT("/api/deepseek-model/:id", deepseekController.UpdateDeepseekModel)
-	e.DELETE("/api/deepseek-model/:id", deepseekController.DeleteDeepseekModel)
+	deepseekGroup := e.Group("/api/deepseek-model", middleware.KeycloakMiddleware())
+
+	deepseekGroup.POST("", deepseekController.CreateDeepseekModel, middleware.RequireRoles("deepseek_create"))
+	deepseekGroup.GET("/:id", deepseekController.GetDeepseekModelByID, middleware.RequireRoles("deepseek_read"))
+	deepseekGroup.GET("", deepseekController.GetAllDeepseekModels, middleware.RequireRoles("deepseek_read"))
+	deepseekGroup.PUT("/:id", deepseekController.UpdateDeepseekModel, middleware.RequireRoles("deepseek_update"))
+	deepseekGroup.DELETE("/:id", deepseekController.DeleteDeepseekModel, middleware.RequireRoles("deepseek_delete"))
 }
 
 func RegisterAIRoutes(e *echo.Echo, aiController domain.AIController) {
-	e.POST("/api/ai/make-request", aiController.MakeAIRequestHandler)
+	aiGroup := e.Group("/api/ai", middleware.KeycloakMiddleware())
+
+	aiGroup.POST("/make-request", aiController.MakeAIRequestHandler, middleware.RequireRoles("ai_create"))
 }

@@ -36,6 +36,12 @@
       "enabled": true
     }
   },
+  "keycloak": {
+    "server_url": "http://localhost:8081",
+    "realm": "gocloak",
+    "client_id": "gocloak",
+    "client_secret": "gocloak-secret"
+  },
   "logger": {
     "level": "info",
     "file_path": "logs/app.log"

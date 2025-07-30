@@ -175,7 +175,7 @@ func (s *CurlServiceImpl) ExecuteCurl(req *models.CurlRequest) (*types.CurlRespo
 }
 
 func (s *CurlServiceImpl) GetCurlRequestByID(id uint) (*models.CurlRequest, error) {
-	curlRequest, err := s.Repo.GetByID(context.Background(), id, nil)
+	curlRequest, err := s.Repo.GetByID(context.Background(), id, &[]string{"OllamaFormatProperties"})
 	if err != nil {
 		return nil, err
 	}
