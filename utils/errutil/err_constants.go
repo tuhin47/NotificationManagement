@@ -10,6 +10,7 @@ var (
 	ErrNoAuthHeader          = errors.New("no authorization header provided")
 	ErrInvalidHeaderFormat   = errors.New("invalid authorization header format")
 	ErrInvalidTokenSignature = errors.New("invalid token signing method")
+	ErrInvalidTokenValue     = errors.New("invalid token value")
 	ErrNoCertificateFound    = errors.New("no valid certificate found")
 	ErrNoRoleInformation     = errors.New("no role information in context")
 	ErrInsufficientRoles     = errors.New("user does not have required roles")

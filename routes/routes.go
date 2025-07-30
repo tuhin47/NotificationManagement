@@ -3,6 +3,7 @@ package routes
 import (
 	"NotificationManagement/domain"
 	"NotificationManagement/middleware"
+	"NotificationManagement/utils"
 
 	"github.com/labstack/echo/v4"
 )
@@ -10,44 +11,44 @@ import (
 func RegisterCurlRoutes(e *echo.Echo, curlController domain.CurlController, keycloakMiddleware *echo.MiddlewareFunc) {
 	curlGroup := e.Group("/api/curl", *keycloakMiddleware)
 
-	curlGroup.POST("", curlController.CurlHandler, middleware.RequireRoles("curl_create"))
-	curlGroup.GET("/:id", curlController.GetCurlRequestByID, middleware.RequireRoles("curl_read"))
-	curlGroup.PUT("/:id", curlController.UpdateCurlRequest, middleware.RequireRoles("curl_update"))
-	curlGroup.DELETE("/:id", curlController.DeleteCurlRequest, middleware.RequireRoles("curl_delete"))
+	curlGroup.POST("", curlController.CurlHandler, middleware.RequireRoles(utils.RoleCurlCreate))
+	curlGroup.GET("/:id", curlController.GetCurlRequestByID, middleware.RequireRoles(utils.RoleCurlRead))
+	curlGroup.PUT("/:id", curlController.UpdateCurlRequest, middleware.RequireRoles(utils.RoleCurlUpdate))
+	curlGroup.DELETE("/:id", curlController.DeleteCurlRequest, middleware.RequireRoles(utils.RoleCurlDelete))
 }
 
 func RegisterLLMRoutes(e *echo.Echo, llmController domain.LLMController, keycloakMiddleware *echo.MiddlewareFunc) {
 	llmGroup := e.Group("/api/llm", *keycloakMiddleware)
 
-	llmGroup.POST("", llmController.CreateLLM, middleware.RequireRoles("llm_create"))
-	llmGroup.GET("/:id", llmController.GetLLMByID, middleware.RequireRoles("llm_read"))
-	llmGroup.GET("", llmController.GetAllLLMs, middleware.RequireRoles("llm_read"))
-	llmGroup.PUT("/:id", llmController.UpdateLLM, middleware.RequireRoles("llm_update"))
-	llmGroup.DELETE("/:id", llmController.DeleteLLM, middleware.RequireRoles("llm_delete"))
+	llmGroup.POST("", llmController.CreateLLM, middleware.RequireRoles(utils.RoleLLMCreate))
+	llmGroup.GET("/:id", llmController.GetLLMByID, middleware.RequireRoles(utils.RoleLLMRead))
+	llmGroup.GET("", llmController.GetAllLLMs, middleware.RequireRoles(utils.RoleLLMRead))
+	llmGroup.PUT("/:id", llmController.UpdateLLM, middleware.RequireRoles(utils.RoleLLMUpdate))
+	llmGroup.DELETE("/:id", llmController.DeleteLLM, middleware.RequireRoles(utils.RoleLLMDelete))
 }
 
 func RegisterReminderRoutes(e *echo.Echo, reminderController domain.ReminderController, keycloakMiddleware *echo.MiddlewareFunc) {
 	reminderGroup := e.Group("/api/reminder", *keycloakMiddleware)
 
-	reminderGroup.POST("", reminderController.CreateReminder, middleware.RequireRoles("reminder_create"))
-	reminderGroup.GET("/:id", reminderController.GetReminderByID, middleware.RequireRoles("reminder_read"))
-	reminderGroup.GET("", reminderController.GetAllReminders, middleware.RequireRoles("reminder_read"))
-	reminderGroup.PUT("/:id", reminderController.UpdateReminder, middleware.RequireRoles("reminder_update"))
-	reminderGroup.DELETE("/:id", reminderController.DeleteReminder, middleware.RequireRoles("reminder_delete"))
+	reminderGroup.POST("", reminderController.CreateReminder, middleware.RequireRoles(utils.RoleReminderCreate))
+	reminderGroup.GET("/:id", reminderController.GetReminderByID, middleware.RequireRoles(utils.RoleReminderRead))
+	reminderGroup.GET("", reminderController.GetAllReminders, middleware.RequireRoles(utils.RoleReminderRead))
+	reminderGroup.PUT("/:id", reminderController.UpdateReminder, middleware.RequireRoles(utils.RoleReminderUpdate))
+	reminderGroup.DELETE("/:id", reminderController.DeleteReminder, middleware.RequireRoles(utils.RoleReminderDelete))
 }
 
 func RegisterDeepseekModelRoutes(e *echo.Echo, deepseekController domain.DeepseekModelController, keycloakMiddleware *echo.MiddlewareFunc) {
 	deepseekGroup := e.Group("/api/deepseek-model", *keycloakMiddleware)
 
-	deepseekGroup.POST("", deepseekController.CreateDeepseekModel, middleware.RequireRoles("deepseek_create"))
-	deepseekGroup.GET("/:id", deepseekController.GetDeepseekModelByID, middleware.RequireRoles("deepseek_read"))
-	deepseekGroup.GET("", deepseekController.GetAllDeepseekModels, middleware.RequireRoles("deepseek_read"))
-	deepseekGroup.PUT("/:id", deepseekController.UpdateDeepseekModel, middleware.RequireRoles("deepseek_update"))
-	deepseekGroup.DELETE("/:id", deepseekController.DeleteDeepseekModel, middleware.RequireRoles("deepseek_delete"))
+	deepseekGroup.POST("", deepseekController.CreateDeepseekModel, middleware.RequireRoles(utils.RoleDeepseekCreate))
+	deepseekGroup.GET("/:id", deepseekController.GetDeepseekModelByID, middleware.RequireRoles(utils.RoleDeepseekRead))
+	deepseekGroup.GET("", deepseekController.GetAllDeepseekModels, middleware.RequireRoles(utils.RoleDeepseekRead))
+	deepseekGroup.PUT("/:id", deepseekController.UpdateDeepseekModel, middleware.RequireRoles(utils.RoleDeepseekUpdate))
+	deepseekGroup.DELETE("/:id", deepseekController.DeleteDeepseekModel, middleware.RequireRoles(utils.RoleDeepseekDelete))
 }
 
 func RegisterAIRoutes(e *echo.Echo, aiController domain.AIController, keycloakMiddleware *echo.MiddlewareFunc) {
 	aiGroup := e.Group("/api/ai", *keycloakMiddleware)
 
-	aiGroup.POST("/make-request", aiController.MakeAIRequestHandler, middleware.RequireRoles("ai_create"))
+	aiGroup.POST("/make-request", aiController.MakeAIRequestHandler, middleware.RequireRoles(utils.RoleAICreate))
 }

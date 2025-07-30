@@ -35,8 +35,11 @@ func KeycloakMiddleware() echo.MiddlewareFunc {
 
 			ctx := c.Request().Context()
 			result, err := client.RetrospectToken(ctx, token, keycloakCfg.ClientID, keycloakCfg.ClientSecret, keycloakCfg.Realm)
-			if err != nil || result == nil || !*result.Active {
+			if err != nil {
 				return errutil.NewAppError(errutil.ErrInvalidToken, err)
+			}
+			if result == nil || !*result.Active {
+				return errutil.NewAppError(errutil.ErrInvalidToken, errutil.ErrInvalidTokenValue)
 			}
 
 			// Parse the JWT token to extract roles
