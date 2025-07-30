@@ -4,6 +4,7 @@ import (
 	"NotificationManagement/controllers"
 	"NotificationManagement/domain"
 	"NotificationManagement/logger"
+	"NotificationManagement/middleware"
 	"NotificationManagement/repositories"
 	"NotificationManagement/routes"
 	"NotificationManagement/services"
@@ -20,10 +21,13 @@ func NewEcho() *echo.Echo {
 	return e
 }
 
-func RegisterRoutes(e *echo.Echo, curlController domain.CurlController, llmController domain.LLMController, reminderController domain.ReminderController) {
-	routes.RegisterCurlRoutes(e, curlController)
-	routes.RegisterLLMRoutes(e, llmController)
-	routes.RegisterReminderRoutes(e, reminderController)
+func RegisterRoutes(e *echo.Echo, curlController domain.CurlController, llmController domain.LLMController, reminderController domain.ReminderController, deepseekController domain.DeepseekModelController, aiController domain.AIController) {
+	keycloakMiddleware := middleware.KeycloakMiddleware()
+	routes.RegisterCurlRoutes(e, curlController, &keycloakMiddleware)
+	routes.RegisterLLMRoutes(e, llmController, &keycloakMiddleware)
+	routes.RegisterReminderRoutes(e, reminderController, &keycloakMiddleware)
+	routes.RegisterDeepseekModelRoutes(e, deepseekController, &keycloakMiddleware)
+	routes.RegisterAIRoutes(e, aiController, &keycloakMiddleware)
 }
 
 func interceptLogger(next echo.HandlerFunc) echo.HandlerFunc {
@@ -43,15 +47,22 @@ func interceptLogger(next echo.HandlerFunc) echo.HandlerFunc {
 var Module = fx.Options(
 	fx.Provide(
 		NewEcho,
-		services.NewCurlService,
 		controllers.NewCurlController,
-		repositories.NewCurlRequestRepository,
-		services.NewLLMService,
+		controllers.NewDeepseekModelController,
 		controllers.NewLLMController,
-		repositories.NewLLMRepository,
-		services.NewReminderService,
 		controllers.NewReminderController,
+		controllers.NewAIController,
+
+		repositories.NewCurlRequestRepository,
+		repositories.NewDeepseekModelRepository,
+		repositories.NewLLMRepository,
 		repositories.NewReminderRepository,
+
+		services.NewLLMService,
+		services.NewDeepseekModelService,
+		services.NewReminderService,
+		services.NewCurlService,
+		services.NewOllamaService,
 	),
 	fx.Invoke(RegisterRoutes),
 )

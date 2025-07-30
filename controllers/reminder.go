@@ -5,7 +5,6 @@ import (
 	"NotificationManagement/types"
 	"NotificationManagement/utils"
 	"NotificationManagement/utils/errutil"
-	"NotificationManagement/utils/throw"
 	"net/http"
 	"strconv"
 
@@ -40,7 +39,7 @@ func (rc *ReminderControllerImpl) GetReminderByID(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		return throw.AppError(errutil.ErrInvalidIdParam, err)
+		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
 	}
 
 	reminder, err := rc.Service.GetReminderByID(uint(id))
@@ -88,7 +87,7 @@ func (rc *ReminderControllerImpl) UpdateReminder(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		return throw.AppError(errutil.ErrInvalidIdParam, err)
+		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
 	}
 
 	var req types.ReminderRequest
@@ -116,7 +115,7 @@ func (rc *ReminderControllerImpl) DeleteReminder(c echo.Context) error {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		return throw.AppError(errutil.ErrInvalidIdParam, err)
+		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
 	}
 
 	err = rc.Service.DeleteReminder(uint(id))

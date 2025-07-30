@@ -13,6 +13,7 @@ import (
 	"NotificationManagement/logger"
 	"NotificationManagement/models"
 	"NotificationManagement/types"
+	"NotificationManagement/utils"
 	"NotificationManagement/utils/errutil"
 )
 
@@ -75,7 +76,37 @@ func parseBasicCurl(raw string) (method, url string, headers map[string]string, 
 	return
 }
 
-func (s *CurlServiceImpl) ExecuteCurl(req types.CurlRequest) (types.CurlResponse, error) {
+func (s *CurlServiceImpl) SaveCurlRequest(req *types.CurlRequest) (*models.CurlRequest, error) {
+	var method, urlStr string
+	if req.RawCurl != "" {
+		m, u, _, _, err := parseBasicCurl(req.RawCurl)
+		if err != nil {
+			return nil, errutil.NewAppErrorWithMessage(
+				errutil.ErrInvalidRequestBody,
+				err,
+				"Failed to parse raw curl command",
+			)
+		}
+		method = m
+		urlStr = u
+	} else {
+		method = req.Method
+		urlStr = req.URL
+	}
+	modelReq, err := req.ToModel()
+	modelReq.Method = method
+	modelReq.URL = urlStr
+	if err != nil {
+		return nil, errutil.NewAppErrorWithMessage(
+			errutil.ErrInvalidRequestBody,
+			err,
+			"Failed to convert CurlRequest to model",
+		)
+	}
+	return modelReq, s.Repo.Create(context.Background(), modelReq)
+}
+
+func (s *CurlServiceImpl) ExecuteCurl(req *models.CurlRequest) (*types.CurlResponse, error) {
 
 	var method, urlStr, body string
 	headers := map[string]string{}
@@ -83,7 +114,7 @@ func (s *CurlServiceImpl) ExecuteCurl(req types.CurlRequest) (types.CurlResponse
 	if req.RawCurl != "" {
 		m, u, h, b, err := parseBasicCurl(req.RawCurl)
 		if err != nil {
-			return types.CurlResponse{}, errutil.NewAppErrorWithMessage(
+			return &types.CurlResponse{}, errutil.NewAppErrorWithMessage(
 				errutil.ErrInvalidRequestBody,
 				err,
 				"Failed to parse raw curl command",
@@ -96,23 +127,17 @@ func (s *CurlServiceImpl) ExecuteCurl(req types.CurlRequest) (types.CurlResponse
 	} else {
 		method = req.Method
 		urlStr = req.URL
-		headers = req.Headers
 		body = req.Body
+		// TODO
+		//headers = req.Headers
 	}
 
 	logger.Info("Executing HTTP request", "method", method, "url", urlStr, "headers", headers, "body", body)
 
-	// Store the request in the database
-	modelReq, err := req.ToModel()
-	modelReq.Method = method
-	modelReq.URL = urlStr
-	if err == nil {
-		_ = s.Repo.Create(context.Background(), modelReq)
-	}
 	client := &http.Client{}
 	request, err := http.NewRequest(method, urlStr, io.NopCloser(strings.NewReader(body)))
 	if err != nil {
-		return types.CurlResponse{}, errutil.NewAppError(errutil.ErrExternalServiceError, err)
+		return &types.CurlResponse{}, errutil.NewAppError(errutil.ErrExternalServiceError, err)
 	}
 	for k, v := range headers {
 		request.Header.Set(k, v)
@@ -120,7 +145,7 @@ func (s *CurlServiceImpl) ExecuteCurl(req types.CurlRequest) (types.CurlResponse
 
 	resp, err := client.Do(request)
 	if err != nil {
-		return types.CurlResponse{}, errutil.NewAppError(errutil.ErrExternalServiceError, err)
+		return &types.CurlResponse{}, errutil.NewAppError(errutil.ErrExternalServiceError, err)
 	}
 	defer resp.Body.Close()
 	respBody, _ := io.ReadAll(resp.Body)
@@ -142,7 +167,7 @@ func (s *CurlServiceImpl) ExecuteCurl(req types.CurlRequest) (types.CurlResponse
 		respBodyVal = string(respBody)
 	}
 
-	return types.CurlResponse{
+	return &types.CurlResponse{
 		Status:  resp.StatusCode,
 		Headers: respHeaders,
 		Body:    respBodyVal,
@@ -150,16 +175,17 @@ func (s *CurlServiceImpl) ExecuteCurl(req types.CurlRequest) (types.CurlResponse
 }
 
 func (s *CurlServiceImpl) GetCurlRequestByID(id uint) (*models.CurlRequest, error) {
-	curlRequest, err := s.Repo.GetByID(context.Background(), id)
+	curlRequest, err := s.Repo.GetByID(context.Background(), id, &[]string{"OllamaFormatProperties"})
 	if err != nil {
 		return nil, err
 	}
 	return curlRequest, nil
 }
 
-func (s *CurlServiceImpl) UpdateCurlRequest(id uint, req types.CurlRequest) (*models.CurlRequest, error) {
+func (s *CurlServiceImpl) UpdateCurlRequest(id uint, req *types.CurlRequest) (*models.CurlRequest, error) {
 	// First check if the record exists
-	existing, err := s.Repo.GetByID(context.Background(), id)
+	ctx := context.Background()
+	existing, err := s.Repo.GetByID(ctx, id, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -176,11 +202,23 @@ func (s *CurlServiceImpl) UpdateCurlRequest(id uint, req types.CurlRequest) (*mo
 	existing.Headers = modelReq.Headers
 	existing.Body = modelReq.Body
 	existing.RawCurl = modelReq.RawCurl
-
-	// Save the updated record
-	err = s.Repo.Update(context.Background(), existing)
+	updatedAssoc, err := utils.SyncHasManyAssociation(s.Repo.GetDB(ctx), &existing, "OllamaFormatProperties", modelReq.OllamaFormatProperties)
 	if err != nil {
 		return nil, err
+	}
+
+	// Save the updated record
+	err = s.Repo.Update(ctx, existing)
+	if err != nil {
+		return nil, err
+	}
+	if updatedAssoc != nil {
+		// Handle pointer to slice assignment
+		if props, ok := updatedAssoc.(*[]models.OllamaFormatProperty); ok {
+			existing.OllamaFormatProperties = props
+		} else if propsVal, ok := updatedAssoc.([]models.OllamaFormatProperty); ok {
+			existing.OllamaFormatProperties = &propsVal
+		}
 	}
 
 	return existing, nil

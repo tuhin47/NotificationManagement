@@ -80,6 +80,8 @@ func NewDB() (*gorm.DB, error) {
 		&models.CurlRequest{},
 		&models.Reminder{},
 		&models.UserLLM{},
+		&models.DeepseekModel{},
+		&models.OllamaFormatProperty{},
 	); err != nil {
 		logger.Fatal("Failed to auto-migrate database schema", "error", err)
 		return nil, err

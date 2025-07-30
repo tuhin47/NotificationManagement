@@ -5,17 +5,15 @@ import (
 )
 
 type LLMRequest struct {
-	RequestID uint   `json:"request_id"`
-	ModelName string `json:"model_name" validate:"required"`
-	Type      string `json:"type" validate:"required,oneof=local openai gemini"`
-	IsActive  bool   `json:"is_active"`
+	RequestID uint `json:"request_id"`
+	AIModelID uint `json:"ai_model_id"`
+	IsActive  bool `json:"is_active"`
 }
 
 type LLMResponse struct {
 	ID        uint   `json:"id"`
 	RequestID uint   `json:"request_id"`
-	ModelName string `json:"model_name"`
-	Type      string `json:"type"`
+	AIModelID uint   `json:"ai_model_id"`
 	IsActive  bool   `json:"is_active"`
 	CreatedAt string `json:"created_at"`
 	UpdatedAt string `json:"updated_at"`
@@ -25,8 +23,7 @@ type LLMResponse struct {
 func (lr *LLMRequest) ToModel() *models.UserLLM {
 	return &models.UserLLM{
 		RequestID: lr.RequestID,
-		ModelName: lr.ModelName,
-		Type:      lr.Type,
+		AiModelID: lr.AIModelID,
 		IsActive:  lr.IsActive,
 	}
 }
@@ -36,10 +33,9 @@ func FromLLMModel(model *models.UserLLM) *LLMResponse {
 	return &LLMResponse{
 		ID:        model.ID,
 		RequestID: model.RequestID,
-		ModelName: model.ModelName,
-		Type:      model.Type,
+		AIModelID: model.AiModelID,
 		IsActive:  model.IsActive,
-		CreatedAt: model.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
-		UpdatedAt: model.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		CreatedAt: model.CreatedAt.Format(ResponseDateFormat),
+		UpdatedAt: model.UpdatedAt.Format(ResponseDateFormat),
 	}
 }

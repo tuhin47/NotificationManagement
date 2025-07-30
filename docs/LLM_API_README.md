@@ -17,8 +17,7 @@ curl -X POST ${base_url}/api/llm \
   -H "Content-Type: application/json" \
   -d '{
     "request_id": 1,
-    "model_name": "gpt-4",
-    "type": "openai",
+    "ai_model_id": 2,
     "is_active": true
   }'
 ```
@@ -28,8 +27,7 @@ curl -X POST ${base_url}/api/llm \
 {
   "id": 1,
   "request_id": 1,
-  "model_name": "gpt-4",
-  "type": "openai",
+  "ai_model_id": 2,
   "is_active": true,
   "created_at": "2024-06-01T12:00:00Z",
   "updated_at": "2024-06-01T12:00:00Z"
@@ -50,8 +48,7 @@ curl ${base_url}/api/llm/1
 {
   "id": 1,
   "request_id": 1,
-  "model_name": "gpt-4",
-  "type": "openai",
+  "ai_model_id": 2,
   "is_active": true,
   "created_at": "2024-06-01T12:00:00Z",
   "updated_at": "2024-06-01T12:00:00Z"
@@ -73,8 +70,7 @@ curl "${base_url}/api/llm?limit=10&offset=0"
   {
     "id": 1,
     "request_id": 1,
-    "model_name": "gpt-4",
-    "type": "openai",
+    "ai_model_id": 2,
     "is_active": true,
     "created_at": "2024-06-01T12:00:00Z",
     "updated_at": "2024-06-01T12:00:00Z"
@@ -92,8 +88,7 @@ curl -X PUT ${base_url}/api/llm/1 \
   -H "Content-Type: application/json" \
   -d '{
     "request_id": 1,
-    "model_name": "gpt-4-turbo",
-    "type": "openai",
+    "ai_model_id": 2,
     "is_active": false
   }'
 ```
@@ -103,8 +98,7 @@ curl -X PUT ${base_url}/api/llm/1 \
 {
   "id": 1,
   "request_id": 1,
-  "model_name": "gpt-4-turbo",
-  "type": "openai",
+  "ai_model_id": 2,
   "is_active": false,
   "created_at": "2024-06-01T12:00:00Z",
   "updated_at": "2024-06-01T12:10:00Z"

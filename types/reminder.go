@@ -38,7 +38,7 @@ func (rr *ReminderRequest) ToModel() *models.Reminder {
 	}
 }
 
-// FromModel converts a models.Reminder to a types.ReminderResponse
+// FromReminderModel FromModel converts a models.Reminder to a types.ReminderResponse
 func FromReminderModel(model *models.Reminder) *ReminderResponse {
 	return &ReminderResponse{
 		ID:              model.ID,
@@ -48,7 +48,7 @@ func FromReminderModel(model *models.Reminder) *ReminderResponse {
 		NextTriggerTime: model.NextTriggerTime,
 		Occurrence:      model.Occurrence,
 		Recurrence:      model.Recurrence,
-		CreatedAt:       model.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
-		UpdatedAt:       model.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
+		CreatedAt:       model.CreatedAt.Format(ResponseDateFormat),
+		UpdatedAt:       model.UpdatedAt.Format(ResponseDateFormat),
 	}
 }
