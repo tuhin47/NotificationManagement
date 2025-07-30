@@ -7,8 +7,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func RegisterCurlRoutes(e *echo.Echo, curlController domain.CurlController) {
-	curlGroup := e.Group("/api/curl", middleware.KeycloakMiddleware())
+func RegisterCurlRoutes(e *echo.Echo, curlController domain.CurlController, keycloakMiddleware *echo.MiddlewareFunc) {
+	curlGroup := e.Group("/api/curl", *keycloakMiddleware)
 
 	curlGroup.POST("", curlController.CurlHandler, middleware.RequireRoles("curl_create"))
 	curlGroup.GET("/:id", curlController.GetCurlRequestByID, middleware.RequireRoles("curl_read"))
@@ -16,8 +16,8 @@ func RegisterCurlRoutes(e *echo.Echo, curlController domain.CurlController) {
 	curlGroup.DELETE("/:id", curlController.DeleteCurlRequest, middleware.RequireRoles("curl_delete"))
 }
 
-func RegisterLLMRoutes(e *echo.Echo, llmController domain.LLMController) {
-	llmGroup := e.Group("/api/llm", middleware.KeycloakMiddleware())
+func RegisterLLMRoutes(e *echo.Echo, llmController domain.LLMController, keycloakMiddleware *echo.MiddlewareFunc) {
+	llmGroup := e.Group("/api/llm", *keycloakMiddleware)
 
 	llmGroup.POST("", llmController.CreateLLM, middleware.RequireRoles("llm_create"))
 	llmGroup.GET("/:id", llmController.GetLLMByID, middleware.RequireRoles("llm_read"))
@@ -26,8 +26,8 @@ func RegisterLLMRoutes(e *echo.Echo, llmController domain.LLMController) {
 	llmGroup.DELETE("/:id", llmController.DeleteLLM, middleware.RequireRoles("llm_delete"))
 }
 
-func RegisterReminderRoutes(e *echo.Echo, reminderController domain.ReminderController) {
-	reminderGroup := e.Group("/api/reminder", middleware.KeycloakMiddleware())
+func RegisterReminderRoutes(e *echo.Echo, reminderController domain.ReminderController, keycloakMiddleware *echo.MiddlewareFunc) {
+	reminderGroup := e.Group("/api/reminder", *keycloakMiddleware)
 
 	reminderGroup.POST("", reminderController.CreateReminder, middleware.RequireRoles("reminder_create"))
 	reminderGroup.GET("/:id", reminderController.GetReminderByID, middleware.RequireRoles("reminder_read"))
@@ -36,8 +36,8 @@ func RegisterReminderRoutes(e *echo.Echo, reminderController domain.ReminderCont
 	reminderGroup.DELETE("/:id", reminderController.DeleteReminder, middleware.RequireRoles("reminder_delete"))
 }
 
-func RegisterDeepseekModelRoutes(e *echo.Echo, deepseekController domain.DeepseekModelController) {
-	deepseekGroup := e.Group("/api/deepseek-model", middleware.KeycloakMiddleware())
+func RegisterDeepseekModelRoutes(e *echo.Echo, deepseekController domain.DeepseekModelController, keycloakMiddleware *echo.MiddlewareFunc) {
+	deepseekGroup := e.Group("/api/deepseek-model", *keycloakMiddleware)
 
 	deepseekGroup.POST("", deepseekController.CreateDeepseekModel, middleware.RequireRoles("deepseek_create"))
 	deepseekGroup.GET("/:id", deepseekController.GetDeepseekModelByID, middleware.RequireRoles("deepseek_read"))
@@ -46,8 +46,8 @@ func RegisterDeepseekModelRoutes(e *echo.Echo, deepseekController domain.Deepsee
 	deepseekGroup.DELETE("/:id", deepseekController.DeleteDeepseekModel, middleware.RequireRoles("deepseek_delete"))
 }
 
-func RegisterAIRoutes(e *echo.Echo, aiController domain.AIController) {
-	aiGroup := e.Group("/api/ai", middleware.KeycloakMiddleware())
+func RegisterAIRoutes(e *echo.Echo, aiController domain.AIController, keycloakMiddleware *echo.MiddlewareFunc) {
+	aiGroup := e.Group("/api/ai", *keycloakMiddleware)
 
 	aiGroup.POST("/make-request", aiController.MakeAIRequestHandler, middleware.RequireRoles("ai_create"))
 }

@@ -4,6 +4,7 @@ import (
 	"NotificationManagement/controllers"
 	"NotificationManagement/domain"
 	"NotificationManagement/logger"
+	"NotificationManagement/middleware"
 	"NotificationManagement/repositories"
 	"NotificationManagement/routes"
 	"NotificationManagement/services"
@@ -21,11 +22,12 @@ func NewEcho() *echo.Echo {
 }
 
 func RegisterRoutes(e *echo.Echo, curlController domain.CurlController, llmController domain.LLMController, reminderController domain.ReminderController, deepseekController domain.DeepseekModelController, aiController domain.AIController) {
-	routes.RegisterCurlRoutes(e, curlController)
-	routes.RegisterLLMRoutes(e, llmController)
-	routes.RegisterReminderRoutes(e, reminderController)
-	routes.RegisterDeepseekModelRoutes(e, deepseekController)
-	routes.RegisterAIRoutes(e, aiController)
+	keycloakMiddleware := middleware.KeycloakMiddleware()
+	routes.RegisterCurlRoutes(e, curlController, &keycloakMiddleware)
+	routes.RegisterLLMRoutes(e, llmController, &keycloakMiddleware)
+	routes.RegisterReminderRoutes(e, reminderController, &keycloakMiddleware)
+	routes.RegisterDeepseekModelRoutes(e, deepseekController, &keycloakMiddleware)
+	routes.RegisterAIRoutes(e, aiController, &keycloakMiddleware)
 }
 
 func interceptLogger(next echo.HandlerFunc) echo.HandlerFunc {
