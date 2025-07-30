@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"NotificationManagement/config"
+	"NotificationManagement/utils/errutil"
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/golang-jwt/jwt/v4"
@@ -10,7 +11,7 @@ import (
 
 type CustomContext struct {
 	echo.Context
-	Roles []string
+	Roles *[]string
 }
 
 // KeycloakMiddleware creates a middleware to validate JWT and extract roles
@@ -22,56 +23,56 @@ func KeycloakMiddleware() echo.MiddlewareFunc {
 		return func(c echo.Context) error {
 			authHeader := c.Request().Header.Get("Authorization")
 			if authHeader == "" {
-				return echo.NewHTTPError(401, "Missing Authorization header")
+				return errutil.NewAppError(errutil.ErrMissingAuthHeader, errutil.ErrNoAuthHeader)
 			}
 
 			token := ""
 			if len(authHeader) > 7 && authHeader[:7] == "Bearer " {
 				token = authHeader[7:]
 			} else {
-				return echo.NewHTTPError(401, "Invalid Authorization header format")
+				return errutil.NewAppError(errutil.ErrInvalidAuthFormat, errutil.ErrInvalidHeaderFormat)
 			}
 
 			ctx := c.Request().Context()
 			result, err := client.RetrospectToken(ctx, token, keycloakCfg.ClientID, keycloakCfg.ClientSecret, keycloakCfg.Realm)
 			if err != nil || result == nil || !*result.Active {
-				return echo.NewHTTPError(401, "Invalid or expired token")
+				return errutil.NewAppError(errutil.ErrInvalidToken, err)
 			}
 
 			// Parse the JWT token to extract roles
 			parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 				// Verify the token signing method
 				if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-					return nil, echo.NewHTTPError(401, "Unexpected signing method")
+					return nil, errutil.NewAppError(errutil.ErrInvalidSigningMethod, errutil.ErrInvalidTokenSignature)
 				}
 
 				// Get the public key from Keycloak
 				cert, err := client.GetCerts(ctx, keycloakCfg.Realm)
 				if err != nil {
-					return nil, echo.NewHTTPError(401, "Failed to get certificate")
+					return nil, errutil.NewAppError(errutil.ErrCertificateRetrieval, err)
 				}
 
 				if cert == nil || len(*cert.Keys) == 0 {
-					return nil, echo.NewHTTPError(401, "No certificates found")
+					return nil, errutil.NewAppError(errutil.ErrNoCertificates, errutil.ErrNoCertificateFound)
 				}
 
 				// Use the first key in the certificate
 				certKey := (*cert.Keys)[0]
 				if certKey.X5c == nil || len(*certKey.X5c) == 0 {
-					return nil, echo.NewHTTPError(401, "No certificate chain found")
+					return nil, errutil.NewAppError(errutil.ErrNoCertificates, errutil.ErrNoCertificateFound)
 				}
 
 				// The certificate is in base64-encoded DER format, wrapped in PEM
 				certPEM := "-----BEGIN CERTIFICATE-----\n" + (*certKey.X5c)[0] + "\n-----END CERTIFICATE-----"
 				key, err := jwt.ParseRSAPublicKeyFromPEM([]byte(certPEM))
 				if err != nil {
-					return nil, echo.NewHTTPError(401, "Failed to parse public key")
+					return nil, errutil.NewAppError(errutil.ErrCertificateRetrieval, err)
 				}
 
 				return key, nil
 			})
 			if err != nil {
-				return echo.NewHTTPError(401, "Invalid token format: "+err.Error())
+				return errutil.NewAppError(errutil.ErrInvalidToken, err)
 			}
 
 			if claims, ok := parsedToken.Claims.(jwt.MapClaims); ok {
@@ -89,7 +90,7 @@ func KeycloakMiddleware() echo.MiddlewareFunc {
 				// Create custom context with roles
 				cc := &CustomContext{
 					Context: c,
-					Roles:   roles,
+					Roles:   &roles,
 				}
 
 				return next(cc)
@@ -106,27 +107,19 @@ func RequireRoles(roles ...string) echo.MiddlewareFunc {
 		return func(c echo.Context) error {
 			cc, ok := c.(*CustomContext)
 			if !ok {
-				return echo.NewHTTPError(403, "Access denied: No role information available")
+				return errutil.NewAppError(errutil.ErrNoRoleInfo, errutil.ErrNoRoleInformation)
 			}
 
 			// Check if user has any of the required roles
 			for _, requiredRole := range roles {
-				for _, userRole := range cc.Roles {
+				for _, userRole := range *cc.Roles {
 					if requiredRole == userRole {
 						return next(c)
 					}
 				}
 			}
 
-			return echo.NewHTTPError(403, "Access denied: Insufficient privileges")
+			return errutil.NewAppError(errutil.ErrInsufficientPrivileges, errutil.ErrInsufficientRoles)
 		}
 	}
-}
-
-// GetUserRoles helper function to get user roles from context
-func GetUserRoles(c echo.Context) []string {
-	if cc, ok := c.(*CustomContext); ok {
-		return cc.Roles
-	}
-	return []string{}
 }
