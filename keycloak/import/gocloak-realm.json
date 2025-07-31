@@ -113,6 +113,64 @@
         ],
         "client": {}
     },
+    "groups": [
+        {
+            "id": "b838162a-365d-4e52-845d-3e31c0fd7d9f",
+            "name": "curl",
+            "path": "/curl",
+            "subGroups": [],
+            "attributes": {},
+            "realmRoles": [
+                "curl_update",
+                "curl_read",
+                "curl_delete",
+                "curl_create"
+            ],
+            "clientRoles": {}
+        },
+        {
+            "id": "a1f0c0e4-1a0f-41f7-9672-68f87b6b497e",
+            "name": "llm",
+            "path": "/llm",
+            "subGroups": [],
+            "attributes": {},
+            "realmRoles": [
+                "llm_read",
+                "llm_create",
+                "llm_update",
+                "llm_delete"
+            ],
+            "clientRoles": {}
+        },
+        {
+            "id": "b1a2d77e-75c6-4e47-89b0-3d0a33b6a8c4",
+            "name": "reminder",
+            "path": "/reminder",
+            "subGroups": [],
+            "attributes": {},
+            "realmRoles": [
+                "reminder_read",
+                "reminder_create",
+                "reminder_update",
+                "reminder_delete"
+            ],
+            "clientRoles": {}
+        },
+        {
+            "id": "c2d4e98f-0a57-4907-9235-e9435c1a5f19",
+            "name": "deepseek",
+            "path": "/deepseek",
+            "subGroups": [],
+            "attributes": {},
+            "realmRoles": [
+                "deepseek_create",
+                "deepseek_read",
+                "deepseek_update",
+                "deepseek_delete"
+            ],
+            "clientRoles": {}
+        }
+    ],
     "requiredCredentials": [
         "password"
     ],
@@ -140,31 +198,37 @@
     "webAuthnPolicyAcceptableAaguids": [],
     "users": [
         {
-            "id": "6ead694f-bf59-495d-a475-a3b0b9be50ed",
-            "createdTimestamp": 1666175342321,
-            "username": "service-account-gocloak",
+            "id": "07d9c9b3-248b-47c2-b05d-7238ad6938ff",
+            "username": "nms",
+            "firstName": "Mr Forty",
+            "lastName": "Seven",
+            "email": "nms@tuhin47.com",
+            "emailVerified": true,
+            "createdTimestamp": 1741407965006,
             "enabled": true,
             "totp": false,
-            "emailVerified": false,
-            "serviceAccountClientId": "gocloak",
             "disableableCredentialTypes": [],
             "requiredActions": [],
-            "realmRoles": [
-                "default-roles-gocloak"
-            ],
-            "clientRoles": {
-                "realm-management": [
-                    "manage-clients",
-                    "view-clients",
-                    "query-clients",
-                    "create-client"
-                ],
-                "gocloak": [
-                    "uma_protection"
-                ]
-            },
             "notBefore": 0,
-            "groups": []
+            "groups": [
+                "curl",
+                "llm",
+                "reminder",
+                "deepseek"
+            ],
+            "credentials": [
+                {
+                    "type": "password",
+                    "value": "admin"
+                }
+            ],
+            "access": {
+                "manageGroupMembership": true,
+                "view": true,
+                "mapRoles": true,
+                "impersonate": true,
+                "manage": true
+            }
         }
     ],
     "scopeMappings": [
@@ -321,7 +385,7 @@
             "clientAuthenticatorType": "client-secret",
             "secret": "gocloak-secret",
             "redirectUris": [
-                "localhost"
+                "*"
             ],
             "webOrigins": [],
             "notBefore": 0,

@@ -54,3 +54,6 @@ tmp/
 temp/
 localstack-data/
 aws/
+
+keycloak/managed_context
+keycloak/test_suite_analysis
