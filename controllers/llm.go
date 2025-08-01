@@ -4,11 +4,8 @@ import (
 	"NotificationManagement/domain"
 	"NotificationManagement/types"
 	"NotificationManagement/utils"
-	"NotificationManagement/utils/errutil"
-	"net/http"
-	"strconv"
-
 	"github.com/labstack/echo/v4"
+	"net/http"
 )
 
 type LLMControllerImpl struct {
@@ -36,13 +33,12 @@ func (lc *LLMControllerImpl) CreateLLM(c echo.Context) error {
 }
 
 func (lc *LLMControllerImpl) GetLLMByID(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
+	id, err := utils.ParseIDFromContext(c)
 	if err != nil {
-		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
+		return err
 	}
 
-	llm, err := lc.Service.GetModelByID(uint(id))
+	llm, err := lc.Service.GetModelByID(id)
 	if err != nil {
 		return err
 	}
@@ -52,23 +48,7 @@ func (lc *LLMControllerImpl) GetLLMByID(c echo.Context) error {
 }
 
 func (lc *LLMControllerImpl) GetAllLLMs(c echo.Context) error {
-	limitStr := c.QueryParam("limit")
-	offsetStr := c.QueryParam("offset")
-
-	limit := 10 // default limit
-	offset := 0 // default offset
-
-	if limitStr != "" {
-		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
-			limit = l
-		}
-	}
-
-	if offsetStr != "" {
-		if o, err := strconv.Atoi(offsetStr); err == nil && o >= 0 {
-			offset = o
-		}
-	}
+	limit, offset := utils.ParseLimitAndOffset(c)
 
 	llms, err := lc.Service.GetAllModels(limit, offset)
 	if err != nil {
@@ -84,10 +64,9 @@ func (lc *LLMControllerImpl) GetAllLLMs(c echo.Context) error {
 }
 
 func (lc *LLMControllerImpl) UpdateLLM(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
+	id, err := utils.ParseIDFromContext(c)
 	if err != nil {
-		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
+		return err
 	}
 
 	var req types.LLMRequest
@@ -96,13 +75,13 @@ func (lc *LLMControllerImpl) UpdateLLM(c echo.Context) error {
 	}
 
 	llm := req.ToModel()
-	err = lc.Service.UpdateModel(uint(id), llm)
+	err = lc.Service.UpdateModel(id, llm)
 	if err != nil {
 		return err
 	}
 
 	// Get the updated record
-	updatedLLM, err := lc.Service.GetModelByID(uint(id))
+	updatedLLM, err := lc.Service.GetModelByID(id)
 	if err != nil {
 		return err
 	}
@@ -112,13 +91,12 @@ func (lc *LLMControllerImpl) UpdateLLM(c echo.Context) error {
 }
 
 func (lc *LLMControllerImpl) DeleteLLM(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
+	id, err := utils.ParseIDFromContext(c)
 	if err != nil {
-		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
+		return err
 	}
 
-	err = lc.Service.DeleteModel(uint(id))
+	err = lc.Service.DeleteModel(id)
 	if err != nil {
 		return err
 	}

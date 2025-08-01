@@ -4,11 +4,8 @@ import (
 	"NotificationManagement/domain"
 	"NotificationManagement/types"
 	"NotificationManagement/utils"
-	"NotificationManagement/utils/errutil"
-	"net/http"
-	"strconv"
-
 	"github.com/labstack/echo/v4"
+	"net/http"
 )
 
 type AIModelControllerImpl struct {
@@ -36,13 +33,12 @@ func (dc *AIModelControllerImpl) CreateAIModel(c echo.Context) error {
 }
 
 func (dc *AIModelControllerImpl) GetAIModelByID(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
+	id, err := utils.ParseIDFromContext(c)
 	if err != nil {
-		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
+		return err
 	}
 
-	model, err := dc.Service.GetModelByID(uint(id))
+	model, err := dc.Service.GetModelByID(id)
 	if err != nil {
 		return err
 	}
@@ -52,23 +48,7 @@ func (dc *AIModelControllerImpl) GetAIModelByID(c echo.Context) error {
 }
 
 func (dc *AIModelControllerImpl) GetAllAIModels(c echo.Context) error {
-	limitStr := c.QueryParam("limit")
-	offsetStr := c.QueryParam("offset")
-
-	limit := 10
-	offset := 0
-
-	if limitStr != "" {
-		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
-			limit = l
-		}
-	}
-
-	if offsetStr != "" {
-		if o, err := strconv.Atoi(offsetStr); err == nil && o >= 0 {
-			offset = o
-		}
-	}
+	limit, offset := utils.ParseLimitAndOffset(c)
 
 	models, err := dc.Service.GetAllModels(limit, offset)
 	if err != nil {
@@ -84,10 +64,9 @@ func (dc *AIModelControllerImpl) GetAllAIModels(c echo.Context) error {
 }
 
 func (dc *AIModelControllerImpl) UpdateAIModel(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
+	id, err := utils.ParseIDFromContext(c)
 	if err != nil {
-		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
+		return err
 	}
 
 	var req types.AIModelRequest
@@ -97,12 +76,12 @@ func (dc *AIModelControllerImpl) UpdateAIModel(c echo.Context) error {
 
 	model := req.ToModel()
 
-	err = dc.Service.UpdateModel(uint(id), model)
+	err = dc.Service.UpdateModel(id, model)
 	if err != nil {
 		return err
 	}
 
-	updatedModel, err := dc.Service.GetModelByID(uint(id))
+	updatedModel, err := dc.Service.GetModelByID(id)
 	if err != nil {
 		return err
 	}
@@ -112,13 +91,12 @@ func (dc *AIModelControllerImpl) UpdateAIModel(c echo.Context) error {
 }
 
 func (dc *AIModelControllerImpl) DeleteAIModel(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
+	id, err := utils.ParseIDFromContext(c)
 	if err != nil {
-		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
+		return err
 	}
 
-	err = dc.Service.DeleteModel(uint(id))
+	err = dc.Service.DeleteModel(id)
 	if err != nil {
 		return err
 	}

@@ -1,14 +1,11 @@
 package controllers
 
 import (
-	"NotificationManagement/utils"
-	"NotificationManagement/utils/errutil"
-	"net/http"
-	"strconv"
-
 	"NotificationManagement/domain"
 	"NotificationManagement/types"
+	"NotificationManagement/utils"
 	"github.com/labstack/echo/v4"
+	"net/http"
 )
 
 type CurlControllerImpl struct {
@@ -40,12 +37,11 @@ func (cc *CurlControllerImpl) CurlHandler(c echo.Context) error {
 }
 
 func (cc *CurlControllerImpl) GetCurlRequestByID(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
+	id, err := utils.ParseIDFromContext(c)
 	if err != nil {
-		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
+		return err
 	}
-	curlRequest, err := cc.Service.GetModelByID(uint(id))
+	curlRequest, err := cc.Service.GetModelByID(id)
 	if err != nil {
 		return err
 	}
@@ -54,10 +50,9 @@ func (cc *CurlControllerImpl) GetCurlRequestByID(c echo.Context) error {
 }
 
 func (cc *CurlControllerImpl) UpdateCurlRequest(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
+	id, err := utils.ParseIDFromContext(c)
 	if err != nil {
-		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
+		return err
 	}
 
 	var req types.CurlRequest
@@ -65,7 +60,7 @@ func (cc *CurlControllerImpl) UpdateCurlRequest(c echo.Context) error {
 		return err
 	}
 
-	model, err := cc.Service.UpdateCurlRequest(uint(id), &req)
+	model, err := cc.Service.UpdateCurlRequest(id, &req)
 	if err != nil {
 		return err
 	}
@@ -74,13 +69,12 @@ func (cc *CurlControllerImpl) UpdateCurlRequest(c echo.Context) error {
 }
 
 func (cc *CurlControllerImpl) DeleteCurlRequest(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
+	id, err := utils.ParseIDFromContext(c)
 	if err != nil {
-		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
+		return err
 	}
 
-	err = cc.Service.DeleteModel(uint(id))
+	err = cc.Service.DeleteModel(id)
 	if err != nil {
 		return err
 	}
