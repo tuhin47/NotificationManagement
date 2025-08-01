@@ -14,6 +14,7 @@ var (
 	ErrNoCertificateFound    = errors.New("no valid certificate found")
 	ErrNoRoleInformation     = errors.New("no role information in context")
 	ErrInsufficientRoles     = errors.New("user does not have required roles")
+	ErrServiceNotAvailable   = errors.New("service not available")
 )
 
 // Predefined error codes
@@ -43,7 +44,7 @@ var (
 
 	// Server/service errors
 	ErrInternalServer     = ErrorCode{Code: "INTERNAL_SERVER_ERROR", Message: "Internal server error", Status: http.StatusInternalServerError}
-	ErrServiceUnavailable = ErrorCode{Code: "SERVICE_UNAVAILABLE", Message: "Service is temporarily unavailable", Status: http.StatusServiceUnavailable}
+	ErrServiceUnavailable = ErrorCode{Code: "SERVICE_UNAVAILABLE", Message: "ServiceFact is temporarily unavailable", Status: http.StatusServiceUnavailable}
 
 	// Notification errors
 	ErrNotificationFailed = ErrorCode{Code: "NOTIFICATION_FAILED", Message: "Failed to send notification", Status: http.StatusInternalServerError}

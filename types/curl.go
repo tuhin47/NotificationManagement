@@ -3,6 +3,7 @@ package types
 import (
 	"NotificationManagement/models"
 	"encoding/json"
+	"fmt"
 )
 
 type CurlRequest struct {
@@ -11,7 +12,7 @@ type CurlRequest struct {
 	Headers                map[string]string             `json:"headers,omitempty"`
 	Body                   string                        `json:"body,omitempty"`
 	RawCurl                string                        `json:"rawCurl,omitempty"`
-	OllamaFormatProperties []OllamaFormatPropertyRequest `json:"ollama_format_properties"`
+	OllamaFormatProperties []OllamaFormatPropertyRequest `json:"additional_fields"`
 }
 
 type OllamaFormatPropertyRequest struct {
@@ -35,9 +36,9 @@ func (cr *CurlRequest) ToModel() (*models.CurlRequest, error) {
 	if err != nil {
 		return nil, err
 	}
-	var props []models.OllamaFormatProperty
+	var props []models.AdditionalFields
 	for _, p := range cr.OllamaFormatProperties {
-		props = append(props, models.OllamaFormatProperty{
+		props = append(props, models.AdditionalFields{
 			PropertyName: p.PropertyName,
 			Type:         p.Type,
 			Description:  p.Description,
@@ -46,11 +47,22 @@ func (cr *CurlRequest) ToModel() (*models.CurlRequest, error) {
 		})
 	}
 	return &models.CurlRequest{
-		URL:                    cr.URL,
-		Method:                 cr.Method,
-		Headers:                string(headersJSON),
-		Body:                   cr.Body,
-		RawCurl:                cr.RawCurl,
-		OllamaFormatProperties: &props,
+		URL:              cr.URL,
+		Method:           cr.Method,
+		Headers:          string(headersJSON),
+		Body:             cr.Body,
+		RawCurl:          cr.RawCurl,
+		AdditionalFields: &props,
 	}, nil
+}
+
+func (response *CurlResponse) GetAssistantContent() (string, error) {
+	if response.ErrMessage == "" && response.Body != nil {
+		bodyBytes, err := json.Marshal(response.Body)
+		if err != nil {
+			return "", fmt.Errorf("failed to marshal response body: %w", err)
+		}
+		return "Here is a json string  `" + string(bodyBytes) + "`", nil
+	}
+	return "No content available", nil
 }

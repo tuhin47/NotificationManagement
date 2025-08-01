@@ -9,33 +9,25 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type AIControllerImpl struct {
-	OllamaService   domain.OllamaService
-	DeepseekService domain.DeepseekModelService
+type AIRequestControllerImpl struct {
+	ServiceFact domain.AIServiceManager
 }
 
-func NewAIController(ollamaService domain.OllamaService, deepseekService domain.DeepseekModelService) domain.AIController {
-	return &AIControllerImpl{
-		OllamaService:   ollamaService,
-		DeepseekService: deepseekService,
+func NewAIRequestController(s domain.AIServiceManager) domain.AIRequestController {
+	return &AIRequestControllerImpl{
+		ServiceFact: s,
 	}
 }
 
-func (ac *AIControllerImpl) MakeAIRequestHandler(c echo.Context) error {
+func (ac *AIRequestControllerImpl) MakeAIRequestHandler(c echo.Context) error {
 	var req types.MakeAIRequestPayload
 	if err := utils.BindAndValidate(c, &req); err != nil {
 		return err
 	}
-
-	deepseekModel, err := ac.DeepseekService.GetDeepseekModelByID(req.ModelID)
+	aiResponse, err := ac.ServiceFact.ProcessAIRequest(req)
 	if err != nil {
 		return err
 	}
 
-	ollamaResponse, err := ac.OllamaService.MakeAIRequest(deepseekModel, req.CurlRequestID)
-	if err != nil {
-		return err
-	}
-
-	return c.JSON(http.StatusOK, *ollamaResponse)
+	return c.JSON(http.StatusOK, aiResponse)
 }

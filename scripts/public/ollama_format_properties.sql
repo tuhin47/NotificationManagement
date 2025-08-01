@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS public.ollama_format_properties
+CREATE TABLE IF NOT EXISTS public.additional_fields
 (
     id            bigserial
         PRIMARY KEY,
@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS public.ollama_format_properties
     type          varchar(10),
     description   text,
     request_id    bigint
-        CONSTRAINT fk_curl_requests_ollama_format_properties
+        CONSTRAINT fk_curl_requests_additional_fields
             REFERENCES public.curl_requests
 );
 

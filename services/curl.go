@@ -106,6 +106,19 @@ func (s *CurlServiceImpl) SaveCurlRequest(req *types.CurlRequest) (*models.CurlR
 	return modelReq, s.Repo.Create(context.Background(), modelReq)
 }
 
+func (s *CurlServiceImpl) ExecuteCurlByRequestId(reqId uint) (*types.CurlResponse, error) {
+	curlRequest, err := s.GetCurlRequestByID(reqId)
+	if err != nil {
+		return nil, err
+	}
+
+	curlResponse, err := s.ExecuteCurl(curlRequest)
+	if err != nil {
+		return nil, err
+	}
+	return curlResponse, err
+}
+
 func (s *CurlServiceImpl) ExecuteCurl(req *models.CurlRequest) (*types.CurlResponse, error) {
 
 	var method, urlStr, body string
@@ -175,7 +188,7 @@ func (s *CurlServiceImpl) ExecuteCurl(req *models.CurlRequest) (*types.CurlRespo
 }
 
 func (s *CurlServiceImpl) GetCurlRequestByID(id uint) (*models.CurlRequest, error) {
-	curlRequest, err := s.Repo.GetByID(context.Background(), id, &[]string{"OllamaFormatProperties"})
+	curlRequest, err := s.Repo.GetByID(context.Background(), id, &[]string{"AdditionalFields"})
 	if err != nil {
 		return nil, err
 	}
@@ -202,7 +215,7 @@ func (s *CurlServiceImpl) UpdateCurlRequest(id uint, req *types.CurlRequest) (*m
 	existing.Headers = modelReq.Headers
 	existing.Body = modelReq.Body
 	existing.RawCurl = modelReq.RawCurl
-	updatedAssoc, err := utils.SyncHasManyAssociation(s.Repo.GetDB(ctx), &existing, "OllamaFormatProperties", modelReq.OllamaFormatProperties)
+	updatedAssoc, err := utils.SyncHasManyAssociation(s.Repo.GetDB(ctx), &existing, "AdditionalFields", modelReq.AdditionalFields)
 	if err != nil {
 		return nil, err
 	}
@@ -214,10 +227,10 @@ func (s *CurlServiceImpl) UpdateCurlRequest(id uint, req *types.CurlRequest) (*m
 	}
 	if updatedAssoc != nil {
 		// Handle pointer to slice assignment
-		if props, ok := updatedAssoc.(*[]models.OllamaFormatProperty); ok {
-			existing.OllamaFormatProperties = props
-		} else if propsVal, ok := updatedAssoc.([]models.OllamaFormatProperty); ok {
-			existing.OllamaFormatProperties = &propsVal
+		if props, ok := updatedAssoc.(*[]models.AdditionalFields); ok {
+			existing.AdditionalFields = props
+		} else if propsVal, ok := updatedAssoc.([]models.AdditionalFields); ok {
+			existing.AdditionalFields = &propsVal
 		}
 	}
 
