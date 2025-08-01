@@ -15,6 +15,7 @@ var (
 	ErrNoRoleInformation     = errors.New("no role information in context")
 	ErrInsufficientRoles     = errors.New("user does not have required roles")
 	ErrServiceNotAvailable   = errors.New("service not available")
+	ErrInvalidFeature        = errors.New("invalid feature")
 )
 
 // Predefined error codes
@@ -25,9 +26,10 @@ var (
 	ErrRecordNotFound     = ErrorCode{Code: "RECORD_NOT_FOUND", Message: "The requested record was not found", Status: http.StatusNotFound}
 
 	// Validation/Input errors
-	ErrDuplicateEntry     = ErrorCode{Code: "DUPLICATE_ERROR", Message: "Duplicate Entry", Status: http.StatusBadRequest}
-	ErrInvalidIdParam     = ErrorCode{Code: "INVALID_PARAM", Message: "Invalid Parameter", Status: http.StatusBadRequest}
-	ErrInvalidRequestBody = ErrorCode{Code: "INVALID_BODY", Message: "Invalid Input", Status: http.StatusBadRequest}
+	ErrDuplicateEntry      = ErrorCode{Code: "DUPLICATE_ERROR", Message: "Duplicate Entry", Status: http.StatusBadRequest}
+	ErrInvalidIdParam      = ErrorCode{Code: "INVALID_PARAM", Message: "Invalid Parameter", Status: http.StatusBadRequest}
+	ErrInvalidRequestBody  = ErrorCode{Code: "INVALID_BODY", Message: "Invalid Input", Status: http.StatusBadRequest}
+	ErrFeatureNotAvailable = ErrorCode{Code: "INVALID_FEATURE", Message: "Feature not available", Status: http.StatusNotImplemented}
 
 	// Authentication/Authorization errors
 	ErrInvalidCredentials     = ErrorCode{Code: "INVALID_CREDENTIALS", Message: "Invalid login credentials", Status: http.StatusUnauthorized}

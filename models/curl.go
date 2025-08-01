@@ -16,6 +16,12 @@ type CurlRequest struct {
 	AdditionalFields *[]AdditionalFields `gorm:"foreignKey:RequestID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"additional_fields"`
 }
 
+func (c *CurlRequest) UpdateFromModel(source ModelInterface) {
+	if src, ok := source.(*CurlRequest); ok {
+		copyFields(c, src)
+	}
+}
+
 type AdditionalFields struct {
 	ID           uint   `gorm:"primaryKey" json:"id"`
 	PropertyName string `gorm:"type:varchar(100)" json:"property_name"`

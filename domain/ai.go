@@ -11,12 +11,8 @@ type AIModelType interface {
 }
 
 type AIService[T AIModelType, Y any] interface {
+	CommonService[T]
 	MakeAIRequest(m *models.AIModel, requestId uint) (*Y, error)
-	GetModelByID(id uint) (*T, error)
-	CreateModel(model *T) error
-	GetAllAIModels(limit, offset int) ([]T, error)
-	UpdateAIModel(id uint, model *T) error
-	DeleteAIModel(id uint) error
 }
 
 type AIModelRepository interface {
@@ -24,8 +20,6 @@ type AIModelRepository interface {
 }
 
 type AIServiceManager interface {
-	GetService(modelType string) (interface{}, error)
-	GetModelByID(id uint) (*models.AIModel, error)
 	ProcessAIRequest(types.MakeAIRequestPayload) (interface{}, error)
 }
 

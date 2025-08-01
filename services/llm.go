@@ -7,11 +7,15 @@ import (
 )
 
 type LLMServiceImpl struct {
+	domain.CommonService[models.UserLLM]
 	Repo domain.LLMRepository
 }
 
 func NewLLMService(repo domain.LLMRepository) domain.LLMService {
-	return &LLMServiceImpl{Repo: repo}
+	return &LLMServiceImpl{
+		CommonService: NewCommonService[models.UserLLM](repo),
+		Repo:          repo,
+	}
 }
 
 func (s *LLMServiceImpl) CreateLLM(llm *models.UserLLM) error {

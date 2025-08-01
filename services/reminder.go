@@ -7,11 +7,15 @@ import (
 )
 
 type ReminderServiceImpl struct {
+	domain.CommonService[models.Reminder]
 	Repo domain.ReminderRepository
 }
 
 func NewReminderService(repo domain.ReminderRepository) domain.ReminderService {
-	return &ReminderServiceImpl{Repo: repo}
+	return &ReminderServiceImpl{
+		CommonService: NewCommonService[models.Reminder](repo),
+		Repo:          repo,
+	}
 }
 
 func (s *ReminderServiceImpl) CreateReminder(reminder *models.Reminder) error {

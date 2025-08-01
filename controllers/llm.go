@@ -26,7 +26,7 @@ func (lc *LLMControllerImpl) CreateLLM(c echo.Context) error {
 	}
 
 	llm := req.ToModel()
-	err := lc.Service.CreateLLM(llm)
+	err := lc.Service.CreateModel(llm)
 	if err != nil {
 		return err
 	}
@@ -42,7 +42,7 @@ func (lc *LLMControllerImpl) GetLLMByID(c echo.Context) error {
 		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
 	}
 
-	llm, err := lc.Service.GetLLMByID(uint(id))
+	llm, err := lc.Service.GetModelByID(uint(id))
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func (lc *LLMControllerImpl) GetAllLLMs(c echo.Context) error {
 		}
 	}
 
-	llms, err := lc.Service.GetAllLLMs(limit, offset)
+	llms, err := lc.Service.GetAllModels(limit, offset)
 	if err != nil {
 		return err
 	}
@@ -96,13 +96,13 @@ func (lc *LLMControllerImpl) UpdateLLM(c echo.Context) error {
 	}
 
 	llm := req.ToModel()
-	err = lc.Service.UpdateLLM(uint(id), llm)
+	err = lc.Service.UpdateModel(uint(id), llm)
 	if err != nil {
 		return err
 	}
 
 	// Get the updated record
-	updatedLLM, err := lc.Service.GetLLMByID(uint(id))
+	updatedLLM, err := lc.Service.GetModelByID(uint(id))
 	if err != nil {
 		return err
 	}
@@ -118,7 +118,7 @@ func (lc *LLMControllerImpl) DeleteLLM(c echo.Context) error {
 		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
 	}
 
-	err = lc.Service.DeleteLLM(uint(id))
+	err = lc.Service.DeleteModel(uint(id))
 	if err != nil {
 		return err
 	}

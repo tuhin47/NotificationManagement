@@ -20,7 +20,7 @@ func NewAIModelController(service domain.DeepseekService) domain.AIModelControll
 }
 
 func (dc *AIModelControllerImpl) CreateAIModel(c echo.Context) error {
-	var req types.DeepseekModelRequest
+	var req types.AIModelRequest
 	if err := utils.BindAndValidate(c, &req); err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func (dc *AIModelControllerImpl) GetAllAIModels(c echo.Context) error {
 		}
 	}
 
-	models, err := dc.Service.GetAllAIModels(limit, offset)
+	models, err := dc.Service.GetAllModels(limit, offset)
 	if err != nil {
 		return err
 	}
@@ -90,14 +90,14 @@ func (dc *AIModelControllerImpl) UpdateAIModel(c echo.Context) error {
 		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
 	}
 
-	var req types.DeepseekModelRequest
+	var req types.AIModelRequest
 	if err := utils.BindAndValidate(c, &req); err != nil {
 		return err
 	}
 
 	model := req.ToModel()
 
-	err = dc.Service.UpdateAIModel(uint(id), model)
+	err = dc.Service.UpdateModel(uint(id), model)
 	if err != nil {
 		return err
 	}
@@ -118,7 +118,7 @@ func (dc *AIModelControllerImpl) DeleteAIModel(c echo.Context) error {
 		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
 	}
 
-	err = dc.Service.DeleteAIModel(uint(id))
+	err = dc.Service.DeleteModel(uint(id))
 	if err != nil {
 		return err
 	}

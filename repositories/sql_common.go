@@ -98,3 +98,18 @@ func (r *SQLRepository[T]) Count(ctx context.Context) (int64, error) {
 	}
 	return count, nil
 }
+
+func (r *SQLRepository[T]) GetByIDs(ctx context.Context, ids []uint, preloads *[]string) ([]T, error) {
+	var entities []T
+	dbContext := r.db.WithContext(ctx)
+	if preloads != nil {
+		for _, it := range *preloads {
+			dbContext = dbContext.Preload(it)
+		}
+	}
+	err := dbContext.Where("id IN (?)", ids).Find(&entities).Error
+	if err != nil {
+		return nil, handleDbError(err)
+	}
+	return entities, nil
+}

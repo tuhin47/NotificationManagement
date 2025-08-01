@@ -16,7 +16,7 @@ import (
 )
 
 type DeepseekServiceImpl struct {
-	*AIModelServiceImpl[models.DeepseekModel, types.DeepseekModelResponse]
+	*CommonServiceImpl[models.DeepseekModel]
 	Repo        domain.DeepseekModelRepository
 	CurlService domain.CurlService
 }
@@ -24,14 +24,18 @@ type DeepseekServiceImpl struct {
 func NewDeepseekModelService(repo domain.DeepseekModelRepository, curl domain.CurlService,
 ) domain.DeepseekService {
 	return &DeepseekServiceImpl{
-		AIModelServiceImpl: NewAIModelService[models.DeepseekModel, types.DeepseekModelResponse](repo),
-		Repo:               repo,
-		CurlService:        curl,
+		CommonServiceImpl: NewCommonService[models.DeepseekModel](repo),
+		Repo:              repo,
+		CurlService:       curl,
 	}
 }
 
 func (s *DeepseekServiceImpl) MakeAIRequest(mod *models.AIModel, requestId uint) (*types.OllamaResponse, error) {
-	curlResponse, err := s.CurlService.ExecuteCurlByRequestId(requestId)
+	curl, err := s.CurlService.GetModelByID(requestId)
+	if err != nil {
+		return nil, err
+	}
+	curlResponse, err := s.CurlService.ExecuteCurl(curl)
 	if err != nil {
 		return nil, err
 	}

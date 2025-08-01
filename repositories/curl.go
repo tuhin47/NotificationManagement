@@ -15,3 +15,13 @@ func NewCurlRequestRepository(db *gorm.DB) domain.CurlRequestRepository {
 		SQLRepository: NewSQLRepository[models.CurlRequest](db),
 	}
 }
+
+type AdditionalFieldsRepositoryImpl struct {
+	*SQLRepository[models.AdditionalFields]
+}
+
+func NewAdditionalFieldsRepository(db *gorm.DB) domain.AdditionalFieldsRepository {
+	return &AdditionalFieldsRepositoryImpl{
+		SQLRepository: NewSQLRepository[models.AdditionalFields](db),
+	}
+}

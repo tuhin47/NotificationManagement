@@ -5,7 +5,6 @@ import (
 )
 
 type AIModelInterface interface {
-	UpdateFromModel(source AIModelInterface)
 	GetBaseURL() string
 }
 
@@ -48,21 +47,13 @@ func (*GeminiModel) TableName() string {
 	return "ai_models"
 }
 
-func (d *DeepseekModel) UpdateFromModel(source AIModelInterface) {
+func (d *DeepseekModel) UpdateFromModel(source ModelInterface) {
 	if src, ok := source.(*DeepseekModel); ok {
-		d.Name = src.Name
-		d.ModelName = src.ModelName
-		d.BaseURL = src.BaseURL
-		d.ModifiedAt = src.ModifiedAt
-		d.Size = src.Size
+		copyFields(d, src)
 	}
 }
-func (g *GeminiModel) UpdateFromModel(source AIModelInterface) {
+func (g *GeminiModel) UpdateFromModel(source ModelInterface) {
 	if src, ok := source.(*GeminiModel); ok {
-		g.Name = src.Name
-		g.ModelName = src.ModelName
-		g.APISecret = src.APISecret
-		g.ModifiedAt = src.ModifiedAt
-		g.Size = src.Size
+		copyFields(g, src)
 	}
 }

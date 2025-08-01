@@ -7,16 +7,16 @@ import (
 )
 
 type CurlService interface {
-	SaveCurlRequest(req *types.CurlRequest) (*models.CurlRequest, error)
+	CommonService[models.CurlRequest]
 	ExecuteCurl(req *models.CurlRequest) (*types.CurlResponse, error)
-	GetCurlRequestByID(id uint) (*models.CurlRequest, error)
 	UpdateCurlRequest(id uint, req *types.CurlRequest) (*models.CurlRequest, error)
-	DeleteCurlRequest(id uint) error
-	ExecuteCurlByRequestId(reqId uint) (*types.CurlResponse, error)
 }
 
 type CurlRequestRepository interface {
 	Repository[models.CurlRequest, uint]
+}
+type AdditionalFieldsRepository interface {
+	Repository[models.AdditionalFields, uint]
 }
 
 type CurlController interface {

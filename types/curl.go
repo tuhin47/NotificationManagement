@@ -7,15 +7,15 @@ import (
 )
 
 type CurlRequest struct {
-	URL                    string                        `json:"url"`
-	Method                 string                        `json:"method"`
-	Headers                map[string]string             `json:"headers,omitempty"`
-	Body                   string                        `json:"body,omitempty"`
-	RawCurl                string                        `json:"rawCurl,omitempty"`
-	OllamaFormatProperties []OllamaFormatPropertyRequest `json:"additional_fields"`
+	URL              string                   `json:"url"`
+	Method           string                   `json:"method"`
+	Headers          map[string]string        `json:"headers,omitempty"`
+	Body             string                   `json:"body,omitempty"`
+	RawCurl          string                   `json:"rawCurl,omitempty"`
+	AdditionalFields []AdditionalFieldRequest `json:"additional_fields"`
 }
 
-type OllamaFormatPropertyRequest struct {
+type AdditionalFieldRequest struct {
 	PropertyName string `json:"property_name"`
 	Type         string `json:"type"`
 	Description  string `json:"description,omitempty"`
@@ -37,7 +37,7 @@ func (cr *CurlRequest) ToModel() (*models.CurlRequest, error) {
 		return nil, err
 	}
 	var props []models.AdditionalFields
-	for _, p := range cr.OllamaFormatProperties {
+	for _, p := range cr.AdditionalFields {
 		props = append(props, models.AdditionalFields{
 			PropertyName: p.PropertyName,
 			Type:         p.Type,

@@ -2,30 +2,27 @@ package services
 
 import (
 	"NotificationManagement/domain"
-	"NotificationManagement/models"
 	"NotificationManagement/types"
 	"NotificationManagement/utils/errutil"
 	"context"
-	"errors"
-	"fmt"
 )
 
 type AIServiceManagerImpl struct {
 	deepseekService domain.DeepseekService
 	geminiService   domain.GeminiService
-	Repo            domain.AIModelRepository
+	AIModelRepo     domain.AIModelRepository
 }
 
 func NewAIServiceManager(deepseekService domain.DeepseekService, geminiService domain.GeminiService, repo domain.AIModelRepository) domain.AIServiceManager {
 	return &AIServiceManagerImpl{
 		deepseekService: deepseekService,
 		geminiService:   geminiService,
-		Repo:            repo,
+		AIModelRepo:     repo,
 	}
 }
 
 func (f *AIServiceManagerImpl) ProcessAIRequest(req types.MakeAIRequestPayload) (interface{}, error) {
-	model, err := f.GetModelByID(req.ModelID)
+	model, err := f.AIModelRepo.GetByID(context.Background(), req.ModelID, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -38,23 +35,5 @@ func (f *AIServiceManagerImpl) ProcessAIRequest(req types.MakeAIRequestPayload) 
 
 	default:
 		return nil, errutil.NewAppError(errutil.ErrServiceUnavailable, errutil.ErrServiceNotAvailable)
-	}
-}
-
-func (f *AIServiceManagerImpl) GetModelByID(id uint) (*models.AIModel, error) {
-	return f.Repo.GetByID(context.Background(), id, nil)
-}
-
-func (f *AIServiceManagerImpl) GetService(modelType string) (interface{}, error) {
-	switch modelType {
-	case "deepseek", "local":
-		return f.deepseekService, nil
-	case "gemini":
-		return f.geminiService, nil
-	case "openai":
-		// TODO: Implement OpenAI service when ready
-		return nil, errors.New("OpenAI service not implemented yet")
-	default:
-		return nil, fmt.Errorf("unknown model type: %s", modelType)
 	}
 }

@@ -7,11 +7,7 @@ import (
 )
 
 type LLMService interface {
-	CreateLLM(llm *models.UserLLM) error
-	GetLLMByID(id uint) (*models.UserLLM, error)
-	GetAllLLMs(limit, offset int) ([]models.UserLLM, error)
-	UpdateLLM(id uint, llm *models.UserLLM) error
-	DeleteLLM(id uint) error
+	CommonService[models.UserLLM]
 }
 
 type LLMRepository interface {

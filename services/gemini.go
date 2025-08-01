@@ -14,25 +14,29 @@ import (
 )
 
 type GeminiServiceImpl struct {
-	*AIModelServiceImpl[models.GeminiModel, types.GeminiResponse]
+	*CommonServiceImpl[models.GeminiModel]
 	Repo        domain.GeminiModelRepository
 	CurlService domain.CurlService
 }
 
 func NewGeminiService(repo domain.GeminiModelRepository, curlService domain.CurlService) domain.GeminiService {
 	return &GeminiServiceImpl{
-		AIModelServiceImpl: NewAIModelService[models.GeminiModel, types.GeminiResponse](repo),
-		Repo:               repo,
-		CurlService:        curlService,
+		CommonServiceImpl: NewCommonService[models.GeminiModel](repo),
+		Repo:              repo,
+		CurlService:       curlService,
 	}
 }
 
 func (s *GeminiServiceImpl) MakeAIRequest(mod *models.AIModel, requestId uint) (*types.GeminiResponse, error) {
-	curlResponse, err := s.CurlService.ExecuteCurlByRequestId(requestId)
+
+	curl, err := s.CurlService.GetModelByID(requestId)
 	if err != nil {
 		return nil, err
 	}
-
+	curlResponse, err := s.CurlService.ExecuteCurl(curl)
+	if err != nil {
+		return nil, err
+	}
 	model, err := s.Repo.GetByID(context.Background(), mod.ID, nil)
 	if err != nil {
 		return nil, err

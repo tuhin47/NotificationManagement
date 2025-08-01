@@ -55,6 +55,7 @@ var Module = fx.Options(
 
 		repositories.NewAIModelRepository,
 		repositories.NewCurlRequestRepository,
+		repositories.NewAdditionalFieldsRepository,
 		repositories.NewDeepseekModelRepository,
 		repositories.NewGeminiRepository,
 		repositories.NewLLMRepository,

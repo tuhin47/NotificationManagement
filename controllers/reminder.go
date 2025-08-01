@@ -26,7 +26,7 @@ func (rc *ReminderControllerImpl) CreateReminder(c echo.Context) error {
 	}
 
 	reminder := req.ToModel()
-	err := rc.Service.CreateReminder(reminder)
+	err := rc.Service.CreateModel(reminder)
 	if err != nil {
 		return err
 	}
@@ -42,7 +42,7 @@ func (rc *ReminderControllerImpl) GetReminderByID(c echo.Context) error {
 		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
 	}
 
-	reminder, err := rc.Service.GetReminderByID(uint(id))
+	reminder, err := rc.Service.GetModelByID(uint(id))
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func (rc *ReminderControllerImpl) GetAllReminders(c echo.Context) error {
 		}
 	}
 
-	reminders, err := rc.Service.GetAllReminders(limit, offset)
+	reminders, err := rc.Service.GetAllModels(limit, offset)
 	if err != nil {
 		return err
 	}
@@ -96,13 +96,13 @@ func (rc *ReminderControllerImpl) UpdateReminder(c echo.Context) error {
 	}
 
 	reminder := req.ToModel()
-	err = rc.Service.UpdateReminder(uint(id), reminder)
+	err = rc.Service.UpdateModel(uint(id), reminder)
 	if err != nil {
 		return err
 	}
 
 	// Get the updated record
-	updatedReminder, err := rc.Service.GetReminderByID(uint(id))
+	updatedReminder, err := rc.Service.GetModelByID(uint(id))
 	if err != nil {
 		return err
 	}
@@ -118,7 +118,7 @@ func (rc *ReminderControllerImpl) DeleteReminder(c echo.Context) error {
 		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
 	}
 
-	err = rc.Service.DeleteReminder(uint(id))
+	err = rc.Service.DeleteModel(uint(id))
 	if err != nil {
 		return err
 	}
