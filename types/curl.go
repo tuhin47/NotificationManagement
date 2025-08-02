@@ -7,7 +7,6 @@ import (
 	"fmt"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
 type CurlRequest struct {
@@ -21,8 +20,6 @@ type CurlRequest struct {
 
 func (cr *CurlRequest) Validate() error {
 	return validation.ValidateStruct(cr,
-		validation.Field(&cr.URL, validation.Required, is.URL, validation.Length(0, 2048)),
-		validation.Field(&cr.Method, validation.Required, validation.Length(1, 10)),
 		validation.Field(&cr.AdditionalFields, validation.Each(validation.By(func(value interface{}) error {
 			if v, ok := value.(AdditionalFieldRequest); ok {
 				return v.Validate()

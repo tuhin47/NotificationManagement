@@ -134,29 +134,21 @@ func (dc *AIModelControllerImpl) UpdateAIModel(c echo.Context) error {
 		if !ok {
 			return errutil.NewAppError(errutil.ErrFailedToCastModel, errutil.ErrFailedToCastDeepseekModel)
 		}
-		err = s.UpdateModel(id, deepseekModel)
+		deepseekModel, err = s.UpdateModel(id, deepseekModel)
 		if err != nil {
 			return err
 		}
-		updatedModel, err := s.GetModelByID(id)
-		if err != nil {
-			return err
-		}
-		return c.JSON(http.StatusOK, types.FromDeepseekModel(updatedModel))
+		return c.JSON(http.StatusOK, types.FromDeepseekModel(deepseekModel))
 	case domain.GeminiService:
 		geminiModel, ok := model.(*models.GeminiModel)
 		if !ok {
 			return errutil.NewAppError(errutil.ErrFailedToCastModel, errutil.ErrFailedToCastGeminiModel)
 		}
-		err = s.UpdateModel(id, geminiModel)
+		geminiModel, err = s.UpdateModel(id, geminiModel)
 		if err != nil {
 			return err
 		}
-		updatedModel, err := s.GetModelByID(id)
-		if err != nil {
-			return err
-		}
-		return c.JSON(http.StatusOK, types.FromGeminiModel(updatedModel))
+		return c.JSON(http.StatusOK, types.FromGeminiModel(geminiModel))
 	default:
 		return errutil.NewAppError(errutil.ErrUnsupportedAIModelType, errutil.ErrUnsupportedAIModelTypeMsg)
 	}

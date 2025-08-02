@@ -81,18 +81,12 @@ func (rc *ReminderControllerImpl) UpdateReminder(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	err = rc.Service.UpdateModel(id, reminder)
+	reminder, err = rc.Service.UpdateModel(id, reminder)
 	if err != nil {
 		return err
 	}
 
-	// Get the updated record
-	updatedReminder, err := rc.Service.GetModelByID(id)
-	if err != nil {
-		return err
-	}
-
-	response := types.FromReminderModel(updatedReminder)
+	response := types.FromReminderModel(reminder)
 	return c.JSON(http.StatusOK, response)
 }
 

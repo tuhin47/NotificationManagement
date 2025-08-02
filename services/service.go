@@ -40,22 +40,23 @@ func (s *CommonServiceImpl[T]) GetAllModels(limit, offset int) ([]T, error) {
 	return m, nil
 }
 
-func (s *CommonServiceImpl[T]) UpdateModel(id uint, model *T) error {
+func (s *CommonServiceImpl[T]) UpdateModel(id uint, model *T) (*T, error) {
 	// Check if the model implements ModelInterface
 	modelUpdater, ok := any(model).(models.ModelInterface)
 	if !ok {
-		return errutil.NewAppError(errutil.ErrFeatureNotAvailable, errutil.ErrInvalidFeature)
+		return nil, errutil.NewAppError(errutil.ErrFeatureNotAvailable, errutil.ErrInvalidFeature)
 	}
 
 	existing, err := s.Repo.GetByID(s.Instance.GetContext(), id, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if existingUpdater, ok := any(existing).(models.ModelInterface); ok {
 		existingUpdater.UpdateFromModel(modelUpdater)
 	}
 
-	return s.Repo.Update(s.Instance.GetContext(), existing)
+	err = s.Repo.Update(s.Instance.GetContext(), existing)
+	return existing, err
 }
 
 func (s *CommonServiceImpl[T]) DeleteModel(id uint) error {

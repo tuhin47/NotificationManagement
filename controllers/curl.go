@@ -64,7 +64,7 @@ func (cc *CurlControllerImpl) UpdateCurlRequest(c echo.Context) error {
 		return err
 	}
 
-	err = cc.Service.UpdateModel(id, model)
+	model, err = cc.Service.UpdateModel(id, model)
 	if err != nil {
 		return err
 	}

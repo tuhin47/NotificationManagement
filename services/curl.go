@@ -151,11 +151,11 @@ func (s *CurlServiceImpl) ExecuteCurl(req *models.CurlRequest) (*types.CurlRespo
 	}, nil
 }
 
-func (s *CurlServiceImpl) UpdateModel(id uint, model *models.CurlRequest) error {
+func (s *CurlServiceImpl) UpdateModel(id uint, model *models.CurlRequest) (*models.CurlRequest, error) {
 	ctx := context.Background()
 	existing, err := s.CurlRepo.GetByID(ctx, id, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if model.AdditionalFields != nil && len(*model.AdditionalFields) > 0 {
@@ -169,7 +169,7 @@ func (s *CurlServiceImpl) UpdateModel(id uint, model *models.CurlRequest) error 
 		if len(idsToCheck) > 0 {
 			existingAdditionalFields, err := s.AdditionalFieldRepo.GetByIDs(ctx, idsToCheck, nil)
 			if err != nil {
-				return err
+				return nil, err
 			}
 
 			existingIDsMap := make(map[uint]bool)
@@ -186,12 +186,12 @@ func (s *CurlServiceImpl) UpdateModel(id uint, model *models.CurlRequest) error 
 	}
 	updatedAssoc, err := utils.SyncHasManyAssociation(s.CurlRepo.GetDB(ctx), &existing, "AdditionalFields", model.AdditionalFields)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = s.CommonServiceImpl.UpdateModel(id, model)
+	model, err = s.CommonServiceImpl.UpdateModel(id, model)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if updatedAssoc != nil {
 		if props, ok := updatedAssoc.(*[]models.AdditionalFields); ok {
@@ -200,7 +200,6 @@ func (s *CurlServiceImpl) UpdateModel(id uint, model *models.CurlRequest) error 
 			existing.AdditionalFields = &propsVal
 		}
 	}
-	model = existing
 
-	return nil
+	return model, nil
 }

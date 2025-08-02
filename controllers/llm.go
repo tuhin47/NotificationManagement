@@ -77,8 +77,11 @@ func (lc *LLMControllerImpl) UpdateLLM(c echo.Context) error {
 		return err
 	}
 
-	llm, _ := req.ToModel()
-	err = lc.Service.UpdateModel(id, llm)
+	llm, err := req.ToModel()
+	if err != nil {
+		return err
+	}
+	llm, err = lc.Service.UpdateModel(id, llm)
 	if err != nil {
 		return err
 	}
