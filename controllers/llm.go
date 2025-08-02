@@ -22,8 +22,11 @@ func (lc *LLMControllerImpl) CreateLLM(c echo.Context) error {
 		return err
 	}
 
-	llm := req.ToModel()
-	err := lc.Service.CreateModel(llm)
+	llm, err := req.ToModel()
+	if err != nil {
+		return err
+	}
+	err = lc.Service.CreateModel(llm)
 	if err != nil {
 		return err
 	}
@@ -74,7 +77,7 @@ func (lc *LLMControllerImpl) UpdateLLM(c echo.Context) error {
 		return err
 	}
 
-	llm := req.ToModel()
+	llm, _ := req.ToModel()
 	err = lc.Service.UpdateModel(id, llm)
 	if err != nil {
 		return err

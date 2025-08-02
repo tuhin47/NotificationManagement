@@ -4,28 +4,50 @@ import (
 	"NotificationManagement/models"
 	"NotificationManagement/utils/errutil"
 	"fmt"
+
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 type MakeAIRequestPayload struct {
-	CurlRequestID uint `json:"curl_request_id" validate:"required"`
-	ModelID       uint `json:"model_id" validate:"required"`
+	CurlRequestID uint `json:"curl_request_id"`
+	ModelID       uint `json:"model_id"`
+}
+
+func (p *MakeAIRequestPayload) Validate() error {
+	return validation.ValidateStruct(p,
+		validation.Field(&p.CurlRequestID, validation.Required),
+		validation.Field(&p.ModelID, validation.Required),
+	)
 }
 
 type AIModelRequest struct {
-	Name      string `json:"name" validate:"required"`
-	Type      string `json:"type" validate:"required"`
-	ModelName string `json:"model" validate:"required"`
+	Name      string `json:"name"`
+	Type      string `json:"type"`
+	ModelName string `json:"model"`
 	BaseURL   string `json:"base_url"`
 	APISecret string `json:"api_secret"`
 	Size      int64  `json:"size"`
 }
 
+func (r *AIModelRequest) Validate() error {
+	return validation.ValidateStruct(r,
+		validation.Field(&r.Name, validation.Required, validation.Length(1, 255)),
+		validation.Field(&r.Type, validation.Required, validation.In("deepseek", "local", "openai", "gemini")),
+		validation.Field(&r.ModelName, validation.Required, validation.Length(1, 255)),
+		validation.Field(&r.BaseURL, validation.Length(0, 500)),
+		validation.Field(&r.APISecret, validation.Length(0, 500)),
+	)
+}
+
 // ToModel converts a types.AIModelRequest to a models.DeepseekModel or models.GeminiModel
 func (dr *AIModelRequest) ToModel() (interface{}, error) {
+	err := dr.Validate()
+	if err != nil {
+		return nil, errutil.NewAppError(errutil.ErrInvalidRequestBody, err)
+	}
 	aiModel := models.AIModel{
 		Type: dr.Type,
 	}
-
 	switch dr.Type {
 	case "deepseek", "local":
 		return &models.DeepseekModel{

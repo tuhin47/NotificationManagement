@@ -1,26 +1,64 @@
 package types
 
+import (
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+)
+
 type OllamaRequest struct {
-	Model    string           `json:"model" validate:"required"`
-	Messages []*OllamaMessage `json:"messages" validate:"required,min=1"`
+	Model    string           `json:"model"`
+	Messages []*OllamaMessage `json:"messages"`
 	Stream   bool             `json:"stream"`
 	Format   *OllamaFormat    `json:"format,omitempty"`
 	Options  *OllamaOptions   `json:"options,omitempty"`
 	Think    bool             `json:"think,omitempty"`
 }
+
+func (r *OllamaRequest) Validate() error {
+	return validation.ValidateStruct(r,
+		validation.Field(&r.Model, validation.Required),
+		validation.Field(&r.Messages, validation.Required, validation.Length(1, 0), validation.Each(validation.By(func(value interface{}) error {
+			if v, ok := value.(*OllamaMessage); ok {
+				return v.Validate()
+			}
+			return nil
+		}))),
+	)
+}
+
 type OllamaPullRequest struct {
-	Name string `json:"name" validate:"required"`
+	Name string `json:"name"`
+}
+
+func (r *OllamaPullRequest) Validate() error {
+	return validation.ValidateStruct(r,
+		validation.Field(&r.Name, validation.Required),
+	)
 }
 
 type OllamaMessage struct {
-	Role    string `json:"role" validate:"required,oneof=system user assistant"`
-	Content string `json:"content" validate:"required"`
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
+func (m *OllamaMessage) Validate() error {
+	return validation.ValidateStruct(m,
+		validation.Field(&m.Role, validation.Required, validation.In("system", "user", "assistant")),
+		validation.Field(&m.Content, validation.Required),
+	)
 }
 
 type OllamaFormat struct {
-	Type       string                          `json:"type" validate:"required"`
-	Properties map[string]OllamaFormatProperty `json:"properties" validate:"required"`
-	Required   []string                        `json:"required" validate:"required"`
+	Type       string                          `json:"type"`
+	Properties map[string]OllamaFormatProperty `json:"properties"`
+	Required   []string                        `json:"required"`
+}
+
+func (f *OllamaFormat) Validate() error {
+	return validation.ValidateStruct(f,
+		validation.Field(&f.Type, validation.Required),
+		validation.Field(&f.Properties, validation.Required),
+		validation.Field(&f.Required, validation.Required),
+	)
 }
 
 type OllamaOptions struct {
@@ -28,8 +66,14 @@ type OllamaOptions struct {
 }
 
 type OllamaFormatProperty struct {
-	Type        string `json:"type" validate:"required"`
+	Type        string `json:"type"`
 	Description string `json:"description,omitempty"`
+}
+
+func (p *OllamaFormatProperty) Validate() error {
+	return validation.ValidateStruct(p,
+		validation.Field(&p.Type, validation.Required),
+	)
 }
 
 type OllamaResponse struct {

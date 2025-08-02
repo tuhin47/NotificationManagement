@@ -22,8 +22,11 @@ func (rc *ReminderControllerImpl) CreateReminder(c echo.Context) error {
 		return err
 	}
 
-	reminder := req.ToModel()
-	err := rc.Service.CreateModel(reminder)
+	reminder, err := req.ToModel()
+	if err != nil {
+		return err
+	}
+	err = rc.Service.CreateModel(reminder)
 	if err != nil {
 		return err
 	}
@@ -74,7 +77,10 @@ func (rc *ReminderControllerImpl) UpdateReminder(c echo.Context) error {
 		return err
 	}
 
-	reminder := req.ToModel()
+	reminder, err := req.ToModel()
+	if err != nil {
+		return err
+	}
 	err = rc.Service.UpdateModel(id, reminder)
 	if err != nil {
 		return err
