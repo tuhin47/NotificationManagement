@@ -21,13 +21,17 @@ func copyFields(destination, source interface{}) {
 			// Skip gorm.Model embedded struct
 			continue
 		}
-		if tag := sourceField.Tag.Get("access"); tag == "readonly" {
+		if tag := sourceField.Tag.Get("mapper"); tag == "ignore" {
 			continue // skip editing
 		}
 
 		destField := destValue.FieldByName(sourceField.Name)
 		if destField.IsValid() && destField.CanSet() {
-			destField.Set(sourceValue.Field(i))
+			if tag := sourceField.Tag.Get("mapper"); tag == "inherit" {
+				copyFields(destField.Addr().Interface(), sourceValue.Field(i).Addr().Interface())
+			} else {
+				destField.Set(sourceValue.Field(i))
+			}
 		}
 	}
 }

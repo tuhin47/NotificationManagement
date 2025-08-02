@@ -29,6 +29,7 @@ type GeminiResponse struct {
 
 type GeminiModelResponse struct {
 	ID         uint   `json:"id"`
+	Type       string `json:"type"`
 	Name       string `json:"name"`
 	ModelName  string `json:"model"`
 	APISecret  string `json:"api_secret"`
@@ -85,6 +86,7 @@ func (m *GeminiMessage) Validate() error {
 func FromGeminiModel(model *models.GeminiModel) *GeminiModelResponse {
 	return &GeminiModelResponse{
 		ID:        model.ID,
+		Type:      model.Type,
 		Name:      model.Name,
 		ModelName: model.ModelName,
 		APISecret: model.APISecret,

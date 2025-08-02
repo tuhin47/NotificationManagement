@@ -30,13 +30,22 @@ type AIModelRequest struct {
 }
 
 func (r *AIModelRequest) Validate() error {
-	return validation.ValidateStruct(r,
+	rules := []*validation.FieldRules{
 		validation.Field(&r.Name, validation.Required, validation.Length(1, 255)),
 		validation.Field(&r.Type, validation.Required, validation.In("deepseek", "local", "openai", "gemini")),
 		validation.Field(&r.ModelName, validation.Required, validation.Length(1, 255)),
-		validation.Field(&r.BaseURL, validation.Length(0, 500)),
-		validation.Field(&r.APISecret, validation.Length(0, 500)),
-	)
+	}
+
+	// Add conditional validation based on Type
+	switch r.Type {
+	case "deepseek", "local":
+		rules = append(rules, validation.Field(&r.BaseURL, validation.Required, validation.Length(1, 500)))
+	case "gemini", "openai":
+		rules = append(rules, validation.Field(&r.APISecret, validation.Required, validation.Length(1, 500)))
+
+	}
+
+	return validation.ValidateStruct(r, rules...)
 }
 
 // ToModel converts a types.AIModelRequest to a models.DeepseekModel or models.GeminiModel
