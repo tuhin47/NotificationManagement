@@ -1,14 +1,11 @@
 package controllers
 
 import (
-	"NotificationManagement/utils"
-	"NotificationManagement/utils/errutil"
-	"net/http"
-	"strconv"
-
 	"NotificationManagement/domain"
 	"NotificationManagement/types"
+	"NotificationManagement/utils"
 	"github.com/labstack/echo/v4"
+	"net/http"
 )
 
 type CurlControllerImpl struct {
@@ -24,11 +21,15 @@ func (cc *CurlControllerImpl) CurlHandler(c echo.Context) error {
 	if err := utils.BindAndValidate(c, &req); err != nil {
 		return err
 	}
-	curl, err := cc.Service.SaveCurlRequest(&req)
+	model, err := req.ToModel()
 	if err != nil {
 		return err
 	}
-	resp, err := cc.Service.ExecuteCurl(curl)
+	err = cc.Service.CreateModel(model)
+	if err != nil {
+		return err
+	}
+	resp, err := cc.Service.ExecuteCurl(model)
 	if err != nil {
 		return err
 	}
@@ -36,13 +37,11 @@ func (cc *CurlControllerImpl) CurlHandler(c echo.Context) error {
 }
 
 func (cc *CurlControllerImpl) GetCurlRequestByID(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
+	id, err := utils.ParseIDFromContext(c)
 	if err != nil {
-		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
+		return err
 	}
-
-	curlRequest, err := cc.Service.GetCurlRequestByID(uint(id))
+	curlRequest, err := cc.Service.GetModelByID(id)
 	if err != nil {
 		return err
 	}
@@ -51,33 +50,35 @@ func (cc *CurlControllerImpl) GetCurlRequestByID(c echo.Context) error {
 }
 
 func (cc *CurlControllerImpl) UpdateCurlRequest(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
+	id, err := utils.ParseIDFromContext(c)
 	if err != nil {
-		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
+		return err
 	}
 
 	var req types.CurlRequest
 	if err := utils.BindAndValidate(c, &req); err != nil {
 		return err
 	}
-
-	updatedRequest, err := cc.Service.UpdateCurlRequest(uint(id), &req)
+	model, err := req.ToModel()
 	if err != nil {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, updatedRequest)
+	model, err = cc.Service.UpdateModel(id, model)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, model)
 }
 
 func (cc *CurlControllerImpl) DeleteCurlRequest(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
+	id, err := utils.ParseIDFromContext(c)
 	if err != nil {
-		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
+		return err
 	}
 
-	err = cc.Service.DeleteCurlRequest(uint(id))
+	err = cc.Service.DeleteModel(id)
 	if err != nil {
 		return err
 	}

@@ -7,11 +7,7 @@ import (
 )
 
 type ReminderService interface {
-	CreateReminder(reminder *models.Reminder) error
-	GetReminderByID(id uint) (*models.Reminder, error)
-	GetAllReminders(limit, offset int) ([]models.Reminder, error)
-	UpdateReminder(id uint, reminder *models.Reminder) error
-	DeleteReminder(id uint) error
+	CommonService[models.Reminder]
 }
 
 type ReminderRepository interface {

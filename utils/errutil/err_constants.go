@@ -7,13 +7,21 @@ import (
 
 // Auth specific errors
 var (
-	ErrNoAuthHeader          = errors.New("no authorization header provided")
-	ErrInvalidHeaderFormat   = errors.New("invalid authorization header format")
-	ErrInvalidTokenSignature = errors.New("invalid token signing method")
-	ErrInvalidTokenValue     = errors.New("invalid token value")
-	ErrNoCertificateFound    = errors.New("no valid certificate found")
-	ErrNoRoleInformation     = errors.New("no role information in context")
-	ErrInsufficientRoles     = errors.New("user does not have required roles")
+	ErrNoAuthHeader                = errors.New("no authorization header provided")
+	ErrInvalidHeaderFormat         = errors.New("invalid authorization header format")
+	ErrInvalidTokenSignature       = errors.New("invalid token signing method")
+	ErrInvalidTokenValue           = errors.New("invalid token value")
+	ErrNoCertificateFound          = errors.New("no valid certificate found")
+	ErrNoRoleInformation           = errors.New("no role information in context")
+	ErrInsufficientRoles           = errors.New("user does not have required roles")
+	ErrServiceNotAvailable         = errors.New("service not available")
+	ErrInvalidFeature              = errors.New("invalid feature")
+	ErrFailedToCastDeepseekModel   = errors.New("failed to cast model to DeepseekModel")
+	ErrFailedToCastGeminiModel     = errors.New("failed to cast model to GeminiModel")
+	ErrUnsupportedAIModelTypeMsg   = errors.New("unsupported AI model type")
+	ErrAIModelNotFoundMsg          = errors.New("AI Model not found")
+	ErrUnknownAIModelTypeMsg       = errors.New("unknown AI model type")
+	ErrAIModelNotFoundOrDeletedMsg = errors.New("AI Model not found or could not be deleted")
 )
 
 // Predefined error codes
@@ -24,9 +32,10 @@ var (
 	ErrRecordNotFound     = ErrorCode{Code: "RECORD_NOT_FOUND", Message: "The requested record was not found", Status: http.StatusNotFound}
 
 	// Validation/Input errors
-	ErrDuplicateEntry     = ErrorCode{Code: "DUPLICATE_ERROR", Message: "Duplicate Entry", Status: http.StatusBadRequest}
-	ErrInvalidIdParam     = ErrorCode{Code: "INVALID_PARAM", Message: "Invalid Parameter", Status: http.StatusBadRequest}
-	ErrInvalidRequestBody = ErrorCode{Code: "INVALID_BODY", Message: "Invalid Input", Status: http.StatusBadRequest}
+	ErrDuplicateEntry      = ErrorCode{Code: "DUPLICATE_ERROR", Message: "Duplicate Entry", Status: http.StatusBadRequest}
+	ErrInvalidIdParam      = ErrorCode{Code: "INVALID_PARAM", Message: "Invalid Parameter", Status: http.StatusBadRequest}
+	ErrInvalidRequestBody  = ErrorCode{Code: "INVALID_BODY", Message: "Invalid Input", Status: http.StatusBadRequest}
+	ErrFeatureNotAvailable = ErrorCode{Code: "INVALID_FEATURE", Message: "Feature not available", Status: http.StatusNotImplemented}
 
 	// Authentication/Authorization errors
 	ErrInvalidCredentials     = ErrorCode{Code: "INVALID_CREDENTIALS", Message: "Invalid login credentials", Status: http.StatusUnauthorized}
@@ -43,7 +52,7 @@ var (
 
 	// Server/service errors
 	ErrInternalServer     = ErrorCode{Code: "INTERNAL_SERVER_ERROR", Message: "Internal server error", Status: http.StatusInternalServerError}
-	ErrServiceUnavailable = ErrorCode{Code: "SERVICE_UNAVAILABLE", Message: "Service is temporarily unavailable", Status: http.StatusServiceUnavailable}
+	ErrServiceUnavailable = ErrorCode{Code: "SERVICE_UNAVAILABLE", Message: "ServiceFact is temporarily unavailable", Status: http.StatusServiceUnavailable}
 
 	// Notification errors
 	ErrNotificationFailed = ErrorCode{Code: "NOTIFICATION_FAILED", Message: "Failed to send notification", Status: http.StatusInternalServerError}
@@ -53,4 +62,8 @@ var (
 
 	// External service errors
 	ErrExternalServiceError = ErrorCode{Code: "EXTERNAL_SERVICE_ERROR", Message: "External service error", Status: http.StatusBadGateway}
+
+	// AI Model specific errors
+	ErrFailedToCastModel      = ErrorCode{Code: "AI_MODEL_CAST_ERROR", Message: "Failed to cast AI model", Status: http.StatusInternalServerError}
+	ErrUnsupportedAIModelType = ErrorCode{Code: "UNSUPPORTED_AI_MODEL_TYPE", Message: "Unsupported AI model type", Status: http.StatusBadRequest}
 )

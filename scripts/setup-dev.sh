@@ -14,9 +14,9 @@ if ! docker info > /dev/null 2>&1; then
 fi
 
 echo "📦 Starting LocalStack..."
-docker compose up -d config-server postgres
+docker compose up -d config-server postgres keycloak
 
-echo "⏳ Waiting for LocalStack to be ready..."
+echo "⏳ Waiting for config-server to be ready..."
 sleep 10
 
 # Check if LocalStack is running

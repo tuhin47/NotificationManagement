@@ -81,7 +81,14 @@ func NewDB() (*gorm.DB, error) {
 		&models.Reminder{},
 		&models.UserLLM{},
 		&models.DeepseekModel{},
-		&models.OllamaFormatProperty{},
+		&models.AdditionalFields{},
+	); err != nil {
+		logger.Fatal("Failed to auto-migrate database schema", "error", err)
+		return nil, err
+	}
+	// As grom doesn't support single table model. We need to execute it separately
+	if err := db.AutoMigrate(
+		&models.GeminiModel{},
 	); err != nil {
 		logger.Fatal("Failed to auto-migrate database schema", "error", err)
 		return nil, err

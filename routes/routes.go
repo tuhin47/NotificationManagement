@@ -37,18 +37,18 @@ func RegisterReminderRoutes(e *echo.Echo, reminderController domain.ReminderCont
 	reminderGroup.DELETE("/:id", reminderController.DeleteReminder, middleware.RequireRoles(utils.RoleReminderDelete))
 }
 
-func RegisterDeepseekModelRoutes(e *echo.Echo, deepseekController domain.DeepseekModelController, keycloakMiddleware *echo.MiddlewareFunc) {
+func RegisterDeepseekModelRoutes(e *echo.Echo, controller domain.AIModelController, keycloakMiddleware *echo.MiddlewareFunc) {
 	deepseekGroup := e.Group("/api/deepseek-model", *keycloakMiddleware)
 
-	deepseekGroup.POST("", deepseekController.CreateDeepseekModel, middleware.RequireRoles(utils.RoleDeepseekCreate))
-	deepseekGroup.GET("/:id", deepseekController.GetDeepseekModelByID, middleware.RequireRoles(utils.RoleDeepseekRead))
-	deepseekGroup.GET("", deepseekController.GetAllDeepseekModels, middleware.RequireRoles(utils.RoleDeepseekRead))
-	deepseekGroup.PUT("/:id", deepseekController.UpdateDeepseekModel, middleware.RequireRoles(utils.RoleDeepseekUpdate))
-	deepseekGroup.DELETE("/:id", deepseekController.DeleteDeepseekModel, middleware.RequireRoles(utils.RoleDeepseekDelete))
+	deepseekGroup.POST("", controller.CreateAIModel, middleware.RequireRoles(utils.RoleDeepseekCreate))
+	deepseekGroup.GET("/:id", controller.GetAIModelByID, middleware.RequireRoles(utils.RoleDeepseekRead))
+	deepseekGroup.GET("", controller.GetAllAIModels, middleware.RequireRoles(utils.RoleDeepseekRead))
+	deepseekGroup.PUT("/:id", controller.UpdateAIModel, middleware.RequireRoles(utils.RoleDeepseekUpdate))
+	deepseekGroup.DELETE("/:id", controller.DeleteAIModel, middleware.RequireRoles(utils.RoleDeepseekDelete))
 }
 
-func RegisterAIRoutes(e *echo.Echo, aiController domain.AIController, keycloakMiddleware *echo.MiddlewareFunc) {
+func RegisterAIRoutes(e *echo.Echo, aiController domain.AIRequestController, keycloakMiddleware *echo.MiddlewareFunc) {
 	aiGroup := e.Group("/api/ai", *keycloakMiddleware)
 
-	aiGroup.POST("/make-request", aiController.MakeAIRequestHandler, middleware.RequireRoles(utils.RoleAICreate))
+	aiGroup.POST("/make-request", aiController.MakeAIRequestHandler, middleware.RequireRoles(utils.RoleMakeRequest))
 }

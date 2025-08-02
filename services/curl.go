@@ -1,6 +1,7 @@
 package services
 
 import (
+	"NotificationManagement/utils"
 	"context"
 	"encoding/json"
 	"errors"
@@ -13,16 +14,22 @@ import (
 	"NotificationManagement/logger"
 	"NotificationManagement/models"
 	"NotificationManagement/types"
-	"NotificationManagement/utils"
 	"NotificationManagement/utils/errutil"
 )
 
 type CurlServiceImpl struct {
-	Repo domain.CurlRequestRepository
+	*CommonServiceImpl[models.CurlRequest]
+	CurlRepo            domain.CurlRequestRepository
+	AdditionalFieldRepo domain.AdditionalFieldsRepository
 }
 
-func NewCurlService(repo domain.CurlRequestRepository) domain.CurlService {
-	return &CurlServiceImpl{Repo: repo}
+func NewCurlService(repo domain.CurlRequestRepository, fieldsRepository domain.AdditionalFieldsRepository) domain.CurlService {
+	service := &CurlServiceImpl{
+		CurlRepo:            repo,
+		AdditionalFieldRepo: fieldsRepository,
+	}
+	service.CommonServiceImpl = NewCommonService[models.CurlRequest](repo, service)
+	return service
 }
 
 func parseBasicCurl(raw string) (method, url string, headers map[string]string, body string, err error) {
@@ -74,36 +81,6 @@ func parseBasicCurl(raw string) (method, url string, headers map[string]string, 
 	}
 
 	return
-}
-
-func (s *CurlServiceImpl) SaveCurlRequest(req *types.CurlRequest) (*models.CurlRequest, error) {
-	var method, urlStr string
-	if req.RawCurl != "" {
-		m, u, _, _, err := parseBasicCurl(req.RawCurl)
-		if err != nil {
-			return nil, errutil.NewAppErrorWithMessage(
-				errutil.ErrInvalidRequestBody,
-				err,
-				"Failed to parse raw curl command",
-			)
-		}
-		method = m
-		urlStr = u
-	} else {
-		method = req.Method
-		urlStr = req.URL
-	}
-	modelReq, err := req.ToModel()
-	modelReq.Method = method
-	modelReq.URL = urlStr
-	if err != nil {
-		return nil, errutil.NewAppErrorWithMessage(
-			errutil.ErrInvalidRequestBody,
-			err,
-			"Failed to convert CurlRequest to model",
-		)
-	}
-	return modelReq, s.Repo.Create(context.Background(), modelReq)
 }
 
 func (s *CurlServiceImpl) ExecuteCurl(req *models.CurlRequest) (*types.CurlResponse, error) {
@@ -174,62 +151,55 @@ func (s *CurlServiceImpl) ExecuteCurl(req *models.CurlRequest) (*types.CurlRespo
 	}, nil
 }
 
-func (s *CurlServiceImpl) GetCurlRequestByID(id uint) (*models.CurlRequest, error) {
-	curlRequest, err := s.Repo.GetByID(context.Background(), id, &[]string{"OllamaFormatProperties"})
-	if err != nil {
-		return nil, err
-	}
-	return curlRequest, nil
-}
-
-func (s *CurlServiceImpl) UpdateCurlRequest(id uint, req *types.CurlRequest) (*models.CurlRequest, error) {
-	// First check if the record exists
+func (s *CurlServiceImpl) UpdateModel(id uint, model *models.CurlRequest) (*models.CurlRequest, error) {
 	ctx := context.Background()
-	existing, err := s.Repo.GetByID(ctx, id, nil)
+	existing, err := s.CurlRepo.GetByID(ctx, id, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	// Convert the request to model
-	modelReq, err := req.ToModel()
-	if err != nil {
-		return nil, errutil.NewAppError(errutil.ErrInvalidRequestBody, err)
-	}
+	if model.AdditionalFields != nil && len(*model.AdditionalFields) > 0 {
+		var idsToCheck []uint
+		for _, af := range *model.AdditionalFields {
+			if af.ID != 0 {
+				idsToCheck = append(idsToCheck, af.ID)
+			}
+		}
 
-	// Update the existing record with new data
-	existing.URL = modelReq.URL
-	existing.Method = modelReq.Method
-	existing.Headers = modelReq.Headers
-	existing.Body = modelReq.Body
-	existing.RawCurl = modelReq.RawCurl
-	updatedAssoc, err := utils.SyncHasManyAssociation(s.Repo.GetDB(ctx), &existing, "OllamaFormatProperties", modelReq.OllamaFormatProperties)
+		if len(idsToCheck) > 0 {
+			existingAdditionalFields, err := s.AdditionalFieldRepo.GetByIDs(ctx, idsToCheck, nil)
+			if err != nil {
+				return nil, err
+			}
+
+			existingIDsMap := make(map[uint]bool)
+			for _, existingAf := range existingAdditionalFields {
+				existingIDsMap[existingAf.ID] = true
+			}
+
+			for i, af := range *model.AdditionalFields {
+				if af.ID != 0 && !existingIDsMap[af.ID] {
+					(*model.AdditionalFields)[i].ID = 0
+				}
+			}
+		}
+	}
+	updatedAssoc, err := utils.SyncHasManyAssociation(s.CurlRepo.GetDB(ctx), &existing, "AdditionalFields", model.AdditionalFields)
 	if err != nil {
 		return nil, err
 	}
 
-	// Save the updated record
-	err = s.Repo.Update(ctx, existing)
+	model, err = s.CommonServiceImpl.UpdateModel(id, model)
 	if err != nil {
 		return nil, err
 	}
 	if updatedAssoc != nil {
-		// Handle pointer to slice assignment
-		if props, ok := updatedAssoc.(*[]models.OllamaFormatProperty); ok {
-			existing.OllamaFormatProperties = props
-		} else if propsVal, ok := updatedAssoc.([]models.OllamaFormatProperty); ok {
-			existing.OllamaFormatProperties = &propsVal
+		if props, ok := updatedAssoc.(*[]models.AdditionalFields); ok {
+			existing.AdditionalFields = props
+		} else if propsVal, ok := updatedAssoc.([]models.AdditionalFields); ok {
+			existing.AdditionalFields = &propsVal
 		}
 	}
 
-	return existing, nil
-}
-
-func (s *CurlServiceImpl) DeleteCurlRequest(id uint) error {
-
-	err := s.Repo.Delete(context.Background(), id)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return model, nil
 }

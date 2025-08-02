@@ -7,16 +7,16 @@ services:
     ports:
       - "4566:4566"
     environment:
-        - SERVICES=ssm
-        - DEBUG=1
-        - PERSISTENCE=1
-        - DATA_DIR=/tmp/localstack/data
-        - LAMBDA_EXECUTOR=docker
+      - SERVICES=ssm
+      - DEBUG=1
+      - PERSISTENCE=1
+      - DATA_DIR=/tmp/localstack/data
+      - LAMBDA_EXECUTOR=docker
     volumes:
-        # - "./localstack-data:/tmp/localstack/data"
-        - "/var/run/docker.sock:/var/run/docker.sock"
+      # - "./localstack-data:/tmp/localstack/data"
+      - "/var/run/docker.sock:/var/run/docker.sock"
     networks:
-        - localstack-network
+      - localstack-network
 
   postgres:
     image: postgres:15
@@ -38,26 +38,30 @@ services:
     container_name: ollama
     ports:
       - "11434:11434"
-#    environment:
-#      - OLLAMA_MODELS
-#    deploy:
-#      resources:
-#        limits:
-#          memory: 2g
-#          cpus: '0.5'
+    #    environment:
+    #      - OLLAMA_MODELS
+    #    deploy:
+    #      resources:
+    #        limits:
+    #          memory: 2g
+    #          cpus: '0.5'
     networks:
       - localstack-network
 
   keycloak:
-    build: ./keycloak
-    command: -Dauto-build -Dfeatures=preview
+    container_name: keycloak
+    image: keycloak/keycloak:25.0.6
+    command:
+      - start-dev
+      - --import-realm
     environment:
+      KC_HOSTNAME: localhost
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: secret
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: secret
       KC_HEALTH_ENABLED: "true"
-    entrypoint: ["/opt/keycloak/bin/kc.sh", "start-dev", "--features=preview", "--import-realm"]
+      KC_FEATURES: account-api,account3,authorization,client-policies,impersonation,docker,scripts,admin-fine-grained-authz
     ports:
       - "8081:8080"
       - "9000:9000"
@@ -67,9 +71,9 @@ services:
       timeout: 5s
       retries: 20
     volumes:
-      - ./testdata/gocloak-realm.json:/opt/keycloak/data/import/gocloak-realm.json
+      - ./keycloak/import/:/opt/keycloak/data/import/
 networks:
   localstack-network:
-    driver: bridge 
+    driver: bridge
 volumes:
   postgres-data: 

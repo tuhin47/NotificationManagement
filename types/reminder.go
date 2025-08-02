@@ -2,16 +2,29 @@ package types
 
 import (
 	"NotificationManagement/models"
+	"NotificationManagement/utils/errutil"
 	"time"
+
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 type ReminderRequest struct {
-	RequestID       uint      `json:"request_id" validate:"required"`
-	Message         string    `json:"message" validate:"required"`
-	TriggeredTime   time.Time `json:"triggered_time" validate:"required"`
-	NextTriggerTime time.Time `json:"next_trigger_time" validate:"required"`
+	RequestID       uint      `json:"request_id"`
+	Message         string    `json:"message"`
+	TriggeredTime   time.Time `json:"triggered_time"`
+	NextTriggerTime time.Time `json:"next_trigger_time"`
 	Occurrence      uint      `json:"occurrence"`
-	Recurrence      string    `json:"recurrence" validate:"required,oneof=once minutes hour daily weekly"`
+	Recurrence      string    `json:"recurrence"`
+}
+
+func (r *ReminderRequest) Validate() error {
+	return validation.ValidateStruct(r,
+		validation.Field(&r.RequestID, validation.Required),
+		validation.Field(&r.Message, validation.Required, validation.Length(1, 2048)),
+		validation.Field(&r.TriggeredTime, validation.Required),
+		validation.Field(&r.NextTriggerTime, validation.Required),
+		validation.Field(&r.Recurrence, validation.Required, validation.In("once", "minutes", "hour", "daily", "weekly"), validation.Length(1, 50)),
+	)
 }
 
 type ReminderResponse struct {
@@ -27,7 +40,12 @@ type ReminderResponse struct {
 }
 
 // ToModel converts a types.ReminderRequest to a models.Reminder
-func (rr *ReminderRequest) ToModel() *models.Reminder {
+func (rr *ReminderRequest) ToModel() (*models.Reminder, error) {
+	err := rr.Validate()
+	if err != nil {
+		return nil, errutil.NewAppError(errutil.ErrInvalidRequestBody, err)
+	}
+
 	return &models.Reminder{
 		RequestID:       rr.RequestID,
 		Message:         rr.Message,
@@ -35,7 +53,7 @@ func (rr *ReminderRequest) ToModel() *models.Reminder {
 		NextTriggerTime: rr.NextTriggerTime,
 		Occurrence:      rr.Occurrence,
 		Recurrence:      rr.Recurrence,
-	}
+	}, nil
 }
 
 // FromReminderModel FromModel converts a models.Reminder to a types.ReminderResponse

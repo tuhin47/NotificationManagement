@@ -4,11 +4,8 @@ import (
 	"NotificationManagement/domain"
 	"NotificationManagement/types"
 	"NotificationManagement/utils"
-	"NotificationManagement/utils/errutil"
-	"net/http"
-	"strconv"
-
 	"github.com/labstack/echo/v4"
+	"net/http"
 )
 
 type ReminderControllerImpl struct {
@@ -25,8 +22,11 @@ func (rc *ReminderControllerImpl) CreateReminder(c echo.Context) error {
 		return err
 	}
 
-	reminder := req.ToModel()
-	err := rc.Service.CreateReminder(reminder)
+	reminder, err := req.ToModel()
+	if err != nil {
+		return err
+	}
+	err = rc.Service.CreateModel(reminder)
 	if err != nil {
 		return err
 	}
@@ -36,13 +36,12 @@ func (rc *ReminderControllerImpl) CreateReminder(c echo.Context) error {
 }
 
 func (rc *ReminderControllerImpl) GetReminderByID(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
+	id, err := utils.ParseIDFromContext(c)
 	if err != nil {
-		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
+		return err
 	}
 
-	reminder, err := rc.Service.GetReminderByID(uint(id))
+	reminder, err := rc.Service.GetModelByID(id)
 	if err != nil {
 		return err
 	}
@@ -52,25 +51,9 @@ func (rc *ReminderControllerImpl) GetReminderByID(c echo.Context) error {
 }
 
 func (rc *ReminderControllerImpl) GetAllReminders(c echo.Context) error {
-	limitStr := c.QueryParam("limit")
-	offsetStr := c.QueryParam("offset")
+	limit, offset := utils.ParseLimitAndOffset(c)
 
-	limit := 10 // default limit
-	offset := 0 // default offset
-
-	if limitStr != "" {
-		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
-			limit = l
-		}
-	}
-
-	if offsetStr != "" {
-		if o, err := strconv.Atoi(offsetStr); err == nil && o >= 0 {
-			offset = o
-		}
-	}
-
-	reminders, err := rc.Service.GetAllReminders(limit, offset)
+	reminders, err := rc.Service.GetAllModels(limit, offset)
 	if err != nil {
 		return err
 	}
@@ -84,10 +67,9 @@ func (rc *ReminderControllerImpl) GetAllReminders(c echo.Context) error {
 }
 
 func (rc *ReminderControllerImpl) UpdateReminder(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
+	id, err := utils.ParseIDFromContext(c)
 	if err != nil {
-		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
+		return err
 	}
 
 	var req types.ReminderRequest
@@ -95,30 +77,26 @@ func (rc *ReminderControllerImpl) UpdateReminder(c echo.Context) error {
 		return err
 	}
 
-	reminder := req.ToModel()
-	err = rc.Service.UpdateReminder(uint(id), reminder)
+	reminder, err := req.ToModel()
+	if err != nil {
+		return err
+	}
+	reminder, err = rc.Service.UpdateModel(id, reminder)
 	if err != nil {
 		return err
 	}
 
-	// Get the updated record
-	updatedReminder, err := rc.Service.GetReminderByID(uint(id))
-	if err != nil {
-		return err
-	}
-
-	response := types.FromReminderModel(updatedReminder)
+	response := types.FromReminderModel(reminder)
 	return c.JSON(http.StatusOK, response)
 }
 
 func (rc *ReminderControllerImpl) DeleteReminder(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
+	id, err := utils.ParseIDFromContext(c)
 	if err != nil {
-		return errutil.NewAppError(errutil.ErrInvalidIdParam, err)
+		return err
 	}
 
-	err = rc.Service.DeleteReminder(uint(id))
+	err = rc.Service.DeleteModel(id)
 	if err != nil {
 		return err
 	}

@@ -15,3 +15,9 @@ type Reminder struct {
 	Occurrence      uint      `gorm:"type:int;default:0"`
 	Recurrence      string    `gorm:"size:50;check:recurrence IN ('once','minutes','hour','daily','weekly')"`
 }
+
+func (r *Reminder) UpdateFromModel(source ModelInterface) {
+	if src, ok := source.(*Reminder); ok {
+		copyFields(r, src)
+	}
+}

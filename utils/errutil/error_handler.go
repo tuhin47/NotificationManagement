@@ -1,7 +1,6 @@
 package errutil
 
 import (
-	"NotificationManagement/types"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -35,7 +34,7 @@ func handleError(c echo.Context, err error) error {
 	// Check if it's a BusinessError
 	var businessError *BusinessError
 	if errors.As(err, &businessError) {
-		errResp := types.ErrorResponse{
+		errResp := ErrorResponse{
 			Message:    businessError.Message,
 			Error:      err.Error(),
 			StatusCode: 400,
@@ -47,7 +46,7 @@ func handleError(c echo.Context, err error) error {
 
 	// Check if it's an HTTPError (Echo's built-in error)
 	if httpError, ok := err.(*echo.HTTPError); ok {
-		errResp := types.ErrorResponse{
+		errResp := ErrorResponse{
 			Message:    getErrorMessage(err),
 			Error:      err.Error(),
 			StatusCode: httpError.Code,

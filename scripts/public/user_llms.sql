@@ -14,12 +14,9 @@ CREATE TABLE IF NOT EXISTS public.user_llms
             REFERENCES public.ai_models
 );
 
-CREATE INDEX IF NOT EXISTS idx_user_llms_request_id
-    ON public.user_llms (request_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_request_ai_model
+    ON public.user_llms (request_id, ai_model_id);
 
 CREATE INDEX IF NOT EXISTS idx_user_llms_deleted_at
     ON public.user_llms (deleted_at);
-
-CREATE UNIQUE INDEX IF NOT EXISTS idx_request_ai_model
-    ON public.user_llms (request_id, ai_model_id);
 

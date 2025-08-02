@@ -7,6 +7,8 @@
       <excludeFolder url="file://$MODULE_DIR$/aws" />
       <excludeFolder url="file://$MODULE_DIR$/logs" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
+      <excludeFolder url="file://$MODULE_DIR$/keycloak/managed_context" />
+      <excludeFolder url="file://$MODULE_DIR$/keycloak/test_suite_analysis" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
   </component>

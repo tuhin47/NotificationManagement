@@ -34,5 +34,5 @@ const (
 
 // Role constants for AI operations
 const (
-	RoleAICreate = "ai_create"
+	RoleMakeRequest = "ai_create"
 )

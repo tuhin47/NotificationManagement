@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS public.reminders
     recurrence        varchar(50)
         CONSTRAINT chk_reminders_recurrence
             CHECK ((recurrence)::text = ANY
-                   (ARRAY [('once'::character varying)::text, ('minutes'::character varying)::text, ('hour'::character varying)::text, ('daily'::character varying)::text, ('weekly'::character varying)::text]))
+                   ((ARRAY ['once'::character varying, 'minutes'::character varying, 'hour'::character varying, 'daily'::character varying, 'weekly'::character varying])::text[]))
 );
 
 CREATE INDEX IF NOT EXISTS idx_reminders_next_trigger_time
