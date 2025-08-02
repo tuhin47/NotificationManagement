@@ -1,5 +1,9 @@
 package types
 
+import (
+	"NotificationManagement/models"
+)
+
 type GeminiResponse struct {
 	Candidates []struct {
 		Content struct {
@@ -21,6 +25,16 @@ type GeminiResponse struct {
 	} `json:"promptFeedback"`
 }
 
+type GeminiModelResponse struct {
+	ID         uint   `json:"id"`
+	Name       string `json:"name"`
+	ModelName  string `json:"model"`
+	APISecret  string `json:"api_secret"`
+	ModifiedAt string `json:"modified_at"`
+	CreatedAt  string `json:"created_at"`
+	UpdatedAt  string `json:"updated_at"`
+}
+
 type GeminiRequest struct {
 	Contents []*GeminiMessage `json:"contents"`
 	// Add other fields like generationConfig, safetySettings if needed
@@ -34,4 +48,15 @@ type GeminiPart struct {
 type GeminiMessage struct {
 	Role  string       `json:"role"`
 	Parts []GeminiPart `json:"parts"`
+}
+
+func FromGeminiModel(model *models.GeminiModel) *GeminiModelResponse {
+	return &GeminiModelResponse{
+		ID:        model.ID,
+		Name:      model.Name,
+		ModelName: model.ModelName,
+		APISecret: model.APISecret,
+		CreatedAt: model.CreatedAt.Format(ResponseDateFormat),
+		UpdatedAt: model.UpdatedAt.Format(ResponseDateFormat),
+	}
 }

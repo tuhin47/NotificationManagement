@@ -4,25 +4,24 @@ import (
 	"NotificationManagement/domain"
 	"NotificationManagement/types"
 	"NotificationManagement/utils/errutil"
-	"context"
 )
 
 type AIServiceManagerImpl struct {
 	deepseekService domain.DeepseekService
 	geminiService   domain.GeminiService
-	AIModelRepo     domain.AIModelRepository
+	AIModelService  domain.AIModelService
 }
 
-func NewAIServiceManager(deepseekService domain.DeepseekService, geminiService domain.GeminiService, repo domain.AIModelRepository) domain.AIServiceManager {
+func NewAIServiceManager(deepseekService domain.DeepseekService, geminiService domain.GeminiService, aiService domain.AIModelService) domain.AIServiceManager {
 	return &AIServiceManagerImpl{
 		deepseekService: deepseekService,
 		geminiService:   geminiService,
-		AIModelRepo:     repo,
+		AIModelService:  aiService,
 	}
 }
 
 func (f *AIServiceManagerImpl) ProcessAIRequest(req types.MakeAIRequestPayload) (interface{}, error) {
-	model, err := f.AIModelRepo.GetByID(context.Background(), req.ModelID, nil)
+	model, err := f.AIModelService.GetModelByID(req.ModelID)
 	if err != nil {
 		return nil, err
 	}
@@ -35,5 +34,16 @@ func (f *AIServiceManagerImpl) ProcessAIRequest(req types.MakeAIRequestPayload) 
 
 	default:
 		return nil, errutil.NewAppError(errutil.ErrServiceUnavailable, errutil.ErrServiceNotAvailable)
+	}
+}
+
+func (f *AIServiceManagerImpl) GetService(modelType string) (interface{}, error) {
+	switch modelType {
+	case "deepseek", "local":
+		return f.deepseekService, nil
+	case "gemini":
+		return f.geminiService, nil
+	default:
+		return nil, errutil.NewAppError(errutil.ErrFeatureNotAvailable, errutil.ErrInvalidFeature)
 	}
 }

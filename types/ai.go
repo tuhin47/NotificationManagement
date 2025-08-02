@@ -1,6 +1,10 @@
 package types
 
-import "NotificationManagement/models"
+import (
+	"NotificationManagement/models"
+	"NotificationManagement/utils/errutil"
+	"fmt"
+)
 
 type MakeAIRequestPayload struct {
 	CurlRequestID uint `json:"curl_request_id" validate:"required"`
@@ -8,38 +12,50 @@ type MakeAIRequestPayload struct {
 }
 
 type AIModelRequest struct {
-	Name       string `json:"name" validate:"required"`
-	Type       string `json:"type" validate:"required"`
-	ModelName  string `json:"model" validate:"required"`
-	BaseURL    string `json:"base_url"`
-	ModifiedAt string `json:"modified_at" validate:"required"`
-	Size       int64  `json:"size" validate:"required"`
+	Name      string `json:"name" validate:"required"`
+	Type      string `json:"type" validate:"required"`
+	ModelName string `json:"model" validate:"required"`
+	BaseURL   string `json:"base_url"`
+	APISecret string `json:"api_secret"`
+	Size      int64  `json:"size"`
 }
 
-// ToModel converts a types.AIModelRequest to a models.DeepseekModel
-func (dr *AIModelRequest) ToModel() *models.DeepseekModel {
-	m := &models.AIModel{
-		Type: "local",
+// ToModel converts a types.AIModelRequest to a models.DeepseekModel or models.GeminiModel
+func (dr *AIModelRequest) ToModel() (interface{}, error) {
+	aiModel := models.AIModel{
+		Type: dr.Type,
 	}
-	return &models.DeepseekModel{
-		AIModel:    *m,
-		Name:       dr.Name,
-		ModelName:  dr.ModelName,
-		BaseURL:    dr.BaseURL,
-		ModifiedAt: dr.ModifiedAt,
-		Size:       dr.Size,
+
+	switch dr.Type {
+	case "deepseek", "local":
+		return &models.DeepseekModel{
+			AIModel:   aiModel,
+			Name:      dr.Name,
+			ModelName: dr.ModelName,
+			BaseURL:   dr.BaseURL,
+			Size:      dr.Size,
+		}, nil
+	case "gemini":
+		return &models.GeminiModel{
+			AIModel:   aiModel,
+			Name:      dr.Name,
+			ModelName: dr.ModelName,
+			APISecret: dr.APISecret,
+		}, nil
+	default:
+		return nil, errutil.NewAppError(errutil.ErrUnsupportedAIModelType, fmt.Errorf("unsupported AI model type: %s", dr.Type))
 	}
 }
 
 func FromDeepseekModel(model *models.DeepseekModel) *DeepseekModelResponse {
 	return &DeepseekModelResponse{
-		ID:         model.ID,
-		Name:       model.Name,
-		ModelName:  model.ModelName,
-		BaseURL:    model.BaseURL,
-		ModifiedAt: model.ModifiedAt,
-		Size:       model.Size,
-		CreatedAt:  model.CreatedAt.Format(ResponseDateFormat),
-		UpdatedAt:  model.UpdatedAt.Format(ResponseDateFormat),
+		ID:        model.ID,
+		Name:      model.Name,
+		Type:      model.Type,
+		ModelName: model.ModelName,
+		BaseURL:   model.BaseURL,
+		Size:      model.Size,
+		CreatedAt: model.CreatedAt.Format(ResponseDateFormat),
+		UpdatedAt: model.UpdatedAt.Format(ResponseDateFormat),
 	}
 }

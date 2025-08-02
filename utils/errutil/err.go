@@ -2,7 +2,6 @@ package errutil
 
 import (
 	"NotificationManagement/logger"
-	"NotificationManagement/types"
 	"errors"
 	"time"
 )
@@ -19,6 +18,15 @@ type AppError struct {
 	Code    ErrorCode
 	Message string
 	Err     error
+}
+
+// ErrorResponse represents a standardized error response structure
+type ErrorResponse struct {
+	Message    string    `json:"message"`
+	Error      string    `json:"error"`
+	StatusCode int       `json:"status_code"`
+	Timestamp  time.Time `json:"timestamp"`
+	ErrorCode  string    `json:"error_code"`
 }
 
 // Error implements the error interface
@@ -55,8 +63,8 @@ func NewAppErrorWithMessage(errCode ErrorCode, err error, message string) error 
 }
 
 // CreateErrorResponse creates a new ErrorResponse with the given error code and actual error
-func CreateErrorResponse(errCode ErrorCode, actualError error) types.ErrorResponse {
-	return types.ErrorResponse{
+func CreateErrorResponse(errCode ErrorCode, actualError error) ErrorResponse {
+	return ErrorResponse{
 		Message:    errCode.Message,
 		Error:      actualError.Error(),
 		StatusCode: errCode.Status,
@@ -66,8 +74,8 @@ func CreateErrorResponse(errCode ErrorCode, actualError error) types.ErrorRespon
 }
 
 // CreateErrorResponseWithMessage creates a new ErrorResponse with custom message
-func CreateErrorResponseWithMessage(errCode ErrorCode, actualError error, customMessage string) types.ErrorResponse {
-	return types.ErrorResponse{
+func CreateErrorResponseWithMessage(errCode ErrorCode, actualError error, customMessage string) ErrorResponse {
+	return ErrorResponse{
 		Message:    customMessage,
 		Error:      actualError.Error(),
 		StatusCode: errCode.Status,
@@ -77,10 +85,10 @@ func CreateErrorResponseWithMessage(errCode ErrorCode, actualError error, custom
 }
 
 // AppErrorToErrorResponse converts an AppError to ErrorResponse
-func AppErrorToErrorResponse(appErr error) types.ErrorResponse {
+func AppErrorToErrorResponse(appErr error) ErrorResponse {
 	var appError *AppError
 	if errors.As(appErr, &appError) {
-		return types.ErrorResponse{
+		return ErrorResponse{
 			Message:    appError.Message,
 			Error:      appError.Err.Error(),
 			StatusCode: appError.Code.Status,

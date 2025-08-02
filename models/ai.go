@@ -10,16 +10,21 @@ type AIModelInterface interface {
 
 type AIModel struct {
 	gorm.Model
-	Type string `gorm:"size:50;check:type IN ('local','openai','gemini','deepseek')"`
+	Type string `gorm:"size:10;check:type IN ('local','openai','gemini','deepseek')"`
 }
 
 type DeepseekModel struct {
+	AIModel   `access:"readonly"`
+	Name      string `gorm:"size:255;not null" json:"name"`
+	ModelName string `gorm:"size:255;not null;check:model_name <> '';index:idx_ai_model_model_url,unique" json:"model"`
+	BaseURL   string `gorm:"size:500;index:idx_ai_model_model_url,unique" json:"base_url"`
+	Size      int64  `json:"size"`
+}
+type GeminiModel struct {
 	AIModel
-	Name       string `gorm:"size:255;not null" json:"name"`
-	ModelName  string `gorm:"size:255;not null;check:model_name <> ''" json:"model"`
-	BaseURL    string `gorm:"size:500" json:"base_url"`
-	ModifiedAt string `gorm:"size:50" json:"modified_at"`
-	Size       int64  `gorm:"not null" json:"size"`
+	Name      string `gorm:"size:255;not null" json:"name"`
+	ModelName string `gorm:"size:255;not null;check:model_name <> '';index:idx_ai_model_model_secret,unique" json:"model"`
+	APISecret string `gorm:"size:500;index:idx_ai_model_model_secret,unique" json:"api_secret"`
 }
 
 func (d *DeepseekModel) GetBaseURL() string {
@@ -28,15 +33,6 @@ func (d *DeepseekModel) GetBaseURL() string {
 
 func (*DeepseekModel) TableName() string {
 	return "ai_models"
-}
-
-type GeminiModel struct {
-	AIModel
-	Name       string `gorm:"size:255;not null" json:"name"`
-	ModelName  string `gorm:"size:255;not null;check:model_name <> ''" json:"model"`
-	APISecret  string `gorm:"size:500" json:"api_secret"`
-	ModifiedAt string `gorm:"size:50" json:"modified_at"`
-	Size       int64  `gorm:"not null" json:"size"`
 }
 
 func (*GeminiModel) GetBaseURL() string {

@@ -14,13 +14,16 @@ type AIService[T AIModelType, Y any] interface {
 	CommonService[T]
 	MakeAIRequest(m *models.AIModel, requestId uint) (*Y, error)
 }
-
+type AIModelService interface {
+	CommonService[models.AIModel]
+}
 type AIModelRepository interface {
 	Repository[models.AIModel, uint]
 }
 
 type AIServiceManager interface {
 	ProcessAIRequest(types.MakeAIRequestPayload) (interface{}, error)
+	GetService(modelType string) (interface{}, error)
 }
 
 type AIModelController interface {

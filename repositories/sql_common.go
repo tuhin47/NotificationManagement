@@ -4,12 +4,23 @@ import (
 	"NotificationManagement/utils/errutil"
 	"context"
 	"errors"
+	"fmt"
 	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"
 )
 
 type SQLRepository[T any] struct {
 	db *gorm.DB
+}
+
+type Filter struct {
+	Field string
+	Op    string // e.g., "=", "LIKE", "IN"
+	Value interface{}
+}
+
+type ContextKey struct {
+	Filter *[]Filter
 }
 
 func NewSQLRepository[T any](db *gorm.DB) *SQLRepository[T] {
@@ -61,11 +72,26 @@ func (r *SQLRepository[T]) GetByID(ctx context.Context, id uint, preloads *[]str
 
 func (r *SQLRepository[T]) GetAll(ctx context.Context, limit, offset int) ([]T, error) {
 	var entities []T
-	err := r.db.WithContext(ctx).Limit(limit).Offset(offset).Find(&entities).Error
+	withContext := r.db.WithContext(ctx)
+	withContext = ApplyFilter(ctx, withContext)
+	err := withContext.Limit(limit).Offset(offset).Find(&entities).Error
 	if err != nil {
 		return nil, handleDbError(err)
 	}
 	return entities, nil
+}
+
+func ApplyFilter(ctx context.Context, query *gorm.DB) *gorm.DB {
+	key := ContextKey{}
+
+	type ExtraFilters *[]Filter
+	if contextKey, ok := ctx.Value(key).(*ContextKey); ok {
+		for _, f := range *contextKey.Filter {
+			clause := fmt.Sprintf("%s %s ?", f.Field, f.Op)
+			query = query.Where(clause, f.Value)
+		}
+	}
+	return query
 }
 
 func (r *SQLRepository[T]) Update(ctx context.Context, entity *T) error {

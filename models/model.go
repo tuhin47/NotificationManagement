@@ -21,6 +21,9 @@ func copyFields(destination, source interface{}) {
 			// Skip gorm.Model embedded struct
 			continue
 		}
+		if tag := sourceField.Tag.Get("access"); tag == "readonly" {
+			continue // skip editing
+		}
 
 		destField := destValue.FieldByName(sourceField.Name)
 		if destField.IsValid() && destField.CanSet() {

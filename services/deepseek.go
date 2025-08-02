@@ -3,6 +3,7 @@ package services
 import (
 	"NotificationManagement/domain"
 	"NotificationManagement/models"
+	"NotificationManagement/repositories"
 	"NotificationManagement/types"
 	"NotificationManagement/utils/errutil"
 	"bytes"
@@ -21,15 +22,22 @@ type DeepseekServiceImpl struct {
 	CurlService domain.CurlService
 }
 
-func NewDeepseekModelService(repo domain.DeepseekModelRepository, curl domain.CurlService,
-) domain.DeepseekService {
-	return &DeepseekServiceImpl{
-		CommonServiceImpl: NewCommonService[models.DeepseekModel](repo),
-		Repo:              repo,
-		CurlService:       curl,
+func NewDeepseekModelService(repo domain.DeepseekModelRepository, curl domain.CurlService) domain.DeepseekService {
+	service := &DeepseekServiceImpl{
+		Repo:        repo,
+		CurlService: curl,
 	}
+	service.CommonServiceImpl = NewCommonService[models.DeepseekModel](repo, service)
+	return service
 }
 
+func (s *DeepseekServiceImpl) GetContext() context.Context {
+	background := context.Background()
+	f := []repositories.Filter{
+		{"type", "=", "deepseek"},
+	}
+	return context.WithValue(background, repositories.ContextKey{}, &repositories.ContextKey{Filter: &f})
+}
 func (s *DeepseekServiceImpl) MakeAIRequest(mod *models.AIModel, requestId uint) (*types.OllamaResponse, error) {
 	curl, err := s.CurlService.GetModelByID(requestId)
 	if err != nil {

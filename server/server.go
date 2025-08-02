@@ -62,6 +62,7 @@ var Module = fx.Options(
 		repositories.NewReminderRepository,
 
 		services.NewAIServiceManager,
+		services.NewAIModelService,
 		services.NewCurlService,
 		services.NewDeepseekModelService,
 		services.NewGeminiService,

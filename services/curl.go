@@ -24,11 +24,12 @@ type CurlServiceImpl struct {
 }
 
 func NewCurlService(repo domain.CurlRequestRepository, fieldsRepository domain.AdditionalFieldsRepository) domain.CurlService {
-	return &CurlServiceImpl{
-		CommonServiceImpl:   NewCommonService[models.CurlRequest](repo),
+	service := &CurlServiceImpl{
 		CurlRepo:            repo,
 		AdditionalFieldRepo: fieldsRepository,
 	}
+	service.CommonServiceImpl = NewCommonService[models.CurlRequest](repo, service)
+	return service
 }
 
 func parseBasicCurl(raw string) (method, url string, headers map[string]string, body string, err error) {
@@ -150,26 +151,16 @@ func (s *CurlServiceImpl) ExecuteCurl(req *models.CurlRequest) (*types.CurlRespo
 	}, nil
 }
 
-func (s *CurlServiceImpl) UpdateCurlRequest(id uint, req *types.CurlRequest) (*models.CurlRequest, error) {
-	// First check if the record exists
+func (s *CurlServiceImpl) UpdateModel(id uint, model *models.CurlRequest) error {
 	ctx := context.Background()
 	existing, err := s.CurlRepo.GetByID(ctx, id, nil)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	// Convert the request to model
-	modelReq, err := req.ToModel()
-	if err != nil {
-		return nil, errutil.NewAppError(errutil.ErrInvalidRequestBody, err)
-	}
-
-	// Update the existing record with new data
-	existing.UpdateFromModel(modelReq)
-
-	if modelReq.AdditionalFields != nil && len(*modelReq.AdditionalFields) > 0 {
+	if model.AdditionalFields != nil && len(*model.AdditionalFields) > 0 {
 		var idsToCheck []uint
-		for _, af := range *modelReq.AdditionalFields {
+		for _, af := range *model.AdditionalFields {
 			if af.ID != 0 {
 				idsToCheck = append(idsToCheck, af.ID)
 			}
@@ -178,7 +169,7 @@ func (s *CurlServiceImpl) UpdateCurlRequest(id uint, req *types.CurlRequest) (*m
 		if len(idsToCheck) > 0 {
 			existingAdditionalFields, err := s.AdditionalFieldRepo.GetByIDs(ctx, idsToCheck, nil)
 			if err != nil {
-				return nil, err
+				return err
 			}
 
 			existingIDsMap := make(map[uint]bool)
@@ -186,21 +177,21 @@ func (s *CurlServiceImpl) UpdateCurlRequest(id uint, req *types.CurlRequest) (*m
 				existingIDsMap[existingAf.ID] = true
 			}
 
-			for i, af := range *modelReq.AdditionalFields {
+			for i, af := range *model.AdditionalFields {
 				if af.ID != 0 && !existingIDsMap[af.ID] {
-					(*modelReq.AdditionalFields)[i].ID = 0
+					(*model.AdditionalFields)[i].ID = 0
 				}
 			}
 		}
 	}
-	updatedAssoc, err := utils.SyncHasManyAssociation(s.CurlRepo.GetDB(ctx), &existing, "AdditionalFields", modelReq.AdditionalFields)
+	updatedAssoc, err := utils.SyncHasManyAssociation(s.CurlRepo.GetDB(ctx), &existing, "AdditionalFields", model.AdditionalFields)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	err = s.CurlRepo.Update(ctx, existing)
+	err = s.CommonServiceImpl.UpdateModel(id, model)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if updatedAssoc != nil {
 		if props, ok := updatedAssoc.(*[]models.AdditionalFields); ok {
@@ -209,6 +200,7 @@ func (s *CurlServiceImpl) UpdateCurlRequest(id uint, req *types.CurlRequest) (*m
 			existing.AdditionalFields = &propsVal
 		}
 	}
+	model = existing
 
-	return existing, nil
+	return nil
 }

@@ -59,8 +59,12 @@ func (cc *CurlControllerImpl) UpdateCurlRequest(c echo.Context) error {
 	if err := utils.BindAndValidate(c, &req); err != nil {
 		return err
 	}
+	model, err := req.ToModel()
+	if err != nil {
+		return err
+	}
 
-	model, err := cc.Service.UpdateCurlRequest(id, &req)
+	err = cc.Service.UpdateModel(id, model)
 	if err != nil {
 		return err
 	}

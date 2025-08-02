@@ -8,5 +8,6 @@ CREATE TABLE IF NOT EXISTS public.additional_fields
     request_id    bigint
         CONSTRAINT fk_curl_requests_additional_fields
             REFERENCES public.curl_requests
+            ON UPDATE CASCADE ON DELETE CASCADE
 );
 

@@ -3,6 +3,7 @@ package services
 import (
 	"NotificationManagement/domain"
 	"NotificationManagement/models"
+	"NotificationManagement/repositories"
 	"NotificationManagement/types"
 	"NotificationManagement/utils/errutil"
 	"context"
@@ -20,11 +21,20 @@ type GeminiServiceImpl struct {
 }
 
 func NewGeminiService(repo domain.GeminiModelRepository, curlService domain.CurlService) domain.GeminiService {
-	return &GeminiServiceImpl{
-		CommonServiceImpl: NewCommonService[models.GeminiModel](repo),
-		Repo:              repo,
-		CurlService:       curlService,
+	service := &GeminiServiceImpl{
+		Repo:        repo,
+		CurlService: curlService,
 	}
+	service.CommonServiceImpl = NewCommonService[models.GeminiModel](repo, service)
+	return service
+}
+
+func (s *GeminiServiceImpl) GetContext() context.Context {
+	background := context.Background()
+	f := []repositories.Filter{
+		{"type", "=", "gemini"},
+	}
+	return context.WithValue(background, repositories.ContextKey{}, &repositories.ContextKey{Filter: &f})
 }
 
 func (s *GeminiServiceImpl) MakeAIRequest(mod *models.AIModel, requestId uint) (*types.GeminiResponse, error) {
@@ -37,7 +47,7 @@ func (s *GeminiServiceImpl) MakeAIRequest(mod *models.AIModel, requestId uint) (
 	if err != nil {
 		return nil, err
 	}
-	model, err := s.Repo.GetByID(context.Background(), mod.ID, nil)
+	model, err := s.GetModelByID(requestId)
 	if err != nil {
 		return nil, err
 	}

@@ -8,15 +8,20 @@ import (
 )
 
 type CommonServiceImpl[T any] struct {
-	Repo domain.Repository[T, uint]
+	Repo     domain.Repository[T, uint]
+	Instance domain.CommonService[T]
 }
 
-func NewCommonService[T any](repo domain.Repository[T, uint]) *CommonServiceImpl[T] {
-	return &CommonServiceImpl[T]{Repo: repo}
+func (s *CommonServiceImpl[T]) GetContext() context.Context {
+	return context.Background()
+}
+
+func NewCommonService[T any](repo domain.Repository[T, uint], instance domain.CommonService[T]) *CommonServiceImpl[T] {
+	return &CommonServiceImpl[T]{Repo: repo, Instance: instance}
 }
 
 func (s *CommonServiceImpl[T]) CreateModel(entity *T) error {
-	return s.Repo.Create(context.Background(), entity)
+	return s.Repo.Create(s.Instance.GetContext(), entity)
 }
 
 func (s *CommonServiceImpl[T]) GetModelByID(id uint) (*T, error) {
@@ -28,7 +33,7 @@ func (s *CommonServiceImpl[T]) GetModelByID(id uint) (*T, error) {
 }
 
 func (s *CommonServiceImpl[T]) GetAllModels(limit, offset int) ([]T, error) {
-	m, err := s.Repo.GetAll(context.Background(), limit, offset)
+	m, err := s.Repo.GetAll(s.Instance.GetContext(), limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +47,7 @@ func (s *CommonServiceImpl[T]) UpdateModel(id uint, model *T) error {
 		return errutil.NewAppError(errutil.ErrFeatureNotAvailable, errutil.ErrInvalidFeature)
 	}
 
-	existing, err := s.Repo.GetByID(context.Background(), id, nil)
+	existing, err := s.Repo.GetByID(s.Instance.GetContext(), id, nil)
 	if err != nil {
 		return err
 	}
@@ -50,9 +55,9 @@ func (s *CommonServiceImpl[T]) UpdateModel(id uint, model *T) error {
 		existingUpdater.UpdateFromModel(modelUpdater)
 	}
 
-	return s.Repo.Update(context.Background(), existing)
+	return s.Repo.Update(s.Instance.GetContext(), existing)
 }
 
 func (s *CommonServiceImpl[T]) DeleteModel(id uint) error {
-	return s.Repo.Delete(context.Background(), id)
+	return s.Repo.Delete(s.Instance.GetContext(), id)
 }
