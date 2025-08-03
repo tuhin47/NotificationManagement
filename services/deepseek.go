@@ -36,7 +36,7 @@ func (s *DeepseekServiceImpl) GetContext() context.Context {
 	f := []repositories.Filter{
 		{"type", "=", "deepseek"},
 	}
-	return context.WithValue(background, repositories.ContextKey{}, &repositories.ContextKey{Filter: &f})
+	return context.WithValue(background, repositories.ContextStruct{}, &repositories.ContextStruct{Filter: &f})
 }
 func (s *DeepseekServiceImpl) MakeAIRequest(mod *models.AIModel, requestId uint) (*types.OllamaResponse, error) {
 	curl, err := s.CurlService.GetModelByID(requestId)

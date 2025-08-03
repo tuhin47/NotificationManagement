@@ -19,7 +19,7 @@ type Filter struct {
 	Value interface{}
 }
 
-type ContextKey struct {
+type ContextStruct struct {
 	Filter *[]Filter
 }
 
@@ -82,10 +82,10 @@ func (r *SQLRepository[T]) GetAll(ctx context.Context, limit, offset int) ([]T, 
 }
 
 func ApplyFilter(ctx context.Context, query *gorm.DB) *gorm.DB {
-	key := ContextKey{}
+	key := ContextStruct{}
 
 	type ExtraFilters *[]Filter
-	if contextKey, ok := ctx.Value(key).(*ContextKey); ok {
+	if contextKey, ok := ctx.Value(key).(*ContextStruct); ok {
 		for _, f := range *contextKey.Filter {
 			clause := fmt.Sprintf("%s %s ?", f.Field, f.Op)
 			query = query.Where(clause, f.Value)
