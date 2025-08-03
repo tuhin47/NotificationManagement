@@ -91,23 +91,23 @@
                 "description": "Permission to delete reminders"
             },
             {
-                "name": "deepseek_create",
-                "description": "Permission to create deepseek models"
+                "name": "ai_model_create",
+                "description": "Permission to create ai models"
             },
             {
-                "name": "deepseek_read",
-                "description": "Permission to read deepseek models"
+                "name": "ai_model_read",
+                "description": "Permission to read ai models"
             },
             {
-                "name": "deepseek_update",
-                "description": "Permission to update deepseek models"
+                "name": "ai_model_update",
+                "description": "Permission to update ai models"
             },
             {
-                "name": "deepseek_delete",
-                "description": "Permission to delete deepseek models"
+                "name": "ai_model_delete",
+                "description": "Permission to delete ai models"
             },
             {
-                "name": "ai_create",
+                "name": "ai_make_request",
                 "description": "Permission to make AI requests"
             }
         ],
@@ -158,15 +158,16 @@
         },
         {
             "id": "c2d4e98f-0a57-4907-9235-e9435c1a5f19",
-            "name": "deepseek",
-            "path": "/deepseek",
+            "name": "ai",
+            "path": "/ai",
             "subGroups": [],
             "attributes": {},
             "realmRoles": [
-                "deepseek_create",
-                "deepseek_read",
-                "deepseek_update",
-                "deepseek_delete"
+                "ai_model_create",
+                "ai_model_read",
+                "ai_model_update",
+                "ai_model_delete",
+                "ai_make_request"
             ],
             "clientRoles": {}
         }
@@ -214,7 +215,7 @@
                 "curl",
                 "llm",
                 "reminder",
-                "deepseek"
+                "ai"
             ],
             "credentials": [
                 {

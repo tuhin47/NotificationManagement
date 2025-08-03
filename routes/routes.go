@@ -40,11 +40,11 @@ func RegisterReminderRoutes(e *echo.Echo, controller domain.ReminderController, 
 func RegisterAIRoutes(e *echo.Echo, controller domain.AIRequestController, keycloakMiddleware *echo.MiddlewareFunc) {
 	ai := e.Group("/api/ai", *keycloakMiddleware)
 
-	ai.POST("", controller.CreateAIModel, middleware.RequireRoles(utils.RoleDeepseekCreate))
-	ai.GET("/:id", controller.GetAIModelByID, middleware.RequireRoles(utils.RoleDeepseekRead))
-	ai.GET("", controller.GetAllAIModels, middleware.RequireRoles(utils.RoleDeepseekRead))
-	ai.PUT("/:id", controller.UpdateAIModel, middleware.RequireRoles(utils.RoleDeepseekUpdate))
-	ai.DELETE("/:id", controller.DeleteAIModel, middleware.RequireRoles(utils.RoleDeepseekDelete))
+	ai.POST("", controller.CreateAIModel, middleware.RequireRoles(utils.RoleAICreate))
+	ai.GET("/:id", controller.GetAIModelByID, middleware.RequireRoles(utils.RoleAIRead))
+	ai.GET("", controller.GetAllAIModels, middleware.RequireRoles(utils.RoleAIRead))
+	ai.PUT("/:id", controller.UpdateAIModel, middleware.RequireRoles(utils.RoleAIUpdate))
+	ai.DELETE("/:id", controller.DeleteAIModel, middleware.RequireRoles(utils.RoleAIDelete))
 
 	ai.POST("/make-request", controller.MakeAIRequestHandler, middleware.RequireRoles(utils.RoleMakeRequest))
 }
