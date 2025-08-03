@@ -4,6 +4,7 @@ import (
 	"NotificationManagement/domain"
 	"NotificationManagement/types"
 	"NotificationManagement/utils/errutil"
+	"encoding/json"
 )
 
 type AIServiceManagerImpl struct {
@@ -30,7 +31,15 @@ func (f *AIServiceManagerImpl) ProcessAIRequest(req types.MakeAIRequestPayload) 
 		return f.deepseekService.MakeAIRequest(model, req.CurlRequestID)
 
 	case "gemini":
-		return f.geminiService.MakeAIRequest(model, req.CurlRequestID)
+		resp, err := f.geminiService.MakeAIRequest(model, req.CurlRequestID)
+		if err != nil {
+			return nil, err
+		}
+		var result interface{}
+		if err := json.Unmarshal([]byte(resp.Text()), &result); err != nil {
+			return nil, err
+		}
+		return result, nil
 
 	default:
 		return nil, errutil.NewAppError(errutil.ErrServiceUnavailable, errutil.ErrServiceNotAvailable)

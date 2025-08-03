@@ -6,11 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type AIModelType interface {
-	models.DeepseekModel | models.GeminiModel
-}
-
-type AIService[T AIModelType, Y any] interface {
+type AIService[T any, Y any] interface {
 	CommonService[T]
 	MakeAIRequest(m *models.AIModel, requestId uint) (*Y, error)
 }

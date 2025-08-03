@@ -79,7 +79,7 @@ func NewDB() (*gorm.DB, error) {
 	if err := db.AutoMigrate(
 		&models.CurlRequest{},
 		&models.Reminder{},
-		&models.UserLLM{},
+		&models.RequestAIModel{},
 		&models.DeepseekModel{},
 		&models.AdditionalFields{},
 	); err != nil {

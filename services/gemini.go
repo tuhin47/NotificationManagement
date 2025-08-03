@@ -71,28 +71,27 @@ func geminiCall(model *models.GeminiModel, response *types.CurlResponse, req *mo
 	}
 	gr := []*genai.Content{
 		{
-			Role: "user",
+			Role: genai.RoleModel,
 			Parts: []*genai.Part{
 				{Text: assistantContent},
 			},
 		},
 		{
-			Role: "model",
+			Role: genai.RoleUser,
 			Parts: []*genai.Part{
-				{Text: "Please check the current rate from the json.Is it greater than 125 ? Return Json Response "},
+				{Text: req.Body},
 			},
 		},
 	}
-	properties := map[string]*genai.Schema{
-		"IsCorrect": {Type: genai.TypeBoolean},
-		"CurrentRate": {
-			Type:        genai.TypeNumber,
-			Description: "description",
-		},
+	properties := req.GetGenaiSchemaProperties()
+	properties["IsCorrect"] = &genai.Schema{
+		Type:        genai.TypeBoolean,
+		Description: "The answer of the question",
 	}
+
 	config := &genai.GenerateContentConfig{
 		ThinkingConfig: &genai.ThinkingConfig{
-			IncludeThoughts: true,
+			IncludeThoughts: false,
 		},
 		ResponseMIMEType: "application/json",
 		ResponseSchema: &genai.Schema{
