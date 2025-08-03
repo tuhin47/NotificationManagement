@@ -12,7 +12,7 @@ type CommonServiceImpl[T any] struct {
 	Instance domain.CommonService[T]
 }
 
-func NewCommonService[T any](repo domain.Repository[T, uint], instance domain.CommonService[T]) *CommonServiceImpl[T] {
+func NewCommonService[T any](repo domain.Repository[T, uint], instance domain.CommonService[T]) domain.CommonService[T] {
 	return &CommonServiceImpl[T]{Repo: repo, Instance: instance}
 }
 
@@ -27,7 +27,7 @@ func (s *CommonServiceImpl[T]) CreateModel(entity *T) error {
 }
 
 func (s *CommonServiceImpl[T]) GetModelByID(id uint) (*T, error) {
-	model, err := s.Repo.GetByID(context.Background(), id, nil)
+	model, err := s.Repo.GetByID(s.Instance.GetContext(), id, nil)
 	if err != nil {
 		return nil, err
 	}

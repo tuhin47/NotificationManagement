@@ -1,6 +1,8 @@
 package models
 
 import (
+	"NotificationManagement/types/ollama"
+
 	"google.golang.org/genai"
 	"gorm.io/gorm"
 )
@@ -37,6 +39,26 @@ func (c *CurlRequest) GetGenaiSchemaProperties() map[string]*genai.Schema {
 		}
 		properties[field.PropertyName] = &genai.Schema{
 			Type:        schemaType,
+			Description: field.Description,
+		}
+	}
+	return properties
+}
+
+func (c *CurlRequest) GetOllamaSchemaProperties() map[string]ollama.OllamaFormatProperty {
+	properties := make(map[string]ollama.OllamaFormatProperty)
+	for _, field := range *c.AdditionalFields {
+		var ollamaType string
+		switch field.Type {
+		case "number":
+			ollamaType = "number"
+		case "boolean":
+			ollamaType = "boolean"
+		default:
+			ollamaType = "string"
+		}
+		properties[field.PropertyName] = ollama.OllamaFormatProperty{
+			Type:        ollamaType,
 			Description: field.Description,
 		}
 	}

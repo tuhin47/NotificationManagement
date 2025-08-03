@@ -8,33 +8,32 @@ import (
 	"NotificationManagement/types"
 	"NotificationManagement/utils/errutil"
 	"context"
+
 	"google.golang.org/genai"
 )
 
 type GeminiServiceImpl struct {
-	domain.AIService[models.GeminiModel]
-	Repo        domain.GeminiModelRepository
+	domain.CommonService[models.GeminiModel]
 	CurlService domain.CurlService
 }
 
 func NewGeminiService(repo domain.GeminiModelRepository, curlService domain.CurlService) domain.GeminiService {
 	service := &GeminiServiceImpl{
-		Repo:        repo,
 		CurlService: curlService,
 	}
-	service.AIService = NewAIService[models.GeminiModel](repo, service)
+	service.CommonService = NewCommonService(repo, service)
 	return service
 }
 
 func (s *GeminiServiceImpl) GetContext() context.Context {
 	background := context.Background()
 	f := []repositories.Filter{
-		{"type", "=", "gemini"},
+		{Field: "type", Op: "=", Value: "gemini"},
 	}
 	return context.WithValue(background, repositories.ContextStruct{}, &repositories.ContextStruct{Filter: &f})
 }
 
-func (s *GeminiServiceImpl) MakeAIRequest(mod *models.AIModel, requestId uint) (interface{}, error) {
+func (s *GeminiServiceImpl) MakeAIRequest(aiModel *models.AIModel, requestId uint) (interface{}, error) {
 
 	curl, err := s.CurlService.GetModelByID(requestId)
 	if err != nil {
@@ -44,7 +43,7 @@ func (s *GeminiServiceImpl) MakeAIRequest(mod *models.AIModel, requestId uint) (
 	if err != nil {
 		return nil, err
 	}
-	model, err := s.GetModelByID(requestId)
+	model, err := s.GetModelByID(aiModel.ID)
 	if err != nil {
 		return nil, err
 	}

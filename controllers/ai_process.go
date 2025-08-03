@@ -31,7 +31,7 @@ func (ac *AIRequestControllerImpl) MakeAIRequestHandler(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	aiResponse, err := service.ProcessAIRequest(req)
+	aiResponse, err := service.ProcessAIRequest(&req)
 	if err != nil {
 		return err
 	}

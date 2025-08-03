@@ -5,7 +5,6 @@ import (
 )
 
 type AIModelInterface interface {
-	GetBaseURL() string
 	GetType() string
 }
 
@@ -29,6 +28,10 @@ type GeminiModel struct {
 	APISecret string `gorm:"size:500;index:idx_ai_model_model_secret,unique" json:"api_secret"`
 }
 
+func (d *AIModel) GetType() string {
+	return d.Type
+}
+
 func (d *GeminiModel) GetType() string {
 	return d.Type
 }
@@ -37,16 +40,8 @@ func (d *DeepseekModel) GetType() string {
 	return d.Type
 }
 
-func (d *DeepseekModel) GetBaseURL() string {
-	return d.BaseURL
-}
-
 func (*DeepseekModel) TableName() string {
 	return "ai_models"
-}
-
-func (*GeminiModel) GetBaseURL() string {
-	return "https://api.gemini.com"
 }
 
 func (*GeminiModel) TableName() string {
@@ -58,8 +53,8 @@ func (d *DeepseekModel) UpdateFromModel(source ModelInterface) {
 		copyFields(d, src)
 	}
 }
-func (g *GeminiModel) UpdateFromModel(source ModelInterface) {
+func (d *GeminiModel) UpdateFromModel(source ModelInterface) {
 	if src, ok := source.(*GeminiModel); ok {
-		copyFields(g, src)
+		copyFields(d, src)
 	}
 }

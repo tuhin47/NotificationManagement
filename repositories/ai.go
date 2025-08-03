@@ -8,11 +8,11 @@ import (
 )
 
 type AIModelRepositoryImpl struct {
-	*SQLRepository[models.AIModel]
+	domain.Repository[models.AIModel, uint]
 }
 
 func NewAIModelRepository(db *gorm.DB) domain.AIModelRepository {
 	return &AIModelRepositoryImpl{
-		SQLRepository: NewSQLRepository[models.AIModel](db),
+		Repository: NewSQLRepository[models.AIModel](db),
 	}
 }

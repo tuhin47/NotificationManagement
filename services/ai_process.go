@@ -34,7 +34,7 @@ func (f *BaseAIProcessImpl[T, X]) UpdateModel(id uint, model models.AIModelInter
 	return f.Service.UpdateModel(id, x)
 }
 
-func (f *BaseAIProcessImpl[T, X]) ProcessAIRequest(req types.MakeAIRequestPayload) (interface{}, error) {
+func (f *BaseAIProcessImpl[T, X]) ProcessAIRequest(req *types.MakeAIRequestPayload) (interface{}, error) {
 	model, err := f.AIModelService.GetModelByID(req.ModelID)
 	if err != nil {
 		return nil, err
@@ -51,9 +51,8 @@ type DeepseekProcessServiceImpl struct {
 }
 
 func NewAIDeepseekServiceManager(aiService domain.AIModelService, service domain.DeepseekService) DeepseekProcessServiceImpl {
-	manager := NewAIServiceManager[domain.AIService[models.DeepseekModel], models.DeepseekModel](aiService, service)
 	return DeepseekProcessServiceImpl{
-		AIProcessService: manager,
+		AIProcessService: NewAIServiceManager[domain.AIService[models.DeepseekModel]](aiService, service),
 	}
 }
 
@@ -62,8 +61,7 @@ type GeminiProcessServiceImpl struct {
 }
 
 func NewGeminiServiceManager(aiService domain.AIModelService, service domain.GeminiService) GeminiProcessServiceImpl {
-	manager := NewAIServiceManager[domain.AIService[models.GeminiModel], models.GeminiModel](aiService, service)
 	return GeminiProcessServiceImpl{
-		AIProcessService: manager,
+		AIProcessService: NewAIServiceManager[domain.AIService[models.GeminiModel]](aiService, service),
 	}
 }
