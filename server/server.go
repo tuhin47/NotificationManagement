@@ -21,12 +21,11 @@ func NewEcho() *echo.Echo {
 	return e
 }
 
-func RegisterRoutes(e *echo.Echo, curlController domain.CurlController, llmController domain.LLMController, reminderController domain.ReminderController, deepseekController domain.AIModelController, aiController domain.AIRequestController) {
+func RegisterRoutes(e *echo.Echo, curlController domain.CurlController, llmController domain.LLMController, reminderController domain.ReminderController, deepseekController, aiController domain.AIRequestController) {
 	keycloakMiddleware := middleware.KeycloakMiddleware()
 	routes.RegisterCurlRoutes(e, curlController, &keycloakMiddleware)
 	routes.RegisterLLMRoutes(e, llmController, &keycloakMiddleware)
 	routes.RegisterReminderRoutes(e, reminderController, &keycloakMiddleware)
-	routes.RegisterDeepseekModelRoutes(e, deepseekController, &keycloakMiddleware)
 	routes.RegisterAIRoutes(e, aiController, &keycloakMiddleware)
 }
 
@@ -47,7 +46,6 @@ func interceptLogger(next echo.HandlerFunc) echo.HandlerFunc {
 var Module = fx.Options(
 	fx.Provide(
 		NewEcho,
-		controllers.NewAIModelController,
 		controllers.NewAIRequestController,
 		controllers.NewCurlController,
 		controllers.NewLLMController,
@@ -61,7 +59,8 @@ var Module = fx.Options(
 		repositories.NewLLMRepository,
 		repositories.NewReminderRepository,
 
-		services.NewAIServiceManager,
+		services.NewAIDeepseekServiceManager,
+		services.NewGeminiServiceManager,
 		services.NewAIModelService,
 		services.NewCurlService,
 		services.NewDeepseekModelService,

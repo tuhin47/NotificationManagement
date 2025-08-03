@@ -17,7 +17,7 @@ import (
 )
 
 type DeepseekServiceImpl struct {
-	domain.CommonService[models.DeepseekModel]
+	domain.AIService[models.DeepseekModel]
 	Repo        domain.DeepseekModelRepository
 	CurlService domain.CurlService
 }
@@ -27,7 +27,7 @@ func NewDeepseekModelService(repo domain.DeepseekModelRepository, curl domain.Cu
 		Repo:        repo,
 		CurlService: curl,
 	}
-	service.CommonService = NewCommonService[models.DeepseekModel](repo, service)
+	service.AIService = NewAIService[models.DeepseekModel](repo, service)
 	return service
 }
 
@@ -38,7 +38,8 @@ func (s *DeepseekServiceImpl) GetContext() context.Context {
 	}
 	return context.WithValue(background, repositories.ContextStruct{}, &repositories.ContextStruct{Filter: &f})
 }
-func (s *DeepseekServiceImpl) MakeAIRequest(mod *models.AIModel, requestId uint) (*types.OllamaResponse, error) {
+
+func (s *DeepseekServiceImpl) MakeAIRequest(mod *models.AIModel, requestId uint) (interface{}, error) {
 	curl, err := s.CurlService.GetModelByID(requestId)
 	if err != nil {
 		return nil, err
@@ -62,7 +63,8 @@ func (s *DeepseekServiceImpl) MakeAIRequest(mod *models.AIModel, requestId uint)
 		return nil, errutil.NewAppError(errutil.ErrExternalServiceError, err)
 	}
 
-	return &ollamaResp, nil
+	a := any(ollamaResp)
+	return &a, nil
 }
 
 func (s *DeepseekServiceImpl) PullModel(model *models.DeepseekModel) error {

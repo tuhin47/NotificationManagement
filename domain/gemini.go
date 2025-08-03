@@ -2,11 +2,10 @@ package domain
 
 import (
 	"NotificationManagement/models"
-	"google.golang.org/genai"
 )
 
 type GeminiService interface {
-	AIService[models.GeminiModel, genai.GenerateContentResponse]
+	AIService[models.GeminiModel]
 }
 
 type GeminiModelRepository interface {

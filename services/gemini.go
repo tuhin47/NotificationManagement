@@ -12,7 +12,7 @@ import (
 )
 
 type GeminiServiceImpl struct {
-	domain.CommonService[models.GeminiModel]
+	domain.AIService[models.GeminiModel]
 	Repo        domain.GeminiModelRepository
 	CurlService domain.CurlService
 }
@@ -22,7 +22,7 @@ func NewGeminiService(repo domain.GeminiModelRepository, curlService domain.Curl
 		Repo:        repo,
 		CurlService: curlService,
 	}
-	service.CommonService = NewCommonService[models.GeminiModel](repo, service)
+	service.AIService = NewAIService[models.GeminiModel](repo, service)
 	return service
 }
 
@@ -34,7 +34,7 @@ func (s *GeminiServiceImpl) GetContext() context.Context {
 	return context.WithValue(background, repositories.ContextStruct{}, &repositories.ContextStruct{Filter: &f})
 }
 
-func (s *GeminiServiceImpl) MakeAIRequest(mod *models.AIModel, requestId uint) (*genai.GenerateContentResponse, error) {
+func (s *GeminiServiceImpl) MakeAIRequest(mod *models.AIModel, requestId uint) (interface{}, error) {
 
 	curl, err := s.CurlService.GetModelByID(requestId)
 	if err != nil {

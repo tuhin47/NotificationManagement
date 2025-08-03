@@ -49,7 +49,7 @@ func (r *AIModelRequest) Validate() error {
 }
 
 // ToModel converts a types.AIModelRequest to a models.DeepseekModel or models.GeminiModel
-func (dr *AIModelRequest) ToModel() (interface{}, error) {
+func (dr *AIModelRequest) ToModel() (models.AIModelInterface, error) {
 	err := dr.Validate()
 	if err != nil {
 		return nil, errutil.NewAppError(errutil.ErrInvalidRequestBody, err)
