@@ -7,11 +7,11 @@ import (
 )
 
 type LLMService interface {
-	CommonService[models.UserLLM]
+	CommonService[models.RequestAIModel]
 }
 
 type LLMRepository interface {
-	Repository[models.UserLLM, uint]
+	Repository[models.RequestAIModel, uint]
 }
 
 type LLMController interface {

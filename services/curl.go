@@ -1,8 +1,10 @@
 package services
 
 import (
+	"NotificationManagement/repositories"
 	"NotificationManagement/utils"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"io"
@@ -18,9 +20,13 @@ import (
 )
 
 type CurlServiceImpl struct {
-	*CommonServiceImpl[models.CurlRequest]
+	domain.CommonService[models.CurlRequest]
 	CurlRepo            domain.CurlRequestRepository
 	AdditionalFieldRepo domain.AdditionalFieldsRepository
+}
+
+func (s CurlServiceImpl) GetModelByID(id uint) (*models.CurlRequest, error) {
+	return s.CurlRepo.GetByID(s.GetInstance().GetContext(), id, &[]string{"AdditionalFields"})
 }
 
 func NewCurlService(repo domain.CurlRequestRepository, fieldsRepository domain.AdditionalFieldsRepository) domain.CurlService {
@@ -28,7 +34,7 @@ func NewCurlService(repo domain.CurlRequestRepository, fieldsRepository domain.A
 		CurlRepo:            repo,
 		AdditionalFieldRepo: fieldsRepository,
 	}
-	service.CommonServiceImpl = NewCommonService[models.CurlRequest](repo, service)
+	service.CommonService = NewCommonService(repo, service)
 	return service
 }
 
@@ -41,14 +47,20 @@ func parseBasicCurl(raw string) (method, url string, headers map[string]string, 
 	raw = strings.TrimSpace(raw)
 	raw = regexp.MustCompile(`\s+`).ReplaceAllString(raw, " ")
 
-	// Match both single and double quotes for the URL
-	re := regexp.MustCompile(`curl\s+['"]([^'"]+)['"]`)
+	// Match single, double, or escaped single quotes for the URL
+	re := regexp.MustCompile(`curl\s+(?:'([^']+)'|"([^"]+)"|\\'([^\\']+)\\')`)
 	matches := re.FindStringSubmatch(raw)
 	if len(matches) < 2 {
 		err = errors.New("could not parse URL from curl command")
 		return
 	}
-	url = matches[1]
+	// Find the first non-empty group
+	for i := 1; i < len(matches); i++ {
+		if matches[i] != "" {
+			url = matches[i]
+			break
+		}
+	}
 
 	// Find -X or --request for method
 	if strings.Contains(raw, " -X ") {
@@ -110,8 +122,14 @@ func (s *CurlServiceImpl) ExecuteCurl(req *models.CurlRequest) (*types.CurlRespo
 	}
 
 	logger.Info("Executing HTTP request", "method", method, "url", urlStr, "headers", headers, "body", body)
-
-	client := &http.Client{}
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true, // Disables certificate verification
+		},
+	}
+	client := &http.Client{
+		Transport: transport,
+	}
 	request, err := http.NewRequest(method, urlStr, io.NopCloser(strings.NewReader(body)))
 	if err != nil {
 		return &types.CurlResponse{}, errutil.NewAppError(errutil.ErrExternalServiceError, err)
@@ -160,14 +178,20 @@ func (s *CurlServiceImpl) UpdateModel(id uint, model *models.CurlRequest) (*mode
 
 	if model.AdditionalFields != nil && len(*model.AdditionalFields) > 0 {
 		var idsToCheck []uint
-		for _, af := range *model.AdditionalFields {
+		for i, af := range *model.AdditionalFields {
 			if af.ID != 0 {
 				idsToCheck = append(idsToCheck, af.ID)
 			}
+			(*model.AdditionalFields)[i].RequestID = id
 		}
 
 		if len(idsToCheck) > 0 {
-			existingAdditionalFields, err := s.AdditionalFieldRepo.GetByIDs(ctx, idsToCheck, nil)
+			background := context.Background()
+			f := []repositories.Filter{
+				{Field: "request_id", Op: "=", Value: id},
+			}
+			background = context.WithValue(background, repositories.ContextStruct{}, &repositories.ContextStruct{Filter: &f})
+			existingAdditionalFields, err := s.AdditionalFieldRepo.GetByIDs(background, idsToCheck, nil)
 			if err != nil {
 				return nil, err
 			}
@@ -181,6 +205,7 @@ func (s *CurlServiceImpl) UpdateModel(id uint, model *models.CurlRequest) (*mode
 				if af.ID != 0 && !existingIDsMap[af.ID] {
 					(*model.AdditionalFields)[i].ID = 0
 				}
+
 			}
 		}
 	}
@@ -189,15 +214,13 @@ func (s *CurlServiceImpl) UpdateModel(id uint, model *models.CurlRequest) (*mode
 		return nil, err
 	}
 
-	model, err = s.CommonServiceImpl.UpdateModel(id, model)
+	model, err = s.CommonService.UpdateModel(id, model)
 	if err != nil {
 		return nil, err
 	}
 	if updatedAssoc != nil {
 		if props, ok := updatedAssoc.(*[]models.AdditionalFields); ok {
 			existing.AdditionalFields = props
-		} else if propsVal, ok := updatedAssoc.([]models.AdditionalFields); ok {
-			existing.AdditionalFields = &propsVal
 		}
 	}
 

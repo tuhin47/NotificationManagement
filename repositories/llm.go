@@ -8,11 +8,11 @@ import (
 )
 
 type LLMRepositoryImpl struct {
-	*SQLRepository[models.UserLLM]
+	domain.Repository[models.RequestAIModel, uint]
 }
 
 func NewLLMRepository(db *gorm.DB) domain.LLMRepository {
 	return &LLMRepositoryImpl{
-		SQLRepository: NewSQLRepository[models.UserLLM](db),
+		Repository: NewSQLRepository[models.RequestAIModel](db),
 	}
 }

@@ -8,11 +8,11 @@ import (
 )
 
 type DeepseekModelRepositoryImpl struct {
-	*SQLRepository[models.DeepseekModel]
+	domain.Repository[models.DeepseekModel, uint]
 }
 
 func NewDeepseekModelRepository(db *gorm.DB) domain.DeepseekModelRepository {
 	return &DeepseekModelRepositoryImpl{
-		SQLRepository: NewSQLRepository[models.DeepseekModel](db),
+		Repository: NewSQLRepository[models.DeepseekModel](db),
 	}
 }

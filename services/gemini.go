@@ -2,42 +2,38 @@ package services
 
 import (
 	"NotificationManagement/domain"
+	"NotificationManagement/logger"
 	"NotificationManagement/models"
 	"NotificationManagement/repositories"
 	"NotificationManagement/types"
 	"NotificationManagement/utils/errutil"
 	"context"
-	"encoding/json"
-	"fmt"
-	"io"
-	"net/http"
-	"strings"
+
+	"google.golang.org/genai"
 )
 
 type GeminiServiceImpl struct {
-	*CommonServiceImpl[models.GeminiModel]
-	Repo        domain.GeminiModelRepository
+	domain.CommonService[models.GeminiModel]
 	CurlService domain.CurlService
 }
 
 func NewGeminiService(repo domain.GeminiModelRepository, curlService domain.CurlService) domain.GeminiService {
 	service := &GeminiServiceImpl{
-		Repo:        repo,
 		CurlService: curlService,
 	}
-	service.CommonServiceImpl = NewCommonService[models.GeminiModel](repo, service)
+	service.CommonService = NewCommonService(repo, service)
 	return service
 }
 
 func (s *GeminiServiceImpl) GetContext() context.Context {
 	background := context.Background()
 	f := []repositories.Filter{
-		{"type", "=", "gemini"},
+		{Field: "type", Op: "=", Value: "gemini"},
 	}
-	return context.WithValue(background, repositories.ContextKey{}, &repositories.ContextKey{Filter: &f})
+	return context.WithValue(background, repositories.ContextStruct{}, &repositories.ContextStruct{Filter: &f})
 }
 
-func (s *GeminiServiceImpl) MakeAIRequest(mod *models.AIModel, requestId uint) (*types.GeminiResponse, error) {
+func (s *GeminiServiceImpl) MakeAIRequest(aiModel *models.AIModel, requestId uint) (interface{}, error) {
 
 	curl, err := s.CurlService.GetModelByID(requestId)
 	if err != nil {
@@ -47,70 +43,71 @@ func (s *GeminiServiceImpl) MakeAIRequest(mod *models.AIModel, requestId uint) (
 	if err != nil {
 		return nil, err
 	}
-	model, err := s.GetModelByID(requestId)
+	model, err := s.GetModelByID(aiModel.ID)
 	if err != nil {
 		return nil, err
 	}
-	respBody, err := geminiCall(model, curlResponse)
+	respBody, err := geminiCall(model, curlResponse, curl)
 	if err != nil {
 		return nil, errutil.NewAppError(errutil.ErrExternalServiceError, err)
 	}
 
-	// Parse the response
-	var geminiResp types.GeminiResponse
-	if err := json.Unmarshal(respBody, &geminiResp); err != nil {
-		return nil, errutil.NewAppError(errutil.ErrExternalServiceError, err)
-	}
-
-	return &geminiResp, nil
+	return respBody, nil
 }
 
-func geminiCall(model *models.GeminiModel, response *types.CurlResponse) ([]byte, error) {
+func geminiCall(model *models.GeminiModel, response *types.CurlResponse, req *models.CurlRequest) (*genai.GenerateContentResponse, error) {
 	assistantContent, err := response.GetAssistantContent()
 	if err != nil {
 		return nil, err
 	}
-
-	geminiReq := types.GeminiRequest{
-		Model: model.ModelName,
-		Contents: []*types.GeminiMessage{
-			{
-				Role: "user", // Gemini typically starts with user role
-				Parts: []types.GeminiPart{
-					{Text: assistantContent},
-				},
+	ctx := context.Background()
+	// The client gets the API key from the environment variable `GEMINI_API_KEY`.
+	client, err := genai.NewClient(ctx, &genai.ClientConfig{
+		APIKey: model.APISecret,
+	})
+	if err != nil {
+		return nil, err
+	}
+	gr := []*genai.Content{
+		{
+			Role: genai.RoleModel,
+			Parts: []*genai.Part{
+				{Text: assistantContent},
 			},
-			{
-				Role: "model", // Gemini's assistant role is 'model'
-				Parts: []types.GeminiPart{
-					{Text: "Please check the current rate from the json.Is it greater than 125 ? Return Json Response "},
-				},
+		},
+		{
+			Role: genai.RoleUser,
+			Parts: []*genai.Part{
+				{Text: req.Body},
 			},
 		},
 	}
+	properties := req.GetGenaiSchemaProperties()
+	properties["IsCorrect"] = &genai.Schema{
+		Type:        genai.TypeBoolean,
+		Description: "The answer of the question",
+	}
 
-	url := fmt.Sprintf("%s/v1beta/models/%s:generateContent?key=%s", model.GetBaseURL(), model.ModelName, model.APISecret)
-	reqBody, err := json.Marshal(geminiReq)
+	config := &genai.GenerateContentConfig{
+		ThinkingConfig: &genai.ThinkingConfig{
+			IncludeThoughts: false,
+		},
+		ResponseMIMEType: "application/json",
+		ResponseSchema: &genai.Schema{
+			Type:       genai.TypeObject,
+			Properties: properties,
+		},
+	}
+	result, err := client.Models.GenerateContent(
+		ctx,
+		model.ModelName,
+		gr,
+		config,
+	)
 	if err != nil {
 		return nil, err
 	}
+	logger.Info(result.Text())
 
-	client := &http.Client{}
-	req, err := http.NewRequest("POST", url, strings.NewReader(string(reqBody)))
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("Content-Type", "application/json")
-
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	body, err := io.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-	return body, err
+	return result, err
 }

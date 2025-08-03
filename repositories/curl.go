@@ -7,21 +7,21 @@ import (
 )
 
 type CurlRequestRepositoryImpl struct {
-	*SQLRepository[models.CurlRequest]
+	domain.Repository[models.CurlRequest, uint]
 }
 
 func NewCurlRequestRepository(db *gorm.DB) domain.CurlRequestRepository {
 	return &CurlRequestRepositoryImpl{
-		SQLRepository: NewSQLRepository[models.CurlRequest](db),
+		Repository: NewSQLRepository[models.CurlRequest](db),
 	}
 }
 
 type AdditionalFieldsRepositoryImpl struct {
-	*SQLRepository[models.AdditionalFields]
+	domain.Repository[models.AdditionalFields, uint]
 }
 
 func NewAdditionalFieldsRepository(db *gorm.DB) domain.AdditionalFieldsRepository {
 	return &AdditionalFieldsRepositoryImpl{
-		SQLRepository: NewSQLRepository[models.AdditionalFields](db),
+		Repository: NewSQLRepository[models.AdditionalFields](db),
 	}
 }

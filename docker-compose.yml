@@ -7,7 +7,7 @@ services:
     ports:
       - "4566:4566"
     environment:
-      - SERVICES=ssm
+      - SERVICES=ssm,config
       - DEBUG=1
       - PERSISTENCE=1
       - DATA_DIR=/tmp/localstack/data
@@ -29,7 +29,7 @@ services:
       - POSTGRES_DB=notification_management
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./scripts/public:/docker-entrypoint-initdb.d/
+      - ./scripts/db:/docker-entrypoint-initdb.d/
     networks:
       - localstack-network
 

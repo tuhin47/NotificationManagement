@@ -2,11 +2,10 @@ package domain
 
 import (
 	"NotificationManagement/models"
-	"NotificationManagement/types"
 )
 
 type GeminiService interface {
-	AIService[models.GeminiModel, types.GeminiResponse]
+	AIService[models.GeminiModel]
 }
 
 type GeminiModelRepository interface {

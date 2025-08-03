@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"NotificationManagement/domain"
 	"NotificationManagement/utils/errutil"
 	"context"
 	"errors"
@@ -19,11 +20,11 @@ type Filter struct {
 	Value interface{}
 }
 
-type ContextKey struct {
+type ContextStruct struct {
 	Filter *[]Filter
 }
 
-func NewSQLRepository[T any](db *gorm.DB) *SQLRepository[T] {
+func NewSQLRepository[T any](db *gorm.DB) domain.Repository[T, uint] {
 	return &SQLRepository[T]{db: db}
 }
 func (r *SQLRepository[T]) GetDB(ctx context.Context) *gorm.DB {
@@ -31,7 +32,9 @@ func (r *SQLRepository[T]) GetDB(ctx context.Context) *gorm.DB {
 }
 
 func (r *SQLRepository[T]) Create(ctx context.Context, entity *T) error {
-	err := r.db.WithContext(ctx).Create(entity).Error
+	withContext := r.db.WithContext(ctx)
+	withContext = ApplyFilter(ctx, withContext)
+	err := withContext.Create(entity).Error
 	if err != nil {
 		return handleDbError(err)
 	}
@@ -63,6 +66,7 @@ func (r *SQLRepository[T]) GetByID(ctx context.Context, id uint, preloads *[]str
 			dbContext = dbContext.Preload(it)
 		}
 	}
+	dbContext = ApplyFilter(ctx, dbContext)
 	err := dbContext.First(&entity, id).Error
 	if err != nil {
 		return nil, handleDbError(err)
@@ -82,10 +86,10 @@ func (r *SQLRepository[T]) GetAll(ctx context.Context, limit, offset int) ([]T, 
 }
 
 func ApplyFilter(ctx context.Context, query *gorm.DB) *gorm.DB {
-	key := ContextKey{}
+	key := ContextStruct{}
 
 	type ExtraFilters *[]Filter
-	if contextKey, ok := ctx.Value(key).(*ContextKey); ok {
+	if contextKey, ok := ctx.Value(key).(*ContextStruct); ok {
 		for _, f := range *contextKey.Filter {
 			clause := fmt.Sprintf("%s %s ?", f.Field, f.Op)
 			query = query.Where(clause, f.Value)
@@ -133,6 +137,7 @@ func (r *SQLRepository[T]) GetByIDs(ctx context.Context, ids []uint, preloads *[
 			dbContext = dbContext.Preload(it)
 		}
 	}
+	dbContext = ApplyFilter(ctx, r.db)
 	err := dbContext.Where("id IN (?)", ids).Find(&entities).Error
 	if err != nil {
 		return nil, handleDbError(err)

@@ -24,15 +24,12 @@ const (
 	RoleReminderDelete = "reminder_delete"
 )
 
-// Role constants for Deepseek Model operations
 const (
-	RoleDeepseekCreate = "deepseek_create"
-	RoleDeepseekRead   = "deepseek_read"
-	RoleDeepseekUpdate = "deepseek_update"
-	RoleDeepseekDelete = "deepseek_delete"
-)
-
-// Role constants for AI operations
-const (
-	RoleMakeRequest = "ai_create"
+	// Role constants for Deepseek Model operations
+	RoleAICreate = "ai_model_create"
+	RoleAIRead   = "ai_model_read"
+	RoleAIUpdate = "ai_model_update"
+	RoleAIDelete = "ai_model_delete"
+	// Role constants for AI operations
+	RoleMakeRequest = "ai_make_request"
 )

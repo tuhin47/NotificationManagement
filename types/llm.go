@@ -29,21 +29,21 @@ type LLMResponse struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-// ToModel converts a types.LLMRequest to a models.UserLLM
-func (lr *LLMRequest) ToModel() (*models.UserLLM, error) {
+// ToModel converts a types.LLMRequest to a models.RequestAIModel
+func (lr *LLMRequest) ToModel() (*models.RequestAIModel, error) {
 	err := lr.Validate()
 	if err != nil {
 		return nil, errutil.NewAppError(errutil.ErrInvalidRequestBody, err)
 	}
-	return &models.UserLLM{
+	return &models.RequestAIModel{
 		RequestID: lr.RequestID,
 		AiModelID: lr.AIModelID,
 		IsActive:  lr.IsActive,
 	}, nil
 }
 
-// FromModel converts a models.UserLLM to a types.LLMResponse
-func FromLLMModel(model *models.UserLLM) *LLMResponse {
+// FromModel converts a models.RequestAIModel to a types.LLMResponse
+func FromLLMModel(model *models.RequestAIModel) *LLMResponse {
 	return &LLMResponse{
 		ID:        model.ID,
 		RequestID: model.RequestID,

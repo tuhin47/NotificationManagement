@@ -8,11 +8,11 @@ import (
 )
 
 type GeminiRepositoryImpl struct {
-	*SQLRepository[models.GeminiModel]
+	domain.Repository[models.GeminiModel, uint]
 }
 
 func NewGeminiRepository(db *gorm.DB) domain.GeminiModelRepository {
 	return &GeminiRepositoryImpl{
-		SQLRepository: NewSQLRepository[models.GeminiModel](db),
+		Repository: NewSQLRepository[models.GeminiModel](db),
 	}
 }

@@ -7,13 +7,10 @@ import (
 
 type AIModelServiceImpl struct {
 	domain.CommonService[models.AIModel]
-	Repo domain.AIModelRepository
 }
 
 func NewAIModelService(repo domain.AIModelRepository) domain.AIModelService {
-	service := &AIModelServiceImpl{
-		Repo: repo,
-	}
-	service.CommonService = NewCommonService[models.AIModel](repo, service)
+	service := &AIModelServiceImpl{}
+	service.CommonService = NewCommonService(repo, service)
 	return service
 }

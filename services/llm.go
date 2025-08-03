@@ -6,14 +6,11 @@ import (
 )
 
 type LLMServiceImpl struct {
-	domain.CommonService[models.UserLLM]
-	Repo domain.LLMRepository
+	domain.CommonService[models.RequestAIModel]
 }
 
 func NewLLMService(repo domain.LLMRepository) domain.LLMService {
-	service := &LLMServiceImpl{
-		Repo: repo,
-	}
-	service.CommonService = NewCommonService[models.UserLLM](repo, service)
+	service := &LLMServiceImpl{}
+	service.CommonService = NewCommonService(repo, service)
 	return service
 }

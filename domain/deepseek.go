@@ -2,11 +2,10 @@ package domain
 
 import (
 	"NotificationManagement/models"
-	"NotificationManagement/types"
 )
 
 type DeepseekService interface {
-	AIService[models.DeepseekModel, types.OllamaResponse]
+	AIService[models.DeepseekModel]
 	PullModel(model *models.DeepseekModel) error
 }
 

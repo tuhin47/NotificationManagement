@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate SQL Curl</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: monospace;
+            font-size: 14px;
+            min-height: 150px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .output-section {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Curl Command to String Converter</h1>
+
+        <label for="curlInput">Enter Curl Command:</label>
+        <textarea id="curlInput" placeholder="e.g., curl -X POST -H 'Content-Type: application/json' -d '{\"key\":\"value\"}' http://localhost:8080/api/data"></textarea>
+
+        <button onclick="convertCurl()">Generate String</button>
+
+        <div class="output-section">
+            <label for="stringOutput">Generated String:</label>
+            <textarea id="stringOutput" readonly></textarea>
+            <button onclick="copyToClipboard()">Copy to Clipboard</button>
+        </div>
+    </div>
+
+    <script>
+        function escapeString(str) {
+            return str
+                .replace(/\\/g, '\\\\') // Escape backslashes first
+                .replace(/'/g, "\\'")   // Escape single quotes
+                .replace(/"/g, '\\"')   // Escape double quotes
+                .replace(/\n/g, '\\n')  // Escape newlines
+                .replace(/\r/g, '\\r')  // Escape carriage returns
+                .replace(/\t/g, '\\t'); // Escape tabs
+        }
+
+        function convertCurl() {
+            const curlInput = document.getElementById('curlInput').value;
+            const rawCurl = escapeString(curlInput);
+            const jsonOutput = JSON.stringify({ rawCurl: rawCurl }, null, 2); // Pretty print JSON
+            document.getElementById('stringOutput').value = jsonOutput;
+        }
+
+        function copyToClipboard() {
+            const stringOutput = document.getElementById('stringOutput');
+            stringOutput.select();
+            stringOutput.setSelectionRange(0, 99999); // For mobile devices
+
+            try {
+                navigator.clipboard.writeText(stringOutput.value)
+                    .then(() => {
+                        alert('Copied to clipboard!');
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy: ', err);
+                        alert('Failed to copy to clipboard. Please copy manually.');
+                    });
+            } catch (err) {
+                // Fallback for older browsers or non-secure contexts
+                document.execCommand('copy');
+                alert('Copied to clipboard (fallback)!');
+            }
+        }
+    </script>
+</body>
+</html>

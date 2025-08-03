@@ -5,6 +5,7 @@ import (
 	"NotificationManagement/models"
 	"NotificationManagement/repositories"
 	"NotificationManagement/types"
+	"NotificationManagement/types/ollama"
 	"NotificationManagement/utils/errutil"
 	"bytes"
 	"context"
@@ -17,28 +18,27 @@ import (
 )
 
 type DeepseekServiceImpl struct {
-	*CommonServiceImpl[models.DeepseekModel]
-	Repo        domain.DeepseekModelRepository
+	domain.CommonService[models.DeepseekModel]
 	CurlService domain.CurlService
 }
 
 func NewDeepseekModelService(repo domain.DeepseekModelRepository, curl domain.CurlService) domain.DeepseekService {
 	service := &DeepseekServiceImpl{
-		Repo:        repo,
 		CurlService: curl,
 	}
-	service.CommonServiceImpl = NewCommonService[models.DeepseekModel](repo, service)
+	service.CommonService = NewCommonService(repo, service)
 	return service
 }
 
 func (s *DeepseekServiceImpl) GetContext() context.Context {
 	background := context.Background()
 	f := []repositories.Filter{
-		{"type", "=", "deepseek"},
+		{Field: "type", Op: "=", Value: "deepseek"},
 	}
-	return context.WithValue(background, repositories.ContextKey{}, &repositories.ContextKey{Filter: &f})
+	return context.WithValue(background, repositories.ContextStruct{}, &repositories.ContextStruct{Filter: &f})
 }
-func (s *DeepseekServiceImpl) MakeAIRequest(mod *models.AIModel, requestId uint) (*types.OllamaResponse, error) {
+
+func (s *DeepseekServiceImpl) MakeAIRequest(mod *models.AIModel, requestId uint) (interface{}, error) {
 	curl, err := s.CurlService.GetModelByID(requestId)
 	if err != nil {
 		return nil, err
@@ -47,22 +47,23 @@ func (s *DeepseekServiceImpl) MakeAIRequest(mod *models.AIModel, requestId uint)
 	if err != nil {
 		return nil, err
 	}
-	model, err := s.Repo.GetByID(context.Background(), mod.ID, nil)
+	model, err := s.GetModelByID(mod.ID)
 	if err != nil {
 		return nil, err
 	}
-	respBody, err := deepseekCall(model, curlResponse)
+	respBody, err := deepseekCall(model, curlResponse, curl)
 	if err != nil {
 		return nil, errutil.NewAppError(errutil.ErrExternalServiceError, err)
 	}
 
 	// Parse the response
-	var ollamaResp types.OllamaResponse
+	var ollamaResp ollama.OllamaResponse
 	if err := json.Unmarshal(respBody, &ollamaResp); err != nil {
 		return nil, errutil.NewAppError(errutil.ErrExternalServiceError, err)
 	}
 
-	return &ollamaResp, nil
+	a := any(ollamaResp)
+	return &a, nil
 }
 
 func (s *DeepseekServiceImpl) PullModel(model *models.DeepseekModel) error {
@@ -99,37 +100,42 @@ func (s *DeepseekServiceImpl) PullModel(model *models.DeepseekModel) error {
 	return nil
 }
 
-func deepseekCall(model *models.DeepseekModel, response *types.CurlResponse) ([]byte, error) {
+func deepseekCall(model *models.DeepseekModel, response *types.CurlResponse, curl *models.CurlRequest) ([]byte, error) {
 	assistantContent, err := response.GetAssistantContent()
 	if err != nil {
 		return nil, err
 	}
 
-	properties := &map[string]types.OllamaFormatProperty{
-		"IsCorrect": {
-			Type:        "boolean",
-			Description: "This holds the true or false value for the Statement",
-		},
+	properties := curl.GetOllamaSchemaProperties()
+	properties["IsCorrect"] = ollama.OllamaFormatProperty{
+		Type:        "boolean",
+		Description: "This holds the true or false value for the Statement",
 	}
-	ollamaReq := types.OllamaRequest{
+	ollamaReq := ollama.OllamaRequest{
 		Model: model.ModelName,
-		Messages: []*types.OllamaMessage{
+		Messages: []*ollama.OllamaMessage{
 			{
 				Role:    "assistant",
 				Content: assistantContent,
 			},
 			{
 				Role:    "user",
-				Content: "Please check the current rate from the json.Is it greater than 125 ? Return Json Response ",
+				Content: curl.Body,
 			},
 		},
 		Stream: false,
-		Format: &types.OllamaFormat{
+		Format: &ollama.OllamaFormat{
 			Type:       "object",
-			Properties: *properties,
-			Required:   []string{"IsCorrect", "Rate", "TargetRate"},
+			Properties: properties,
+			Required: func() []string {
+				requiredKeys := make([]string, 0, len(properties))
+				for key := range properties {
+					requiredKeys = append(requiredKeys, key)
+				}
+				return requiredKeys
+			}(),
 		},
-		Options: &types.OllamaOptions{
+		Options: &ollama.OllamaOptions{
 			Temperature: 0.5,
 		},
 		Think: true,

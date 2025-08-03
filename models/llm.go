@@ -4,7 +4,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserLLM struct {
+type RequestAIModel struct {
 	gorm.Model
 	RequestID uint     `gorm:"index:idx_request_ai_model,unique"`
 	IsActive  bool     `gorm:"default:true"`
@@ -13,8 +13,8 @@ type UserLLM struct {
 	//Parameters   JSON   `gorm:"type:jsonb"`
 }
 
-func (u *UserLLM) UpdateFromModel(source ModelInterface) {
-	if src, ok := source.(*UserLLM); ok {
+func (u *RequestAIModel) UpdateFromModel(source ModelInterface) {
+	if src, ok := source.(*RequestAIModel); ok {
 		copyFields(u, src)
 	}
 }

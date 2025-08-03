@@ -7,13 +7,10 @@ import (
 
 type ReminderServiceImpl struct {
 	domain.CommonService[models.Reminder]
-	Repo domain.ReminderRepository
 }
 
 func NewReminderService(repo domain.ReminderRepository) domain.ReminderService {
-	service := &ReminderServiceImpl{
-		Repo: repo,
-	}
-	service.CommonService = NewCommonService[models.Reminder](repo, service)
+	service := &ReminderServiceImpl{}
+	service.CommonService = NewCommonService(repo, service)
 	return service
 }

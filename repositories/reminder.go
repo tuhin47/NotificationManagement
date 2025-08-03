@@ -8,11 +8,11 @@ import (
 )
 
 type ReminderRepositoryImpl struct {
-	*SQLRepository[models.Reminder]
+	domain.Repository[models.Reminder, uint]
 }
 
 func NewReminderRepository(db *gorm.DB) domain.ReminderRepository {
 	return &ReminderRepositoryImpl{
-		SQLRepository: NewSQLRepository[models.Reminder](db),
+		Repository: NewSQLRepository[models.Reminder](db),
 	}
 }
