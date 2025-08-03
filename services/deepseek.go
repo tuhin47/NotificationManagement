@@ -17,7 +17,7 @@ import (
 )
 
 type DeepseekServiceImpl struct {
-	*CommonServiceImpl[models.DeepseekModel]
+	domain.CommonService[models.DeepseekModel]
 	Repo        domain.DeepseekModelRepository
 	CurlService domain.CurlService
 }
@@ -27,7 +27,7 @@ func NewDeepseekModelService(repo domain.DeepseekModelRepository, curl domain.Cu
 		Repo:        repo,
 		CurlService: curl,
 	}
-	service.CommonServiceImpl = NewCommonService[models.DeepseekModel](repo, service)
+	service.CommonService = NewCommonService[models.DeepseekModel](repo, service)
 	return service
 }
 

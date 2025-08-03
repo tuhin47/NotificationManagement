@@ -12,7 +12,7 @@ import (
 )
 
 type GeminiServiceImpl struct {
-	*CommonServiceImpl[models.GeminiModel]
+	domain.CommonService[models.GeminiModel]
 	Repo        domain.GeminiModelRepository
 	CurlService domain.CurlService
 }
@@ -22,7 +22,7 @@ func NewGeminiService(repo domain.GeminiModelRepository, curlService domain.Curl
 		Repo:        repo,
 		CurlService: curlService,
 	}
-	service.CommonServiceImpl = NewCommonService[models.GeminiModel](repo, service)
+	service.CommonService = NewCommonService[models.GeminiModel](repo, service)
 	return service
 }
 

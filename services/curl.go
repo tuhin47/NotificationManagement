@@ -18,9 +18,13 @@ import (
 )
 
 type CurlServiceImpl struct {
-	*CommonServiceImpl[models.CurlRequest]
+	domain.CommonService[models.CurlRequest]
 	CurlRepo            domain.CurlRequestRepository
 	AdditionalFieldRepo domain.AdditionalFieldsRepository
+}
+
+func (s CurlServiceImpl) GetModelByID(id uint) (*models.CurlRequest, error) {
+	return s.CurlRepo.GetByID(s.GetInstance().GetContext(), id, &[]string{"AdditionalFields"})
 }
 
 func NewCurlService(repo domain.CurlRequestRepository, fieldsRepository domain.AdditionalFieldsRepository) domain.CurlService {
@@ -28,7 +32,7 @@ func NewCurlService(repo domain.CurlRequestRepository, fieldsRepository domain.A
 		CurlRepo:            repo,
 		AdditionalFieldRepo: fieldsRepository,
 	}
-	service.CommonServiceImpl = NewCommonService[models.CurlRequest](repo, service)
+	service.CommonService = NewCommonService[models.CurlRequest](repo, service)
 	return service
 }
 
@@ -189,7 +193,7 @@ func (s *CurlServiceImpl) UpdateModel(id uint, model *models.CurlRequest) (*mode
 		return nil, err
 	}
 
-	model, err = s.CommonServiceImpl.UpdateModel(id, model)
+	model, err = s.CommonService.UpdateModel(id, model)
 	if err != nil {
 		return nil, err
 	}
