@@ -1,8 +1,13 @@
 package services
 
 import (
+	"NotificationManagement/domain"
+	"NotificationManagement/logger"
+	"NotificationManagement/models"
 	"NotificationManagement/repositories"
+	"NotificationManagement/types"
 	"NotificationManagement/utils"
+	"NotificationManagement/utils/errutil"
 	"context"
 	"crypto/tls"
 	"encoding/json"
@@ -11,12 +16,6 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
-
-	"NotificationManagement/domain"
-	"NotificationManagement/logger"
-	"NotificationManagement/models"
-	"NotificationManagement/types"
-	"NotificationManagement/utils/errutil"
 )
 
 type CurlServiceImpl struct {
@@ -25,7 +24,7 @@ type CurlServiceImpl struct {
 	AdditionalFieldRepo domain.AdditionalFieldsRepository
 }
 
-func (s CurlServiceImpl) GetModelByID(id uint) (*models.CurlRequest, error) {
+func (s *CurlServiceImpl) GetModelByID(id uint) (*models.CurlRequest, error) {
 	return s.CurlRepo.GetByID(s.GetInstance().GetContext(), id, &[]string{"AdditionalFields"})
 }
 
@@ -122,10 +121,12 @@ func (s *CurlServiceImpl) ExecuteCurl(req *models.CurlRequest) (*types.CurlRespo
 	}
 
 	logger.Info("Executing HTTP request", "method", method, "url", urlStr, "headers", headers, "body", body)
-	transport := &http.Transport{
-		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: true, // Disables certificate verification
-		},
+
+	transport := &http.Transport{}
+	if strings.Contains(req.RawCurl, "--insecure") {
+		transport.TLSClientConfig = &tls.Config{
+			InsecureSkipVerify: true,
+		}
 	}
 	client := &http.Client{
 		Transport: transport,

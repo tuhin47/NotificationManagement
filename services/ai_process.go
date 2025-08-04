@@ -50,7 +50,7 @@ type DeepseekProcessServiceImpl struct {
 	domain.AIProcessService[domain.AIService[models.DeepseekModel], models.DeepseekModel]
 }
 
-func NewAIDeepseekServiceManager(aiService domain.AIModelService, service domain.DeepseekService) DeepseekProcessServiceImpl {
+func NewDeepseekServiceManager(aiService domain.AIModelService, service domain.DeepseekService) DeepseekProcessServiceImpl {
 	return DeepseekProcessServiceImpl{
 		AIProcessService: NewAIServiceManager[domain.AIService[models.DeepseekModel]](aiService, service),
 	}

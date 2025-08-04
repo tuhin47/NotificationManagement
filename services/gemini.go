@@ -8,7 +8,6 @@ import (
 	"NotificationManagement/types"
 	"NotificationManagement/utils/errutil"
 	"context"
-
 	"google.golang.org/genai"
 )
 
@@ -63,7 +62,7 @@ func geminiCall(model *models.GeminiModel, response *types.CurlResponse, req *mo
 	ctx := context.Background()
 	// The client gets the API key from the environment variable `GEMINI_API_KEY`.
 	client, err := genai.NewClient(ctx, &genai.ClientConfig{
-		APIKey: model.APISecret,
+		APIKey: string(model.APISecret),
 	})
 	if err != nil {
 		return nil, err

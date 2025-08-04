@@ -3,6 +3,7 @@
     "name": "NotificationManagement",
     "version": "1.0.0",
     "port": 8080,
+    "encryption": "laeoGcA0ZFFsm3d9SUKevwG4VL4QN9Yi",
     "env": "development"
   },
   "database": {

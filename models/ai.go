@@ -23,9 +23,9 @@ type DeepseekModel struct {
 
 type GeminiModel struct {
 	AIModel   `mapper:"inherit"`
-	Name      string `gorm:"size:255;not null" json:"name"`
-	ModelName string `gorm:"size:255;not null;check:model_name <> '';index:idx_ai_model_model_secret,unique" json:"model"`
-	APISecret string `gorm:"size:500;index:idx_ai_model_model_secret,unique" json:"api_secret"`
+	Name      string          `gorm:"size:255;not null" json:"name"`
+	ModelName string          `gorm:"size:255;not null;check:model_name <> '';index:idx_ai_model_model_secret,unique" json:"model"`
+	APISecret EncryptedString `gorm:"size:500;index:idx_ai_model_model_secret,unique" json:"api_secret"`
 }
 
 func (d *AIModel) GetType() string {

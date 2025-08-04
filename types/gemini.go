@@ -5,14 +5,14 @@ import (
 )
 
 type GeminiModelResponse struct {
-	ID         uint   `json:"id"`
-	Type       string `json:"type"`
-	Name       string `json:"name"`
-	ModelName  string `json:"model"`
-	APISecret  string `json:"api_secret"`
-	ModifiedAt string `json:"modified_at"`
-	CreatedAt  string `json:"created_at"`
-	UpdatedAt  string `json:"updated_at"`
+	ID         uint                   `json:"id"`
+	Type       string                 `json:"type"`
+	Name       string                 `json:"name"`
+	ModelName  string                 `json:"model"`
+	APISecret  models.EncryptedString `json:"api_secret"`
+	ModifiedAt string                 `json:"modified_at"`
+	CreatedAt  string                 `json:"created_at"`
+	UpdatedAt  string                 `json:"updated_at"`
 }
 
 func FromGeminiModel(model *models.GeminiModel) *GeminiModelResponse {

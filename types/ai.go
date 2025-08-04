@@ -71,7 +71,7 @@ func (dr *AIModelRequest) ToModel() (models.AIModelInterface, error) {
 			AIModel:   aiModel,
 			Name:      dr.Name,
 			ModelName: dr.ModelName,
-			APISecret: dr.APISecret,
+			APISecret: models.EncryptedString(dr.APISecret),
 		}, nil
 	default:
 		return nil, errutil.NewAppError(errutil.ErrUnsupportedAIModelType, fmt.Errorf("unsupported AI model type: %s", dr.Type))

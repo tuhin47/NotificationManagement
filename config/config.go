@@ -23,10 +23,11 @@ type Config struct {
 }
 
 type AppConfig struct {
-	Name    string `mapstructure:"name"`
-	Version string `mapstructure:"version"`
-	Port    int    `mapstructure:"port"`
-	Env     string `mapstructure:"env"`
+	Name       string `mapstructure:"name"`
+	Version    string `mapstructure:"version"`
+	Port       int    `mapstructure:"port"`
+	Env        string `mapstructure:"env"`
+	Encryption string `mapstructure:"encryption"`
 }
 
 type DatabaseConfig struct {
@@ -127,6 +128,8 @@ const (
 	EnvKeycloakRealm        = "KEYCLOAK_REALM"
 	EnvKeycloakClientID     = "KEYCLOAK_CLIENT_ID"
 	EnvKeycloakClientSecret = "KEYCLOAK_CLIENT_SECRET"
+
+	EnvAPIKeyEncryptionSecret = "API_KEY_ENCRYPTION_SECRET"
 )
 
 // LoadConfig loads configuration from file, environment variables, or SSM Parameter Store
@@ -204,6 +207,7 @@ func setDefaults() {
 	viper.SetDefault("app.version", "1.0.0")
 	viper.SetDefault("app.port", 8080)
 	viper.SetDefault("app.env", "development")
+	viper.SetDefault("app.encryption", "laeoGcA0ZFFsm3d9SUKevwG4VL4QN9Yi")
 
 	// Database defaults
 	viper.SetDefault("database.host", "localhost")
@@ -252,6 +256,7 @@ func loadFromEnv() {
 	viper.BindEnv("app.version", EnvAppVersion)
 	viper.BindEnv("app.port", EnvAppPort)
 	viper.BindEnv("app.env", EnvAppEnv)
+	viper.BindEnv("app.encryption", EnvAPIKeyEncryptionSecret)
 
 	// Database environment variables
 	viper.BindEnv("database.host", EnvDBHost)
