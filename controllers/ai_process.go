@@ -30,7 +30,7 @@ func (a *AIRequestControllerImpl) MakeAIRequestHandler(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	aiResponse, err := service.ProcessAIRequest(&req)
+	aiResponse, err := service.MakeAIRequest(&req)
 	if err != nil {
 		return err
 	}
@@ -147,7 +147,7 @@ func (a *AIRequestControllerImpl) DeleteAIModel(c echo.Context) error {
 }
 
 func (a *AIRequestControllerImpl) GetServiceManagerById(id uint) (domain.AIProcessService[domain.AIService[any], any], error) {
-	model, err := a.AIModelService.GetModelByID(id)
+	model, err := a.AIModelService.GetModelById(id)
 	if err != nil {
 		return nil, err
 	}

@@ -34,7 +34,7 @@ func (s *GeminiServiceImpl) GetContext() context.Context {
 
 func (s *GeminiServiceImpl) MakeAIRequest(aiModel *models.AIModel, requestId uint) (interface{}, error) {
 
-	curl, err := s.CurlService.GetModelByID(requestId)
+	curl, err := s.CurlService.GetModelById(requestId)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (s *GeminiServiceImpl) MakeAIRequest(aiModel *models.AIModel, requestId uin
 	if err != nil {
 		return nil, err
 	}
-	model, err := s.GetModelByID(aiModel.ID)
+	model, err := s.GetModelById(aiModel.ID)
 	if err != nil {
 		return nil, err
 	}

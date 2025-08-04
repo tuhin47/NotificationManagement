@@ -24,7 +24,7 @@ type CurlServiceImpl struct {
 	AdditionalFieldRepo domain.AdditionalFieldsRepository
 }
 
-func (s *CurlServiceImpl) GetModelByID(id uint) (*models.CurlRequest, error) {
+func (s *CurlServiceImpl) GetModelById(id uint) (*models.CurlRequest, error) {
 	return s.CurlRepo.GetByID(s.GetInstance().GetContext(), id, &[]string{"AdditionalFields"})
 }
 

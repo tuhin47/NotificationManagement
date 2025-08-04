@@ -18,7 +18,7 @@ type AIModelRepository interface {
 }
 
 type AIProcessService[T AIService[X], X any] interface {
-	ProcessAIRequest(*types.MakeAIRequestPayload) (interface{}, error)
+	MakeAIRequest(*types.MakeAIRequestPayload) (interface{}, error)
 	CreateModel(models.AIModelInterface) error
 	UpdateModel(id uint, model models.AIModelInterface) (interface{}, error)
 	GetModelById(id uint) (interface{}, error)

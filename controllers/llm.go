@@ -41,7 +41,7 @@ func (lc *LLMControllerImpl) GetLLMByID(c echo.Context) error {
 		return err
 	}
 
-	llm, err := lc.Service.GetModelByID(id)
+	llm, err := lc.Service.GetModelById(id)
 	if err != nil {
 		return err
 	}
@@ -87,7 +87,7 @@ func (lc *LLMControllerImpl) UpdateLLM(c echo.Context) error {
 	}
 
 	// Get the updated record
-	updatedLLM, err := lc.Service.GetModelByID(id)
+	updatedLLM, err := lc.Service.GetModelById(id)
 	if err != nil {
 		return err
 	}

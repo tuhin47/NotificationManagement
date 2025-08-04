@@ -26,7 +26,7 @@ func (s *CommonServiceImpl[T]) CreateModel(entity *T) error {
 	return s.Repo.Create(s.Instance.GetContext(), entity)
 }
 
-func (s *CommonServiceImpl[T]) GetModelByID(id uint) (*T, error) {
+func (s *CommonServiceImpl[T]) GetModelById(id uint) (*T, error) {
 	model, err := s.Repo.GetByID(s.Instance.GetContext(), id, nil)
 	if err != nil {
 		return nil, err
