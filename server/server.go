@@ -51,7 +51,7 @@ var Module = fx.Options(
 		controllers.NewCurlController,
 		controllers.NewLLMController,
 		controllers.NewReminderController,
-		controllers.NewUserController, // Add UserController
+		controllers.NewUserController,
 
 		repositories.NewAIModelRepository,
 		repositories.NewCurlRequestRepository,
@@ -60,7 +60,7 @@ var Module = fx.Options(
 		repositories.NewGeminiRepository,
 		repositories.NewLLMRepository,
 		repositories.NewReminderRepository,
-		repositories.NewUserRepository, // Add UserRepository
+		repositories.NewUserRepository,
 
 		services.NewDeepseekServiceManager,
 		services.NewGeminiServiceManager,
@@ -70,7 +70,7 @@ var Module = fx.Options(
 		services.NewGeminiService,
 		services.NewLLMService,
 		services.NewReminderService,
-		services.NewUserService, // Add UserService
+		services.NewUserService,
 	),
 	fx.Invoke(RegisterRoutes),
 )

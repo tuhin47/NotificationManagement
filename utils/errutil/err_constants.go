@@ -24,6 +24,10 @@ var (
 	ErrAIModelNotFoundOrDeletedMsg = errors.New("AI Model not found or could not be deleted")
 )
 
+var (
+	ErrInvalidContext = ErrorCode{Code: "INVALID_CONTEXT", Message: "Invalid context provided", Status: http.StatusBadRequest}
+)
+
 // Predefined error codes
 var (
 	// Database errors

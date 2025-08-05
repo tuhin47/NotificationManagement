@@ -2,21 +2,29 @@ package controllers
 
 import (
 	"NotificationManagement/domain"
+	"NotificationManagement/middleware"
 	"NotificationManagement/types"
 	"NotificationManagement/utils"
-	"github.com/labstack/echo/v4"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
 type CurlControllerImpl struct {
-	Service domain.CurlService
+	CurlService domain.CurlService
+	UserService domain.UserService
 }
 
-func NewCurlController(service domain.CurlService) domain.CurlController {
-	return &CurlControllerImpl{Service: service}
+func NewCurlController(curlService domain.CurlService, userService domain.UserService) domain.CurlController {
+	return &CurlControllerImpl{
+		CurlService: curlService,
+		UserService: userService,
+	}
 }
 
 func (cc *CurlControllerImpl) CurlHandler(c echo.Context) error {
+	ccx, _ := c.(*middleware.CustomContext)
+
 	var req types.CurlRequest
 	if err := utils.BindAndValidate(c, &req); err != nil {
 		return err
@@ -25,11 +33,13 @@ func (cc *CurlControllerImpl) CurlHandler(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	err = cc.Service.CreateModel(model)
+	model.UserID = ccx.UserID
+
+	err = cc.CurlService.CreateModel(model)
 	if err != nil {
 		return err
 	}
-	resp, err := cc.Service.ProcessCurlRequest(model)
+	resp, err := cc.CurlService.ProcessCurlRequest(model)
 	if err != nil {
 		return err
 	}
@@ -44,7 +54,7 @@ func (cc *CurlControllerImpl) GetCurlRequestByID(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	curlRequest, err := cc.Service.GetModelById(id)
+	curlRequest, err := cc.CurlService.GetModelById(id)
 	if err != nil {
 		return err
 	}
@@ -67,7 +77,7 @@ func (cc *CurlControllerImpl) UpdateCurlRequest(c echo.Context) error {
 		return err
 	}
 
-	model, err = cc.Service.UpdateModel(id, model)
+	model, err = cc.CurlService.UpdateModel(id, model)
 	if err != nil {
 		return err
 	}
@@ -81,7 +91,7 @@ func (cc *CurlControllerImpl) DeleteCurlRequest(c echo.Context) error {
 		return err
 	}
 
-	err = cc.Service.DeleteModel(id)
+	err = cc.CurlService.DeleteModel(id)
 	if err != nil {
 		return err
 	}

@@ -24,7 +24,7 @@ func NewUserService(repo domain.UserRepository) domain.UserService {
 
 func (s *UserServiceImpl) RegisterOrUpdateUser(user *models.User) (*models.User, error) {
 	ctx := context.Background()
-	existingUser, err := s.UserRepo.FindByKeycloakID(user.KeycloakID)
+	existingUser, err := s.UserRepo.FindByKeycloakID(user.KeycloakID, ctx)
 	if err != nil {
 		var appErr *errutil.AppError
 		if errors.As(err, &appErr) && appErr.Code == errutil.ErrRecordNotFound {
@@ -94,7 +94,8 @@ func (s *UserServiceImpl) DeleteModel(id uint) error {
 }
 
 func (s *UserServiceImpl) GetUserRoles(keycloakID string) ([]string, error) {
-	user, err := s.UserRepo.FindByKeycloakID(keycloakID)
+	ctx := context.Background()
+	user, err := s.UserRepo.FindByKeycloakID(keycloakID, ctx)
 	if err != nil {
 		return nil, err
 	}

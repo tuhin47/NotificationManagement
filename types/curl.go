@@ -17,6 +17,7 @@ type CurlRequest struct {
 	Body             string                   `json:"body,omitempty"`
 	RawCurl          string                   `json:"rawCurl,omitempty"`
 	ResponseType     string                   `json:"responseType,omitempty"`
+	UserID           uint                     `json:"user_id"`
 	AdditionalFields []AdditionalFieldRequest `json:"additional_fields"`
 }
 
@@ -55,6 +56,7 @@ type CurlResponse struct {
 	Headers    map[string]string `json:"headers"`
 	Body       interface{}       `json:"body"`
 	ErrMessage string            `json:"error,omitempty"`
+	UserID     uint              `json:"user_id,omitempty"`
 }
 
 // ToModel converts a types.CurlRequest to a models.CurlRequest
@@ -84,6 +86,7 @@ func (cr *CurlRequest) ToModel() (*models.CurlRequest, error) {
 		Body:             cr.Body,
 		RawCurl:          cr.RawCurl,
 		ResponseType:     cr.ResponseType,
+		UserID:           cr.UserID,
 		AdditionalFields: &props,
 	}, nil
 }

@@ -194,6 +194,7 @@ func (s *CurlServiceImpl) ProcessCurlRequest(req *models.CurlRequest) (*types.Cu
 		Status:  resp.StatusCode,
 		Headers: respHeaders,
 		Body:    respBodyVal,
+		UserID:  req.UserID,
 	}, nil
 }
 

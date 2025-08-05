@@ -2,12 +2,13 @@ package domain
 
 import (
 	"NotificationManagement/models"
+	"context"
 )
 
 // UserRepository is an interface for user data operations.
 type UserRepository interface {
 	Repository[models.User, uint]
-	FindByKeycloakID(keycloakID string) (*models.User, error)
+	FindByKeycloakID(keycloakID string, ctx context.Context) (*models.User, error)
 	FindByEmail(email string) (*models.User, error)
 }
 

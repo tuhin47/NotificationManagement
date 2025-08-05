@@ -15,6 +15,7 @@ import (
 type CustomContext struct {
 	echo.Context
 	KeycloakID string
+	UserID     uint
 	Roles      *[]string
 }
 
@@ -101,7 +102,7 @@ func KeycloakMiddleware(userService domain.UserService) echo.MiddlewareFunc {
 					Roles:      strings.Join(roles, ","),
 				}
 
-				_, err := userService.RegisterOrUpdateUser(user)
+				user, err := userService.RegisterOrUpdateUser(user)
 				if err != nil {
 					return errutil.NewAppError(errutil.ErrUserRegistrationFailed, err)
 				}
@@ -110,6 +111,7 @@ func KeycloakMiddleware(userService domain.UserService) echo.MiddlewareFunc {
 				cc := &CustomContext{
 					Context:    c,
 					KeycloakID: keycloakID,
+					UserID:     user.ID,
 					Roles:      &roles,
 				}
 
