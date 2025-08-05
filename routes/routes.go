@@ -48,3 +48,7 @@ func RegisterAIRoutes(e *echo.Echo, controller domain.AIRequestController, keycl
 
 	ai.POST("/make-request", controller.MakeAIRequestHandler, middleware.RequireRoles(utils.RoleMakeRequest))
 }
+
+func RegisterUserRoutes(e *echo.Echo, controller domain.UserController, keycloakMiddleware *echo.MiddlewareFunc) {
+
+}

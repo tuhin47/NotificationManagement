@@ -2,7 +2,10 @@ package middleware
 
 import (
 	"NotificationManagement/config"
+	"NotificationManagement/domain"
+	"NotificationManagement/models"
 	"NotificationManagement/utils/errutil"
+	"strings"
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/golang-jwt/jwt/v4"
@@ -11,11 +14,12 @@ import (
 
 type CustomContext struct {
 	echo.Context
-	Roles *[]string
+	KeycloakID string
+	Roles      *[]string
 }
 
 // KeycloakMiddleware creates a middleware to validate JWT and extract roles
-func KeycloakMiddleware() echo.MiddlewareFunc {
+func KeycloakMiddleware(userService domain.UserService) echo.MiddlewareFunc {
 	keycloakCfg := config.Keycloak()
 	client := gocloak.NewClient(keycloakCfg.ServerURL)
 
@@ -42,14 +46,12 @@ func KeycloakMiddleware() echo.MiddlewareFunc {
 				return errutil.NewAppError(errutil.ErrInvalidToken, errutil.ErrInvalidTokenValue)
 			}
 
-			// Parse the JWT token to extract roles
+			// Parse the JWT token to extract claims
 			parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
-				// Verify the token signing method
 				if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 					return nil, errutil.NewAppError(errutil.ErrInvalidSigningMethod, errutil.ErrInvalidTokenSignature)
 				}
 
-				// Get the public key from Keycloak
 				cert, err := client.GetCerts(ctx, keycloakCfg.Realm)
 				if err != nil {
 					return nil, errutil.NewAppError(errutil.ErrCertificateRetrieval, err)
@@ -59,13 +61,11 @@ func KeycloakMiddleware() echo.MiddlewareFunc {
 					return nil, errutil.NewAppError(errutil.ErrNoCertificates, errutil.ErrNoCertificateFound)
 				}
 
-				// Use the first key in the certificate
 				certKey := (*cert.Keys)[0]
 				if certKey.X5c == nil || len(*certKey.X5c) == 0 {
 					return nil, errutil.NewAppError(errutil.ErrNoCertificates, errutil.ErrNoCertificateFound)
 				}
 
-				// The certificate is in base64-encoded DER format, wrapped in PEM
 				certPEM := "-----BEGIN CERTIFICATE-----\n" + (*certKey.X5c)[0] + "\n-----END CERTIFICATE-----"
 				key, err := jwt.ParseRSAPublicKeyFromPEM([]byte(certPEM))
 				if err != nil {
@@ -79,6 +79,10 @@ func KeycloakMiddleware() echo.MiddlewareFunc {
 			}
 
 			if claims, ok := parsedToken.Claims.(jwt.MapClaims); ok {
+				keycloakID, _ := claims["sub"].(string)
+				username, _ := claims["preferred_username"].(string)
+				email, _ := claims["email"].(string)
+
 				var roles []string
 				if realmAccess, ok := claims["realm_access"].(map[string]interface{}); ok {
 					if rolesInterface, ok := realmAccess["roles"].([]interface{}); ok {
@@ -90,10 +94,23 @@ func KeycloakMiddleware() echo.MiddlewareFunc {
 					}
 				}
 
-				// Create custom context with roles
+				user := &models.User{
+					KeycloakID: keycloakID,
+					Username:   username,
+					Email:      email,
+					Roles:      strings.Join(roles, ","),
+				}
+
+				_, err := userService.RegisterOrUpdateUser(user)
+				if err != nil {
+					return errutil.NewAppError(errutil.ErrUserRegistrationFailed, err)
+				}
+
+				// Create custom context with roles and KeycloakID
 				cc := &CustomContext{
-					Context: c,
-					Roles:   &roles,
+					Context:    c,
+					KeycloakID: keycloakID,
+					Roles:      &roles,
 				}
 
 				return next(cc)

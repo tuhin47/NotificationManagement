@@ -49,6 +49,7 @@ var (
 	ErrNoCertificates         = ErrorCode{Code: "NO_CERTIFICATES", Message: "No certificates found", Status: http.StatusUnauthorized}
 	ErrNoRoleInfo             = ErrorCode{Code: "NO_ROLE_INFO", Message: "No role information available", Status: http.StatusForbidden}
 	ErrInsufficientPrivileges = ErrorCode{Code: "INSUFFICIENT_PRIVILEGES", Message: "Access denied: Insufficient privileges", Status: http.StatusForbidden}
+	ErrUserRegistrationFailed = ErrorCode{Code: "USER_REGISTRATION_FAILED", Message: "Failed to register or update user", Status: http.StatusInternalServerError}
 
 	// Server/service errors
 	ErrInternalServer     = ErrorCode{Code: "INTERNAL_SERVER_ERROR", Message: "Internal server error", Status: http.StatusInternalServerError}

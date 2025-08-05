@@ -21,12 +21,13 @@ func NewEcho() *echo.Echo {
 	return e
 }
 
-func RegisterRoutes(e *echo.Echo, curlController domain.CurlController, llmController domain.LLMController, reminderController domain.ReminderController, deepseekController, aiController domain.AIRequestController) {
-	keycloakMiddleware := middleware.KeycloakMiddleware()
+func RegisterRoutes(e *echo.Echo, curlController domain.CurlController, llmController domain.LLMController, reminderController domain.ReminderController, aiController domain.AIRequestController, userController domain.UserController, userService domain.UserService) {
+	keycloakMiddleware := middleware.KeycloakMiddleware(userService)
 	routes.RegisterCurlRoutes(e, curlController, &keycloakMiddleware)
 	routes.RegisterLLMRoutes(e, llmController, &keycloakMiddleware)
 	routes.RegisterReminderRoutes(e, reminderController, &keycloakMiddleware)
 	routes.RegisterAIRoutes(e, aiController, &keycloakMiddleware)
+	routes.RegisterUserRoutes(e, userController, &keycloakMiddleware)
 }
 
 func interceptLogger(next echo.HandlerFunc) echo.HandlerFunc {
@@ -50,6 +51,7 @@ var Module = fx.Options(
 		controllers.NewCurlController,
 		controllers.NewLLMController,
 		controllers.NewReminderController,
+		controllers.NewUserController, // Add UserController
 
 		repositories.NewAIModelRepository,
 		repositories.NewCurlRequestRepository,
@@ -58,6 +60,7 @@ var Module = fx.Options(
 		repositories.NewGeminiRepository,
 		repositories.NewLLMRepository,
 		repositories.NewReminderRepository,
+		repositories.NewUserRepository, // Add UserRepository
 
 		services.NewDeepseekServiceManager,
 		services.NewGeminiServiceManager,
@@ -67,6 +70,7 @@ var Module = fx.Options(
 		services.NewGeminiService,
 		services.NewLLMService,
 		services.NewReminderService,
+		services.NewUserService, // Add UserService
 	),
 	fx.Invoke(RegisterRoutes),
 )

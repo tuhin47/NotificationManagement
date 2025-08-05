@@ -3,7 +3,6 @@ package cmd
 import (
 	"NotificationManagement/config"
 	"NotificationManagement/logger"
-	"NotificationManagement/models"
 	"NotificationManagement/server"
 	"context"
 	"errors"
@@ -11,12 +10,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	gormlogger "gorm.io/gorm/logger"
 	"net/http"
 	"os"
-	"time"
 )
 
 var serveCmd = &cobra.Command{
@@ -61,37 +56,4 @@ var serveCmd = &cobra.Command{
 		)
 		app.Run()
 	},
-}
-
-func NewDB() (*gorm.DB, error) {
-	gormLogger := logger.NewGormZapLogger(
-		gormlogger.Info,
-		200*time.Millisecond,
-	)
-	db, err := gorm.Open(postgres.Open(config.GetDSN()), &gorm.Config{
-		Logger: gormLogger,
-	})
-	if err != nil {
-		logger.Fatal("Failed to connect to database", "error", err)
-		return nil, err
-	}
-	// Auto-migrate all models
-	if err := db.AutoMigrate(
-		&models.CurlRequest{},
-		&models.Reminder{},
-		&models.RequestAIModel{},
-		&models.DeepseekModel{},
-		&models.AdditionalFields{},
-	); err != nil {
-		logger.Fatal("Failed to auto-migrate database schema", "error", err)
-		return nil, err
-	}
-	// As grom doesn't support single table model. We need to execute it separately
-	if err := db.AutoMigrate(
-		&models.GeminiModel{},
-	); err != nil {
-		logger.Fatal("Failed to auto-migrate database schema", "error", err)
-		return nil, err
-	}
-	return db, nil
 }
