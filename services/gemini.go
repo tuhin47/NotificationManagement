@@ -8,6 +8,8 @@ import (
 	"NotificationManagement/types"
 	"NotificationManagement/utils/errutil"
 	"context"
+	"os"
+
 	"google.golang.org/genai"
 )
 
@@ -38,7 +40,7 @@ func (s *GeminiServiceImpl) MakeAIRequest(aiModel *models.AIModel, requestId uin
 	if err != nil {
 		return nil, err
 	}
-	curlResponse, err := s.CurlService.ExecuteCurl(curl)
+	curlResponse, err := s.CurlService.ProcessCurlRequest(curl)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +57,7 @@ func (s *GeminiServiceImpl) MakeAIRequest(aiModel *models.AIModel, requestId uin
 }
 
 func geminiCall(model *models.GeminiModel, response *types.CurlResponse, req *models.CurlRequest) (*genai.GenerateContentResponse, error) {
-	assistantContent, err := response.GetAssistantContent()
+	assistantContent, err := response.GetAssistantContent(req.ResponseType)
 	if err != nil {
 		return nil, err
 	}
@@ -67,12 +69,30 @@ func geminiCall(model *models.GeminiModel, response *types.CurlResponse, req *mo
 	if err != nil {
 		return nil, err
 	}
+
+	var parts []*genai.Part
+
+	if req.ResponseType == types.ResponseTypeHTML {
+		fileContent, err := os.ReadFile(*assistantContent)
+		if err != nil {
+			return nil, errutil.NewAppError(errutil.ErrExternalServiceError, err)
+		}
+		parts = append(parts, &genai.Part{
+			InlineData: &genai.Blob{
+				MIMEType: "text/html", // Assuming it's HTML for /tmp/1.html
+				Data:     fileContent,
+			},
+		})
+	} else {
+		parts = append(parts, &genai.Part{Text: *assistantContent})
+	}
+
+	parts = append(parts, &genai.Part{Text: req.Body})
+
 	gr := []*genai.Content{
 		{
-			Role: genai.RoleModel,
-			Parts: []*genai.Part{
-				{Text: assistantContent},
-			},
+			Role:  genai.RoleModel,
+			Parts: parts,
 		},
 		{
 			Role: genai.RoleUser,

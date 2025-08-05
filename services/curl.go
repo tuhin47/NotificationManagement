@@ -12,8 +12,10 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
+	"os/exec"
 	"regexp"
 	"strings"
 )
@@ -94,7 +96,30 @@ func parseBasicCurl(raw string) (method, url string, headers map[string]string, 
 	return
 }
 
-func (s *CurlServiceImpl) ExecuteCurl(req *models.CurlRequest) (*types.CurlResponse, error) {
+func executeCurlCommand(command string) (string, error) {
+	cmd := exec.Command("bash", "-c", command)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", fmt.Errorf("error executing curl command: %w\nOutput: %s", err, output)
+	}
+	return string(output), nil
+}
+
+func (s *CurlServiceImpl) ProcessCurlRequest(req *models.CurlRequest) (*types.CurlResponse, error) {
+
+	if req.ResponseType == types.ResponseTypeHTML {
+		resp, err := executeCurlCommand(req.RawCurl)
+		if err != nil {
+			return nil, err
+		}
+		return &types.CurlResponse{
+			Status:     200,
+			Headers:    nil,
+			Body:       resp,
+			ErrMessage: "",
+		}, nil
+
+	}
 
 	var method, urlStr, body string
 	headers := map[string]string{}
@@ -152,7 +177,9 @@ func (s *CurlServiceImpl) ExecuteCurl(req *models.CurlRequest) (*types.CurlRespo
 	}
 
 	var respBodyVal interface{}
-	if json.Valid(respBody) {
+	if req.ResponseType == types.ResponseTypeHTML {
+		respBodyVal = string(respBody)
+	} else if json.Valid(respBody) {
 		var jsonBody map[string]interface{}
 		if err := json.Unmarshal(respBody, &jsonBody); err == nil {
 			respBodyVal = jsonBody

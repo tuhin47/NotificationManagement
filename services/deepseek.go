@@ -43,7 +43,7 @@ func (s *DeepseekServiceImpl) MakeAIRequest(mod *models.AIModel, requestId uint)
 	if err != nil {
 		return nil, err
 	}
-	curlResponse, err := s.CurlService.ExecuteCurl(curl)
+	curlResponse, err := s.CurlService.ProcessCurlRequest(curl)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (s *DeepseekServiceImpl) PullModel(model *models.DeepseekModel) error {
 }
 
 func deepseekCall(model *models.DeepseekModel, response *types.CurlResponse, curl *models.CurlRequest) ([]byte, error) {
-	assistantContent, err := response.GetAssistantContent()
+	assistantContent, err := response.GetAssistantContent(curl.ResponseType)
 	if err != nil {
 		return nil, err
 	}
@@ -111,12 +111,17 @@ func deepseekCall(model *models.DeepseekModel, response *types.CurlResponse, cur
 		Type:        "boolean",
 		Description: "This holds the true or false value for the Statement",
 	}
+	if curl.ResponseType == types.ResponseTypeHTML {
+		s := response.Body.(string)
+		assistantContent = &s
+	}
+
 	ollamaReq := ollama.OllamaRequest{
 		Model: model.ModelName,
 		Messages: []*ollama.OllamaMessage{
 			{
 				Role:    "assistant",
-				Content: assistantContent,
+				Content: *assistantContent,
 			},
 			{
 				Role:    "user",

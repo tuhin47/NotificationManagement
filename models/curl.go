@@ -14,6 +14,7 @@ type CurlRequest struct {
 	Headers          string              `gorm:"type:text" json:"headers"`
 	Body             string              `gorm:"type:text" json:"body"`
 	RawCurl          string              `gorm:"type:text" json:"rawCurl"`
+	ResponseType     string              `gorm:"type:varchar(10)" json:"responseType"`
 	Reminders        *[]Reminder         `gorm:"foreignKey:RequestID"`
 	Models           *[]RequestAIModel   `gorm:"foreignKey:RequestID"`
 	AdditionalFields *[]AdditionalFields `gorm:"foreignKey:RequestID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"additional_fields"`

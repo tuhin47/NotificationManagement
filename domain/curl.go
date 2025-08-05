@@ -8,7 +8,7 @@ import (
 
 type CurlService interface {
 	CommonService[models.CurlRequest]
-	ExecuteCurl(req *models.CurlRequest) (*types.CurlResponse, error)
+	ProcessCurlRequest(req *models.CurlRequest) (*types.CurlResponse, error)
 }
 
 type CurlRequestRepository interface {

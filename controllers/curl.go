@@ -29,11 +29,14 @@ func (cc *CurlControllerImpl) CurlHandler(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	resp, err := cc.Service.ExecuteCurl(model)
+	resp, err := cc.Service.ProcessCurlRequest(model)
 	if err != nil {
 		return err
 	}
-	return c.JSON(http.StatusOK, *resp)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"model":    model,
+		"response": resp,
+	})
 }
 
 func (cc *CurlControllerImpl) GetCurlRequestByID(c echo.Context) error {
