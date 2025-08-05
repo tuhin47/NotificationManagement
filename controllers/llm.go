@@ -4,8 +4,9 @@ import (
 	"NotificationManagement/domain"
 	"NotificationManagement/types"
 	"NotificationManagement/utils"
-	"github.com/labstack/echo/v4"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
 type LLMControllerImpl struct {
@@ -26,7 +27,7 @@ func (lc *LLMControllerImpl) CreateLLM(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	err = lc.Service.CreateModel(llm)
+	err = lc.Service.CreateModel(c, llm)
 	if err != nil {
 		return err
 	}
@@ -41,7 +42,7 @@ func (lc *LLMControllerImpl) GetLLMByID(c echo.Context) error {
 		return err
 	}
 
-	llm, err := lc.Service.GetModelById(id)
+	llm, err := lc.Service.GetModelById(c, id)
 	if err != nil {
 		return err
 	}
@@ -53,7 +54,7 @@ func (lc *LLMControllerImpl) GetLLMByID(c echo.Context) error {
 func (lc *LLMControllerImpl) GetAllLLMs(c echo.Context) error {
 	limit, offset := utils.ParseLimitAndOffset(c)
 
-	llms, err := lc.Service.GetAllModels(limit, offset)
+	llms, err := lc.Service.GetAllModels(c, limit, offset)
 	if err != nil {
 		return err
 	}
@@ -81,17 +82,10 @@ func (lc *LLMControllerImpl) UpdateLLM(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	llm, err = lc.Service.UpdateModel(id, llm)
+	updatedLLM, err := lc.Service.UpdateModel(c, id, llm)
 	if err != nil {
 		return err
 	}
-
-	// Get the updated record
-	updatedLLM, err := lc.Service.GetModelById(id)
-	if err != nil {
-		return err
-	}
-
 	response := types.FromLLMModel(updatedLLM)
 	return c.JSON(http.StatusOK, response)
 }
@@ -102,7 +96,7 @@ func (lc *LLMControllerImpl) DeleteLLM(c echo.Context) error {
 		return err
 	}
 
-	err = lc.Service.DeleteModel(id)
+	err = lc.Service.DeleteModel(c, id)
 	if err != nil {
 		return err
 	}

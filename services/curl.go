@@ -13,6 +13,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/labstack/echo/v4"
 	"io"
 	"net/http"
 	"os/exec"
@@ -26,7 +27,7 @@ type CurlServiceImpl struct {
 	AdditionalFieldRepo domain.AdditionalFieldsRepository
 }
 
-func (s *CurlServiceImpl) GetModelById(id uint) (*models.CurlRequest, error) {
+func (s *CurlServiceImpl) GetModelById(c echo.Context, id uint) (*models.CurlRequest, error) {
 	return s.CurlRepo.GetByID(s.GetInstance().GetContext(), id, &[]string{"AdditionalFields"})
 }
 
@@ -198,7 +199,7 @@ func (s *CurlServiceImpl) ProcessCurlRequest(req *models.CurlRequest) (*types.Cu
 	}, nil
 }
 
-func (s *CurlServiceImpl) UpdateModel(id uint, model *models.CurlRequest) (*models.CurlRequest, error) {
+func (s *CurlServiceImpl) UpdateModel(c echo.Context, id uint, model *models.CurlRequest) (*models.CurlRequest, error) {
 	ctx := context.Background()
 	existing, err := s.CurlRepo.GetByID(ctx, id, nil)
 	if err != nil {
@@ -243,7 +244,7 @@ func (s *CurlServiceImpl) UpdateModel(id uint, model *models.CurlRequest) (*mode
 		return nil, err
 	}
 
-	model, err = s.CommonService.UpdateModel(id, model)
+	model, err = s.CommonService.UpdateModel(c, id, model)
 	if err != nil {
 		return nil, err
 	}

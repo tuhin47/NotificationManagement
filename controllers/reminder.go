@@ -4,8 +4,9 @@ import (
 	"NotificationManagement/domain"
 	"NotificationManagement/types"
 	"NotificationManagement/utils"
-	"github.com/labstack/echo/v4"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
 type ReminderControllerImpl struct {
@@ -26,7 +27,7 @@ func (rc *ReminderControllerImpl) CreateReminder(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	err = rc.Service.CreateModel(reminder)
+	err = rc.Service.CreateModel(c, reminder)
 	if err != nil {
 		return err
 	}
@@ -41,7 +42,7 @@ func (rc *ReminderControllerImpl) GetReminderByID(c echo.Context) error {
 		return err
 	}
 
-	reminder, err := rc.Service.GetModelById(id)
+	reminder, err := rc.Service.GetModelById(c, id)
 	if err != nil {
 		return err
 	}
@@ -53,7 +54,7 @@ func (rc *ReminderControllerImpl) GetReminderByID(c echo.Context) error {
 func (rc *ReminderControllerImpl) GetAllReminders(c echo.Context) error {
 	limit, offset := utils.ParseLimitAndOffset(c)
 
-	reminders, err := rc.Service.GetAllModels(limit, offset)
+	reminders, err := rc.Service.GetAllModels(c, limit, offset)
 	if err != nil {
 		return err
 	}
@@ -81,7 +82,7 @@ func (rc *ReminderControllerImpl) UpdateReminder(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	reminder, err = rc.Service.UpdateModel(id, reminder)
+	reminder, err = rc.Service.UpdateModel(c, id, reminder)
 	if err != nil {
 		return err
 	}
@@ -96,7 +97,7 @@ func (rc *ReminderControllerImpl) DeleteReminder(c echo.Context) error {
 		return err
 	}
 
-	err = rc.Service.DeleteModel(id)
+	err = rc.Service.DeleteModel(c, id)
 	if err != nil {
 		return err
 	}

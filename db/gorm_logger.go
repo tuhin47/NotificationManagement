@@ -1,6 +1,7 @@
-package logger
+package db
 
 import (
+	"NotificationManagement/logger"
 	"context"
 	"time"
 
@@ -18,7 +19,7 @@ func NewGormZapLogger(level gormlogger.LogLevel, slowThreshold time.Duration) *G
 	return &GormZapLogger{
 		LogLevel:      level,
 		SlowThreshold: slowThreshold,
-		ZLogger:       L().WithOptions(zap.AddCaller(), zap.AddCallerSkip(3)), // disables zap's caller annotation
+		ZLogger:       logger.L().WithOptions(zap.AddCaller(), zap.AddCallerSkip(3)), // disables zap's caller annotation
 	}
 }
 

@@ -1,4 +1,4 @@
-package cmd
+package db
 
 import (
 	"NotificationManagement/config"
@@ -11,7 +11,7 @@ import (
 )
 
 func NewDB() (*gorm.DB, error) {
-	gormLogger := logger.NewGormZapLogger(
+	gormLogger := NewGormZapLogger(
 		logger2.Info,
 		200*time.Millisecond,
 	)

@@ -7,8 +7,9 @@ import (
 	"NotificationManagement/types"
 	"NotificationManagement/utils"
 	"NotificationManagement/utils/errutil"
-	"github.com/labstack/echo/v4"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
 type AIRequestControllerImpl struct {
@@ -26,11 +27,11 @@ func (a *AIRequestControllerImpl) MakeAIRequestHandler(c echo.Context) error {
 	if err := utils.BindAndValidate(c, &req); err != nil {
 		return err
 	}
-	service, err := a.GetServiceManagerById(req.ModelID)
+	service, err := a.GetServiceManagerById(c, req.ModelID)
 	if err != nil {
 		return err
 	}
-	aiResponse, err := service.MakeAIRequest(&req)
+	aiResponse, err := service.MakeAIRequest(c, &req)
 	if err != nil {
 		return err
 	}
@@ -52,7 +53,7 @@ func (a *AIRequestControllerImpl) CreateAIModel(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	err = service.CreateModel(model)
+	err = service.CreateModel(c, model)
 	if err != nil {
 		return err
 	}
@@ -65,11 +66,11 @@ func (a *AIRequestControllerImpl) GetAIModelByID(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	service, err := a.GetServiceManagerById(id)
+	service, err := a.GetServiceManagerById(nil, id)
 	if err != nil {
 		return err
 	}
-	modelById, err := service.GetModelById(id)
+	modelById, err := service.GetModelById(c, id)
 	if err != nil {
 		return err
 	}
@@ -84,7 +85,7 @@ func (a *AIRequestControllerImpl) GetAllAIModels(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	deepseekModels, err := deepseekService.GetAllModels(limit, offset)
+	deepseekModels, err := deepseekService.GetAllModels(c, limit, offset)
 	if err != nil {
 		return err
 	}
@@ -93,7 +94,7 @@ func (a *AIRequestControllerImpl) GetAllAIModels(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	geminiModels, err := geminiService.GetAllModels(limit, offset)
+	geminiModels, err := geminiService.GetAllModels(c, limit, offset)
 	if err != nil {
 		return err
 	}
@@ -130,7 +131,7 @@ func (a *AIRequestControllerImpl) UpdateAIModel(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	updateModel, err := s.UpdateModel(id, model)
+	updateModel, err := s.UpdateModel(c, id, model)
 	if err != nil {
 		return err
 	}
@@ -143,11 +144,11 @@ func (a *AIRequestControllerImpl) DeleteAIModel(c echo.Context) error {
 		return err
 	}
 
-	return a.AIModelService.DeleteModel(id)
+	return a.AIModelService.DeleteModel(c, id)
 }
 
-func (a *AIRequestControllerImpl) GetServiceManagerById(id uint) (domain.AIProcessService[domain.AIService[any], any], error) {
-	model, err := a.AIModelService.GetModelById(id)
+func (a *AIRequestControllerImpl) GetServiceManagerById(c echo.Context, id uint) (domain.AIProcessService[domain.AIService[any], any], error) {
+	model, err := a.AIModelService.GetModelById(c, id)
 	if err != nil {
 		return nil, err
 	}

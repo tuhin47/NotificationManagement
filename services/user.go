@@ -6,6 +6,7 @@ import (
 	"NotificationManagement/utils/errutil"
 	"context"
 	"errors"
+	"github.com/labstack/echo/v4"
 	"strings"
 )
 
@@ -57,11 +58,11 @@ func (s *UserServiceImpl) GetInstance() domain.CommonService[models.User] {
 	return s.CommonService
 }
 
-func (s *UserServiceImpl) CreateModel(entity *models.User) error {
+func (s *UserServiceImpl) CreateModel(c echo.Context, entity *models.User) error {
 	return s.UserRepo.Create(s.GetContext(), entity)
 }
 
-func (s *UserServiceImpl) GetModelById(id uint) (*models.User, error) {
+func (s *UserServiceImpl) GetModelById(c echo.Context, id uint) (*models.User, error) {
 	model, err := s.UserRepo.GetByID(s.GetContext(), id, nil)
 	if err != nil {
 		return nil, err
@@ -69,7 +70,7 @@ func (s *UserServiceImpl) GetModelById(id uint) (*models.User, error) {
 	return model, nil
 }
 
-func (s *UserServiceImpl) GetAllModels(limit, offset int) ([]models.User, error) {
+func (s *UserServiceImpl) GetAllModels(c echo.Context, limit, offset int) ([]models.User, error) {
 	m, err := s.UserRepo.GetAll(s.GetContext(), limit, offset)
 	if err != nil {
 		return nil, err
@@ -77,7 +78,7 @@ func (s *UserServiceImpl) GetAllModels(limit, offset int) ([]models.User, error)
 	return m, nil
 }
 
-func (s *UserServiceImpl) UpdateModel(id uint, model *models.User) (*models.User, error) {
+func (s *UserServiceImpl) UpdateModel(c echo.Context, id uint, model *models.User) (*models.User, error) {
 	existing, err := s.UserRepo.GetByID(s.GetContext(), id, nil)
 	if err != nil {
 		return nil, err
@@ -89,7 +90,7 @@ func (s *UserServiceImpl) UpdateModel(id uint, model *models.User) (*models.User
 	return existing, err
 }
 
-func (s *UserServiceImpl) DeleteModel(id uint) error {
+func (s *UserServiceImpl) DeleteModel(c echo.Context, id uint) error {
 	return s.UserRepo.Delete(s.GetContext(), id)
 }
 

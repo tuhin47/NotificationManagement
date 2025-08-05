@@ -4,6 +4,7 @@ import (
 	"NotificationManagement/domain"
 	"NotificationManagement/models"
 	"NotificationManagement/types"
+	"github.com/labstack/echo/v4"
 )
 
 type BaseAIProcessImpl[T domain.AIService[X], X any] struct {
@@ -18,28 +19,29 @@ func NewAIServiceManager[T domain.AIService[X], X any](aiService domain.AIModelS
 		Service:        service,
 	}
 }
-func (f *BaseAIProcessImpl[T, X]) CreateModel(model models.AIModelInterface) error {
+
+func (f *BaseAIProcessImpl[T, X]) CreateModel(c echo.Context, model models.AIModelInterface) error {
 	x := any(model).(*X)
-	return f.Service.CreateModel(x)
+	return f.Service.CreateModel(c, x)
 }
-func (f *BaseAIProcessImpl[T, X]) GetModelById(id uint) (interface{}, error) {
-	return f.Service.GetModelById(id)
+func (f *BaseAIProcessImpl[T, X]) GetModelById(c echo.Context, id uint) (interface{}, error) {
+	return f.Service.GetModelById(c, id)
 }
-func (f *BaseAIProcessImpl[T, X]) GetAllModels(limit int, offset int) (interface{}, error) {
-	return f.Service.GetAllModels(limit, offset)
+func (f *BaseAIProcessImpl[T, X]) GetAllModels(c echo.Context, limit int, offset int) (interface{}, error) {
+	return f.Service.GetAllModels(c, limit, offset)
 }
 
-func (f *BaseAIProcessImpl[T, X]) UpdateModel(id uint, model models.AIModelInterface) (interface{}, error) {
+func (f *BaseAIProcessImpl[T, X]) UpdateModel(c echo.Context, id uint, model models.AIModelInterface) (interface{}, error) {
 	x := any(model).(*X)
-	return f.Service.UpdateModel(id, x)
+	return f.Service.UpdateModel(c, id, x)
 }
 
-func (f *BaseAIProcessImpl[T, X]) MakeAIRequest(req *types.MakeAIRequestPayload) (interface{}, error) {
-	model, err := f.AIModelService.GetModelById(req.ModelID)
+func (f *BaseAIProcessImpl[T, X]) MakeAIRequest(c echo.Context, req *types.MakeAIRequestPayload) (interface{}, error) {
+	model, err := f.AIModelService.GetModelById(c, req.ModelID)
 	if err != nil {
 		return nil, err
 	}
-	resp, err := f.Service.MakeAIRequest(model, req.CurlRequestID)
+	resp, err := f.Service.MakeAIRequest(c, model, req.CurlRequestID)
 	if err != nil {
 		return nil, err
 	}

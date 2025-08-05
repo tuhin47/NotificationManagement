@@ -1,12 +1,10 @@
 package cmd
 
 import (
-	"os"
-
 	"NotificationManagement/config"
 	"NotificationManagement/logger"
-
 	"github.com/spf13/cobra"
+	"os"
 )
 
 var RootCmd = &cobra.Command{

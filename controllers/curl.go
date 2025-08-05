@@ -35,7 +35,7 @@ func (cc *CurlControllerImpl) CurlHandler(c echo.Context) error {
 	}
 	model.UserID = ccx.UserID
 
-	err = cc.CurlService.CreateModel(model)
+	err = cc.CurlService.CreateModel(c, model)
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func (cc *CurlControllerImpl) GetCurlRequestByID(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	curlRequest, err := cc.CurlService.GetModelById(id)
+	curlRequest, err := cc.CurlService.GetModelById(c, id)
 	if err != nil {
 		return err
 	}
@@ -77,7 +77,7 @@ func (cc *CurlControllerImpl) UpdateCurlRequest(c echo.Context) error {
 		return err
 	}
 
-	model, err = cc.CurlService.UpdateModel(id, model)
+	model, err = cc.CurlService.UpdateModel(c, id, model)
 	if err != nil {
 		return err
 	}
@@ -91,7 +91,7 @@ func (cc *CurlControllerImpl) DeleteCurlRequest(c echo.Context) error {
 		return err
 	}
 
-	err = cc.CurlService.DeleteModel(id)
+	err = cc.CurlService.DeleteModel(c, id)
 	if err != nil {
 		return err
 	}
