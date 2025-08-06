@@ -64,14 +64,16 @@ type AWSConfig struct {
 }
 
 type KeycloakConfig struct {
-	ServerURL    string `json:"server_url"`
-	Realm        string `json:"realm"`
-	ClientID     string `json:"client_id"`
-	ClientSecret string `json:"client_secret"`
+	ServerURL    string `mapstructure:"server_url"`
+	Realm        string `mapstructure:"realm"`
+	ClientID     string `mapstructure:"client_id"`
+	ClientSecret string `mapstructure:"client_secret"`
 }
 
 type ConfigServiceConfig struct {
-	Enabled bool `mapstructure:"enabled"`
+	Enabled bool   `mapstructure:"enabled"`
+	SSM     string `mapstructure:"ssm"`
+
 	// Add specific config service settings as needed
 }
 
@@ -134,17 +136,34 @@ const (
 
 // LoadConfig loads configuration from file, environment variables, or SSM Parameter Store
 func LoadConfig() {
-	if os.Getenv(EnvConfigFromSSM) == "true" {
+	// Set default values
+	setDefaults()
+
+	// Unmarshal config
+	if err := viper.Unmarshal(&appConfig); err != nil {
+		fmt.Printf("Error unmarshaling config: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Read from SSM Parameter Store if enabled
+	if os.Getenv(EnvConfigFromSSM) != "false" {
 		ssmParam := os.Getenv(EnvConfigSSMParam)
 		if ssmParam == "" {
-			ssmParam = "/myapp/config"
+			ssmParam = appConfig.AWS.ConfigService.SSM
 		}
 		region := os.Getenv(EnvAWSRegion)
 		if region == "" {
-			region = "us-east-1"
+			region = appConfig.AWS.Region
 		}
 		endpoint := os.Getenv(EnvAWSEndpoint)
-		useLocalStack := os.Getenv(EnvAWSUseLocalStack) == "true"
+		if endpoint == "" {
+			endpoint = appConfig.AWS.Endpoint
+		}
+		useLocalEnv := os.Getenv(EnvAWSUseLocalStack)
+		useLocalStack := useLocalEnv == "true"
+		if useLocalEnv == "" {
+			useLocalStack = appConfig.AWS.UseLocalStack
+		}
 
 		var awsCfg aws.Config
 		var err error
@@ -180,16 +199,15 @@ func LoadConfig() {
 		if err != nil {
 			panic("failed to get config from SSM: " + err.Error())
 		}
-		var loadedConfig Config
-		err = json.Unmarshal([]byte(*resp.Parameter.Value), &loadedConfig)
+		var ssmConfigMap map[string]interface{}
+		err = json.Unmarshal([]byte(*resp.Parameter.Value), &ssmConfigMap)
 		if err != nil {
 			panic("failed to unmarshal config from SSM: " + err.Error())
 		}
-		appConfig = &loadedConfig
-		return
+		if err := viper.MergeConfigMap(ssmConfigMap); err != nil {
+			panic("failed to merge SSM config: " + err.Error())
+		}
 	}
-	// Set default values
-	setDefaults()
 
 	// Read from environment variables
 	loadFromEnv()
@@ -234,9 +252,10 @@ func setDefaults() {
 	viper.SetDefault("aws.region", "us-east-1")
 	viper.SetDefault("aws.access_key_id", "test")
 	viper.SetDefault("aws.secret_access_key", "test")
-	viper.SetDefault("aws.endpoint", "")
-	viper.SetDefault("aws.use_localstack", false)
+	viper.SetDefault("aws.endpoint", "http://localhost:4566")
+	viper.SetDefault("aws.use_localstack", true)
 	viper.SetDefault("aws.config_service.enabled", true)
+	viper.SetDefault("aws.config_service.ssm", "/myapp/config")
 
 	// Logger defaults
 	viper.SetDefault("logger.level", "info")
@@ -280,6 +299,8 @@ func loadFromEnv() {
 	viper.BindEnv("email.from", EnvEmailFrom)
 
 	// AWS environment variables
+	viper.BindEnv("aws.region", EnvAWSRegion)
+	viper.BindEnv("aws.region", EnvAWSRegion)
 	viper.BindEnv("aws.region", EnvAWSRegion)
 	viper.BindEnv("aws.access_key_id", EnvAWSAccessKeyID)
 	viper.BindEnv("aws.secret_access_key", EnvAWSSecretAccessKey)
