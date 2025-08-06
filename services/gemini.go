@@ -8,7 +8,6 @@ import (
 	"NotificationManagement/types"
 	"NotificationManagement/utils/errutil"
 	"context"
-	"github.com/labstack/echo/v4"
 	"os"
 
 	"google.golang.org/genai"
@@ -35,17 +34,17 @@ func (s *GeminiServiceImpl) GetContext() context.Context {
 	return context.WithValue(background, repositories.ContextStruct{}, &repositories.ContextStruct{Filter: &f})
 }
 
-func (s *GeminiServiceImpl) MakeAIRequest(c echo.Context, aiModel *models.AIModel, requestId uint) (interface{}, error) {
+func (s *GeminiServiceImpl) MakeAIRequest(c context.Context, m *models.AIModel, requestId uint) (interface{}, error) {
 
 	curl, err := s.CurlService.GetModelById(c, requestId)
 	if err != nil {
 		return nil, err
 	}
-	curlResponse, err := s.CurlService.ProcessCurlRequest(curl)
+	curlResponse, err := s.CurlService.ProcessCurlRequest(c, curl)
 	if err != nil {
 		return nil, err
 	}
-	model, err := s.GetModelById(c, aiModel.ID)
+	model, err := s.GetModelById(c, m.ID)
 	if err != nil {
 		return nil, err
 	}

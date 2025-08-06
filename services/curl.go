@@ -13,7 +13,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/labstack/echo/v4"
 	"io"
 	"net/http"
 	"os/exec"
@@ -27,7 +26,7 @@ type CurlServiceImpl struct {
 	AdditionalFieldRepo domain.AdditionalFieldsRepository
 }
 
-func (s *CurlServiceImpl) GetModelById(c echo.Context, id uint) (*models.CurlRequest, error) {
+func (s *CurlServiceImpl) GetModelById(c context.Context, id uint) (*models.CurlRequest, error) {
 	return s.CurlRepo.GetByID(s.GetInstance().GetContext(), id, &[]string{"AdditionalFields"})
 }
 
@@ -106,7 +105,7 @@ func executeCurlCommand(command string) (string, error) {
 	return string(output), nil
 }
 
-func (s *CurlServiceImpl) ProcessCurlRequest(req *models.CurlRequest) (*types.CurlResponse, error) {
+func (s *CurlServiceImpl) ProcessCurlRequest(c context.Context, req *models.CurlRequest) (*types.CurlResponse, error) {
 
 	if req.ResponseType == types.ResponseTypeHTML {
 		resp, err := executeCurlCommand(req.RawCurl)
@@ -199,9 +198,8 @@ func (s *CurlServiceImpl) ProcessCurlRequest(req *models.CurlRequest) (*types.Cu
 	}, nil
 }
 
-func (s *CurlServiceImpl) UpdateModel(c echo.Context, id uint, model *models.CurlRequest) (*models.CurlRequest, error) {
-	ctx := context.Background()
-	existing, err := s.CurlRepo.GetByID(ctx, id, nil)
+func (s *CurlServiceImpl) UpdateModel(c context.Context, id uint, model *models.CurlRequest) (*models.CurlRequest, error) {
+	existing, err := s.CurlRepo.GetByID(c, id, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -239,7 +237,7 @@ func (s *CurlServiceImpl) UpdateModel(c echo.Context, id uint, model *models.Cur
 			}
 		}
 	}
-	updatedAssoc, err := utils.SyncHasManyAssociation(s.CurlRepo.GetDB(ctx), &existing, "AdditionalFields", model.AdditionalFields)
+	updatedAssoc, err := utils.SyncHasManyAssociation(s.CurlRepo.GetDB(c), &existing, "AdditionalFields", model.AdditionalFields)
 	if err != nil {
 		return nil, err
 	}

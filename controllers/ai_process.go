@@ -31,7 +31,7 @@ func (a *AIRequestControllerImpl) MakeAIRequestHandler(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	aiResponse, err := service.MakeAIRequest(c, &req)
+	aiResponse, err := service.MakeAIRequest(c.Request().Context(), &req)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (a *AIRequestControllerImpl) CreateAIModel(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	err = service.CreateModel(c, model)
+	err = service.CreateModel(c.Request().Context(), model)
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func (a *AIRequestControllerImpl) GetAIModelByID(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	modelById, err := service.GetModelById(c, id)
+	modelById, err := service.GetModelById(c.Request().Context(), id)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func (a *AIRequestControllerImpl) GetAllAIModels(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	deepseekModels, err := deepseekService.GetAllModels(c, limit, offset)
+	deepseekModels, err := deepseekService.GetAllModels(c.Request().Context(), limit, offset)
 	if err != nil {
 		return err
 	}
@@ -94,7 +94,7 @@ func (a *AIRequestControllerImpl) GetAllAIModels(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	geminiModels, err := geminiService.GetAllModels(c, limit, offset)
+	geminiModels, err := geminiService.GetAllModels(c.Request().Context(), limit, offset)
 	if err != nil {
 		return err
 	}
@@ -131,7 +131,7 @@ func (a *AIRequestControllerImpl) UpdateAIModel(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	updateModel, err := s.UpdateModel(c, id, model)
+	updateModel, err := s.UpdateModel(c.Request().Context(), id, model)
 	if err != nil {
 		return err
 	}
@@ -144,11 +144,11 @@ func (a *AIRequestControllerImpl) DeleteAIModel(c echo.Context) error {
 		return err
 	}
 
-	return a.AIModelService.DeleteModel(c, id)
+	return a.AIModelService.DeleteModel(c.Request().Context(), id)
 }
 
 func (a *AIRequestControllerImpl) GetServiceManagerById(c echo.Context, id uint) (domain.AIProcessService[domain.AIService[any], any], error) {
-	model, err := a.AIModelService.GetModelById(c, id)
+	model, err := a.AIModelService.GetModelById(c.Request().Context(), id)
 	if err != nil {
 		return nil, err
 	}

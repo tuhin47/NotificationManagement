@@ -11,7 +11,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/labstack/echo/v4"
 	"io"
 	"net/http"
 	"strings"
@@ -39,16 +38,16 @@ func (s *DeepseekServiceImpl) GetContext() context.Context {
 	return context.WithValue(background, repositories.ContextStruct{}, &repositories.ContextStruct{Filter: &f})
 }
 
-func (s *DeepseekServiceImpl) MakeAIRequest(c echo.Context, mod *models.AIModel, requestId uint) (interface{}, error) {
+func (s *DeepseekServiceImpl) MakeAIRequest(c context.Context, m *models.AIModel, requestId uint) (interface{}, error) {
 	curl, err := s.CurlService.GetModelById(c, requestId)
 	if err != nil {
 		return nil, err
 	}
-	curlResponse, err := s.CurlService.ProcessCurlRequest(curl)
+	curlResponse, err := s.CurlService.ProcessCurlRequest(nil, curl)
 	if err != nil {
 		return nil, err
 	}
-	model, err := s.GetModelById(c, mod.ID)
+	model, err := s.GetModelById(c, m.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +66,7 @@ func (s *DeepseekServiceImpl) MakeAIRequest(c echo.Context, mod *models.AIModel,
 	return &a, nil
 }
 
-func (s *DeepseekServiceImpl) PullModel(c echo.Context, model *models.DeepseekModel) error {
+func (s *DeepseekServiceImpl) PullModel(c context.Context, model *models.DeepseekModel) error {
 	// Implementation for pulling/downloading the model
 	payload := map[string]interface{}{
 		"name": model.ModelName,

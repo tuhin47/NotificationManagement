@@ -27,7 +27,7 @@ func (rc *ReminderControllerImpl) CreateReminder(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	err = rc.Service.CreateModel(c, reminder)
+	err = rc.Service.CreateModel(c.Request().Context(), reminder)
 	if err != nil {
 		return err
 	}
@@ -42,7 +42,7 @@ func (rc *ReminderControllerImpl) GetReminderByID(c echo.Context) error {
 		return err
 	}
 
-	reminder, err := rc.Service.GetModelById(c, id)
+	reminder, err := rc.Service.GetModelById(c.Request().Context(), id)
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func (rc *ReminderControllerImpl) GetReminderByID(c echo.Context) error {
 func (rc *ReminderControllerImpl) GetAllReminders(c echo.Context) error {
 	limit, offset := utils.ParseLimitAndOffset(c)
 
-	reminders, err := rc.Service.GetAllModels(c, limit, offset)
+	reminders, err := rc.Service.GetAllModels(c.Request().Context(), limit, offset)
 	if err != nil {
 		return err
 	}
@@ -82,7 +82,7 @@ func (rc *ReminderControllerImpl) UpdateReminder(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	reminder, err = rc.Service.UpdateModel(c, id, reminder)
+	reminder, err = rc.Service.UpdateModel(c.Request().Context(), id, reminder)
 	if err != nil {
 		return err
 	}
@@ -97,7 +97,7 @@ func (rc *ReminderControllerImpl) DeleteReminder(c echo.Context) error {
 		return err
 	}
 
-	err = rc.Service.DeleteModel(c, id)
+	err = rc.Service.DeleteModel(c.Request().Context(), id)
 	if err != nil {
 		return err
 	}

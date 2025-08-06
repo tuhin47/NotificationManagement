@@ -3,12 +3,13 @@ package domain
 import (
 	"NotificationManagement/models"
 	"NotificationManagement/types"
+	"context"
 	"github.com/labstack/echo/v4"
 )
 
 type CurlService interface {
 	CommonService[models.CurlRequest]
-	ProcessCurlRequest(req *models.CurlRequest) (*types.CurlResponse, error)
+	ProcessCurlRequest(c context.Context, req *models.CurlRequest) (*types.CurlResponse, error)
 }
 
 type CurlRequestRepository interface {

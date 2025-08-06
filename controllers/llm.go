@@ -27,7 +27,7 @@ func (lc *LLMControllerImpl) CreateLLM(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	err = lc.Service.CreateModel(c, llm)
+	err = lc.Service.CreateModel(c.Request().Context(), llm)
 	if err != nil {
 		return err
 	}
@@ -42,7 +42,7 @@ func (lc *LLMControllerImpl) GetLLMByID(c echo.Context) error {
 		return err
 	}
 
-	llm, err := lc.Service.GetModelById(c, id)
+	llm, err := lc.Service.GetModelById(c.Request().Context(), id)
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func (lc *LLMControllerImpl) GetLLMByID(c echo.Context) error {
 func (lc *LLMControllerImpl) GetAllLLMs(c echo.Context) error {
 	limit, offset := utils.ParseLimitAndOffset(c)
 
-	llms, err := lc.Service.GetAllModels(c, limit, offset)
+	llms, err := lc.Service.GetAllModels(c.Request().Context(), limit, offset)
 	if err != nil {
 		return err
 	}
@@ -82,7 +82,7 @@ func (lc *LLMControllerImpl) UpdateLLM(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	updatedLLM, err := lc.Service.UpdateModel(c, id, llm)
+	updatedLLM, err := lc.Service.UpdateModel(c.Request().Context(), id, llm)
 	if err != nil {
 		return err
 	}
@@ -96,7 +96,7 @@ func (lc *LLMControllerImpl) DeleteLLM(c echo.Context) error {
 		return err
 	}
 
-	err = lc.Service.DeleteModel(c, id)
+	err = lc.Service.DeleteModel(c.Request().Context(), id)
 	if err != nil {
 		return err
 	}

@@ -2,13 +2,12 @@ package domain
 
 import (
 	"NotificationManagement/models"
-
-	"github.com/labstack/echo/v4"
+	"context"
 )
 
 type DeepseekService interface {
 	AIService[models.DeepseekModel]
-	PullModel(c echo.Context, model *models.DeepseekModel) error
+	PullModel(c context.Context, model *models.DeepseekModel) error
 }
 
 type DeepseekModelRepository interface {

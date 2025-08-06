@@ -4,7 +4,7 @@ import (
 	"NotificationManagement/domain"
 	"NotificationManagement/models"
 	"NotificationManagement/types"
-	"github.com/labstack/echo/v4"
+	"context"
 )
 
 type BaseAIProcessImpl[T domain.AIService[X], X any] struct {
@@ -20,23 +20,23 @@ func NewAIServiceManager[T domain.AIService[X], X any](aiService domain.AIModelS
 	}
 }
 
-func (f *BaseAIProcessImpl[T, X]) CreateModel(c echo.Context, model models.AIModelInterface) error {
+func (f *BaseAIProcessImpl[T, X]) CreateModel(c context.Context, model models.AIModelInterface) error {
 	x := any(model).(*X)
 	return f.Service.CreateModel(c, x)
 }
-func (f *BaseAIProcessImpl[T, X]) GetModelById(c echo.Context, id uint) (interface{}, error) {
+func (f *BaseAIProcessImpl[T, X]) GetModelById(c context.Context, id uint) (interface{}, error) {
 	return f.Service.GetModelById(c, id)
 }
-func (f *BaseAIProcessImpl[T, X]) GetAllModels(c echo.Context, limit int, offset int) (interface{}, error) {
+func (f *BaseAIProcessImpl[T, X]) GetAllModels(c context.Context, limit, offset int) (interface{}, error) {
 	return f.Service.GetAllModels(c, limit, offset)
 }
 
-func (f *BaseAIProcessImpl[T, X]) UpdateModel(c echo.Context, id uint, model models.AIModelInterface) (interface{}, error) {
+func (f *BaseAIProcessImpl[T, X]) UpdateModel(c context.Context, id uint, model models.AIModelInterface) (interface{}, error) {
 	x := any(model).(*X)
 	return f.Service.UpdateModel(c, id, x)
 }
 
-func (f *BaseAIProcessImpl[T, X]) MakeAIRequest(c echo.Context, req *types.MakeAIRequestPayload) (interface{}, error) {
+func (f *BaseAIProcessImpl[T, X]) MakeAIRequest(c context.Context, req *types.MakeAIRequestPayload) (interface{}, error) {
 	model, err := f.AIModelService.GetModelById(c, req.ModelID)
 	if err != nil {
 		return nil, err

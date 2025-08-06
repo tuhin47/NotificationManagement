@@ -5,7 +5,6 @@ import (
 	"NotificationManagement/models"
 	"NotificationManagement/utils/errutil"
 	"context"
-	"github.com/labstack/echo/v4"
 )
 
 type CommonServiceImpl[T any] struct {
@@ -24,11 +23,11 @@ func (s *CommonServiceImpl[T]) GetInstance() domain.CommonService[T] {
 	return s.Instance
 }
 
-func (s *CommonServiceImpl[T]) CreateModel(c echo.Context, entity *T) error {
+func (s *CommonServiceImpl[T]) CreateModel(c context.Context, entity *T) error {
 	return s.Repo.Create(s.Instance.GetContext(), entity)
 }
 
-func (s *CommonServiceImpl[T]) GetModelById(c echo.Context, id uint) (*T, error) {
+func (s *CommonServiceImpl[T]) GetModelById(c context.Context, id uint) (*T, error) {
 	model, err := s.Repo.GetByID(s.Instance.GetContext(), id, nil)
 	if err != nil {
 		return nil, err
@@ -36,7 +35,7 @@ func (s *CommonServiceImpl[T]) GetModelById(c echo.Context, id uint) (*T, error)
 	return model, nil
 }
 
-func (s *CommonServiceImpl[T]) GetAllModels(c echo.Context, limit, offset int) ([]T, error) {
+func (s *CommonServiceImpl[T]) GetAllModels(c context.Context, limit, offset int) ([]T, error) {
 	m, err := s.Repo.GetAll(s.Instance.GetContext(), limit, offset)
 	if err != nil {
 		return nil, err
@@ -44,7 +43,7 @@ func (s *CommonServiceImpl[T]) GetAllModels(c echo.Context, limit, offset int) (
 	return m, nil
 }
 
-func (s *CommonServiceImpl[T]) UpdateModel(c echo.Context, id uint, model *T) (*T, error) {
+func (s *CommonServiceImpl[T]) UpdateModel(c context.Context, id uint, model *T) (*T, error) {
 	// Check if the model implements ModelInterface
 	modelUpdater, ok := any(model).(models.ModelInterface)
 	if !ok {
@@ -63,6 +62,6 @@ func (s *CommonServiceImpl[T]) UpdateModel(c echo.Context, id uint, model *T) (*
 	return existing, err
 }
 
-func (s *CommonServiceImpl[T]) DeleteModel(c echo.Context, id uint) error {
+func (s *CommonServiceImpl[T]) DeleteModel(c context.Context, id uint) error {
 	return s.Repo.Delete(s.Instance.GetContext(), id)
 }

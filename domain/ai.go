@@ -3,6 +3,7 @@ package domain
 import (
 	"NotificationManagement/models"
 	"NotificationManagement/types"
+	"context"
 
 	"github.com/labstack/echo/v4"
 )
@@ -12,18 +13,18 @@ type AIModelService interface {
 }
 type AIService[T any] interface {
 	CommonService[T]
-	MakeAIRequest(c echo.Context, m *models.AIModel, requestId uint) (interface{}, error)
+	MakeAIRequest(c context.Context, m *models.AIModel, requestId uint) (interface{}, error)
 }
 type AIModelRepository interface {
 	Repository[models.AIModel, uint]
 }
 
 type AIProcessService[T AIService[X], X any] interface {
-	MakeAIRequest(c echo.Context, req *types.MakeAIRequestPayload) (interface{}, error)
-	CreateModel(c echo.Context, model models.AIModelInterface) error
-	UpdateModel(c echo.Context, id uint, model models.AIModelInterface) (interface{}, error)
-	GetModelById(c echo.Context, id uint) (interface{}, error)
-	GetAllModels(c echo.Context, limit, offset int) (interface{}, error)
+	MakeAIRequest(c context.Context, req *types.MakeAIRequestPayload) (interface{}, error)
+	CreateModel(c context.Context, model models.AIModelInterface) error
+	UpdateModel(c context.Context, id uint, model models.AIModelInterface) (interface{}, error)
+	GetModelById(c context.Context, id uint) (interface{}, error)
+	GetAllModels(c context.Context, limit, offset int) (interface{}, error)
 }
 
 type AIRequestController interface {
