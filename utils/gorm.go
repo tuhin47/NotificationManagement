@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"NotificationManagement/utils/errutil"
 	"errors"
 	"reflect"
 
@@ -11,7 +12,7 @@ func SyncHasManyAssociation(db *gorm.DB, parent interface{}, assocName string, n
 	// Use reflection to create a slice of the same type as newItems
 	newVal := reflect.ValueOf(newItems)
 	if newVal.Kind() != reflect.Ptr || newVal.Elem().Kind() != reflect.Slice {
-		return nil, errors.New("newItems must be a pointer to a slice")
+		return nil, errutil.NewAppError(errutil.ErrGormInvalidSlicePointer, errors.New("newItems must be a pointer to a slice"))
 	}
 
 	sliceType := newVal.Elem().Type()
@@ -19,10 +20,10 @@ func SyncHasManyAssociation(db *gorm.DB, parent interface{}, assocName string, n
 
 	assoc := db.Model(parent).Association(assocName)
 	if assoc == nil {
-		return nil, errors.New("association not found")
+		return nil, errutil.NewAppError(errutil.ErrGormAssociationNotFound, errors.New("association not found"))
 	}
 	if err := assoc.Find(existingItems); err != nil {
-		return nil, err
+		return nil, errutil.NewAppError(errutil.ErrGormFindFailed, err)
 	}
 
 	// Build map of existing by ID
@@ -51,12 +52,12 @@ func SyncHasManyAssociation(db *gorm.DB, parent interface{}, assocName string, n
 		if id == 0 {
 			// New item: create
 			if err := db.Create(item.Addr().Interface()).Error; err != nil {
-				return nil, err
+				return nil, errutil.NewAppError(errutil.ErrGormCreateFailed, err)
 			}
 		} else if existing, ok := existingMap[id]; ok {
 			// Existing item: update
 			if err := db.Model(existing.Addr().Interface()).Updates(item.Addr().Interface()).Error; err != nil {
-				return nil, err
+				return nil, errutil.NewAppError(errutil.ErrGormUpdateFailed, err)
 			}
 			delete(existingMap, id)
 		}
@@ -65,14 +66,14 @@ func SyncHasManyAssociation(db *gorm.DB, parent interface{}, assocName string, n
 	// Delete items not in new slice
 	for _, item := range existingMap {
 		if err := db.Delete(item.Addr().Interface()).Error; err != nil {
-			return nil, err
+			return nil, errutil.NewAppError(errutil.ErrGormDeleteFailed, err)
 		}
 	}
 
 	// Fetch the final association result
 	finalItems := reflect.New(sliceType).Interface()
 	if err := db.Model(parent).Association(assocName).Find(finalItems); err != nil {
-		return nil, err
+		return nil, errutil.NewAppError(errutil.ErrGormFindFailed, err)
 	}
 
 	return finalItems, nil

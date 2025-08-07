@@ -2,7 +2,6 @@ package types
 
 import (
 	"NotificationManagement/types/ollama"
-
 	"google.golang.org/genai"
 )
 

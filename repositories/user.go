@@ -24,7 +24,7 @@ func (r *UserRepositoryImpl) FindByKeycloakID(keycloakID string, ctx context.Con
 	var user models.User
 	err := r.db.Where("keycloak_id = ?", keycloakID).First(&user).Error
 	if err != nil {
-		return nil, err
+		return nil, handleDbError(err)
 	}
 	return &user, nil
 }

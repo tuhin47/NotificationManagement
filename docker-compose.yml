@@ -16,7 +16,7 @@ services:
       # - "./localstack-data:/tmp/localstack/data"
       - "/var/run/docker.sock:/var/run/docker.sock"
     networks:
-      - localstack-network
+      - nms-network
 
   postgres:
     image: postgres:15
@@ -31,7 +31,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
       - ./scripts/db:/docker-entrypoint-initdb.d/
     networks:
-      - localstack-network
+      - nms-network
 
   ollama:
     image: ollama/ollama:latest
@@ -46,7 +46,7 @@ services:
     #          memory: 2g
     #          cpus: '0.5'
     networks:
-      - localstack-network
+      - nms-network
 
   keycloak:
     container_name: keycloak
@@ -72,8 +72,27 @@ services:
       retries: 20
     volumes:
       - ./keycloak/import/:/opt/keycloak/data/import/
+
+  redis:
+    image: "bitnami/redis:6.0.9"
+    platform: linux/amd64  # Force x86 architecture for compatibility
+    container_name: nms-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    environment:
+#      - REDIS_PASSWORD=
+      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - nms_redis_local_db:/bitnami/redis/data
+    networks:
+      - nms-network
 networks:
-  localstack-network:
+  nms-network:
     driver: bridge
 volumes:
-  postgres-data: 
+  postgres-data:
+    name: nms-mysql-local_db
+  nms_redis_local_db:
+    name: nms_redis-local_db
+

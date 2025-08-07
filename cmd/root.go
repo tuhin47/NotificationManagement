@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"NotificationManagement/config"
+	"NotificationManagement/conn"
 	"NotificationManagement/logger"
 	"github.com/spf13/cobra"
 	"os"
@@ -25,16 +26,8 @@ func Execute() {
 	logger.Init()
 	defer logger.Sync()
 
-	// TODO: Initialize connections when conn package is available
-	// conn.ConnectDb()
-	// conn.ConnectRedis()
-	// conn.InitAsynqClient()
-	// conn.InitAsyncInspector()
+	conn.ConnectRedis()
 	// conn.ConnectEmail()
-
-	// asynq connections
-	// conn.InitAsynqClient()
-	// conn.InitAsyncInspector()
 
 	if err := RootCmd.Execute(); err != nil {
 		logger.Error("command execution failed", "error", err)

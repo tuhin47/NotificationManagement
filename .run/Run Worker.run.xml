@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Run Worker" type="GoApplicationRunConfiguration" factoryName="Go Application" singleton="false">
+    <module name="NotificationManagement" />
+    <working_directory value="$PROJECT_DIR$" />
+    <parameters value="worker" />
+    <envs>
+      <env name="AWS_ACCESS_KEY_ID" value="test" />
+      <env name="AWS_SECRET_ACCESS_KEY" value="test" />
+    </envs>
+    <kind value="PACKAGE" />
+    <package value="NotificationManagement" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/main.go" />
+    <method v="2" />
+  </configuration>
+</component>

@@ -1,29 +1,30 @@
-package db
+package conn
 
 import (
 	"NotificationManagement/config"
 	"NotificationManagement/logger"
 	"NotificationManagement/models"
+	"github.com/labstack/gommon/log"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	logger2 "gorm.io/gorm/logger"
 	"time"
 )
 
-func NewDB() (*gorm.DB, error) {
+func NewDB() *gorm.DB {
 	gormLogger := NewGormZapLogger(
 		logger2.Info,
 		200*time.Millisecond,
 	)
-	db, err := gorm.Open(postgres.Open(config.GetDSN()), &gorm.Config{
+	dB, err := gorm.Open(postgres.Open(config.GetDSN()), &gorm.Config{
 		Logger: gormLogger,
 	})
 	if err != nil {
 		logger.Fatal("Failed to connect to database", "error", err)
-		return nil, err
+		panic(err.Error())
 	}
-	// Auto-migrate all models
-	if err := db.AutoMigrate(
+
+	if err := dB.AutoMigrate(
 		&models.CurlRequest{},
 		&models.Reminder{},
 		&models.RequestAIModel{},
@@ -32,14 +33,15 @@ func NewDB() (*gorm.DB, error) {
 		&models.User{},
 	); err != nil {
 		logger.Fatal("Failed to auto-migrate database schema", "error", err)
-		return nil, err
+		panic(err.Error())
 	}
 	// As grom doesn't support single table model. We need to execute it separately
-	if err := db.AutoMigrate(
+	if err := dB.AutoMigrate(
 		&models.GeminiModel{},
 	); err != nil {
 		logger.Fatal("Failed to auto-migrate database schema", "error", err)
-		return nil, err
+		panic(err.Error())
 	}
-	return db, nil
+	log.Info("Database connection successful...")
+	return dB
 }

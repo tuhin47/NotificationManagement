@@ -15,10 +15,35 @@
     "ssl_mode": "disable"
   },
   "redis": {
-    "host": "localhost",
-    "port": 6379,
-    "password": "",
-    "db": 0
+    "host": "127.0.0.1",
+    "port": "6379",
+    "pass": "",
+    "db": 0,
+    "mandatoryPrefix": "n_m_",
+    "accessUuidPrefix": "a-uuid_",
+    "refreshUuidPrefix": "r-uuid_",
+    "userPrefix": "user_",
+    "permissionPrefix": "permissions_",
+    "userCacheTTL": 3600,
+    "permissionCacheTTL": 86400
+  },
+  "asynq": {
+    "redisAddr": "127.0.0.1:6379",
+    "db": 15,
+    "pass": "*****",
+    "concurrency": 10,
+    "queue": "event-management",
+    "retention": 168,
+    "retryCount": 25,
+    "delay": 0,
+    "emailInvitationTaskDelay": 0,
+    "emailInvitationTaskRetryCount": 5,
+    "emailInvitationTaskRetryDelay": 30,
+    "eventReminderTaskRetryCount": 5,
+    "eventReminderTaskRetryDelay": 30,
+    "eventReminderEmailTaskDelay": 0,
+    "eventReminderEmailTaskRetryCount": 5,
+    "eventReminderEmailTaskRetryDelay": 30
   },
   "email": {
     "host": "localhost",
@@ -31,8 +56,6 @@
     "region": "us-east-1",
     "access_key_id": "",
     "secret_access_key": "",
-    "endpoint": "",
-    "use_localstack": false,
     "config_service": {
       "enabled": true
     }

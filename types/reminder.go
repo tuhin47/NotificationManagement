@@ -9,12 +9,12 @@ import (
 )
 
 type ReminderRequest struct {
-	RequestID       uint      `json:"request_id"`
-	Message         string    `json:"message"`
-	TriggeredTime   time.Time `json:"triggered_time"`
-	NextTriggerTime time.Time `json:"next_trigger_time"`
-	Occurrence      uint      `json:"occurrence"`
-	Recurrence      string    `json:"recurrence"`
+	RequestID     uint       `json:"request_id"`
+	Message       string     `json:"message"`
+	TriggeredTime time.Time  `json:"triggered_time"`
+	Occurrence    uint       `json:"occurrence"`
+	Recurrence    string     `json:"recurrence"`
+	Upto          *time.Time `json:"upto,omitempty"`
 }
 
 func (r *ReminderRequest) Validate() error {
@@ -22,21 +22,21 @@ func (r *ReminderRequest) Validate() error {
 		validation.Field(&r.RequestID, validation.Required),
 		validation.Field(&r.Message, validation.Required, validation.Length(1, 2048)),
 		validation.Field(&r.TriggeredTime, validation.Required),
-		validation.Field(&r.NextTriggerTime, validation.Required),
 		validation.Field(&r.Recurrence, validation.Required, validation.In("once", "minutes", "hour", "daily", "weekly"), validation.Length(1, 50)),
 	)
 }
 
 type ReminderResponse struct {
-	ID              uint      `json:"id"`
-	RequestID       uint      `json:"request_id"`
-	Message         string    `json:"message"`
-	TriggeredTime   time.Time `json:"triggered_time"`
-	NextTriggerTime time.Time `json:"next_trigger_time"`
-	Occurrence      uint      `json:"occurrence"`
-	Recurrence      string    `json:"recurrence"`
-	CreatedAt       string    `json:"created_at"`
-	UpdatedAt       string    `json:"updated_at"`
+	ID              uint       `json:"id"`
+	RequestID       uint       `json:"request_id"`
+	Message         string     `json:"message"`
+	TriggeredTime   time.Time  `json:"triggered_time"`
+	NextTriggerTime time.Time  `json:"next_trigger_time"`
+	Occurrence      uint       `json:"occurrence"`
+	Recurrence      string     `json:"recurrence"`
+	Upto            *time.Time `json:"upto,omitempty"`
+	CreatedAt       string     `json:"created_at"`
+	UpdatedAt       string     `json:"updated_at"`
 }
 
 // ToModel converts a types.ReminderRequest to a models.Reminder
@@ -50,9 +50,10 @@ func (rr *ReminderRequest) ToModel() (*models.Reminder, error) {
 		RequestID:       rr.RequestID,
 		Message:         rr.Message,
 		TriggeredTime:   rr.TriggeredTime,
-		NextTriggerTime: rr.NextTriggerTime,
+		NextTriggerTime: rr.TriggeredTime,
 		Occurrence:      rr.Occurrence,
 		Recurrence:      rr.Recurrence,
+		Upto:            rr.Upto,
 	}, nil
 }
 
@@ -66,6 +67,7 @@ func FromReminderModel(model *models.Reminder) *ReminderResponse {
 		NextTriggerTime: model.NextTriggerTime,
 		Occurrence:      model.Occurrence,
 		Recurrence:      model.Recurrence,
+		Upto:            model.Upto,
 		CreatedAt:       model.CreatedAt.Format(ResponseDateFormat),
 		UpdatedAt:       model.UpdatedAt.Format(ResponseDateFormat),
 	}

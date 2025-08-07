@@ -2,7 +2,6 @@ package models
 
 import (
 	"NotificationManagement/types/ollama"
-
 	"google.golang.org/genai"
 	"gorm.io/gorm"
 )

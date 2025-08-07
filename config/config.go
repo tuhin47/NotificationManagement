@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -13,13 +14,14 @@ import (
 )
 
 type Config struct {
-	App      AppConfig      `mapstructure:"app"`
-	Database DatabaseConfig `mapstructure:"database"`
-	Redis    RedisConfig    `mapstructure:"redis"`
-	Email    EmailConfig    `mapstructure:"email"`
-	AWS      AWSConfig      `mapstructure:"aws"`
-	Logger   LoggerConfig   `mapstructure:"logger"`
-	Keycloak KeycloakConfig `mapstructure:"keycloak"`
+	App         AppConfig      `mapstructure:"app"`
+	Database    DatabaseConfig `mapstructure:"database"`
+	AsynqConfig AsynqConfig    `mapstructure:"asynq"`
+	Redis       RedisConfig    `mapstructure:"redis"`
+	Email       EmailConfig    `mapstructure:"email"`
+	AWS         AWSConfig      `mapstructure:"aws"`
+	Logger      LoggerConfig   `mapstructure:"logger"`
+	Keycloak    KeycloakConfig `mapstructure:"keycloak"`
 }
 
 type AppConfig struct {
@@ -39,14 +41,42 @@ type DatabaseConfig struct {
 	SSLMode  string `mapstructure:"ssl_mode"`
 }
 
+type AsynqConfig struct {
+	RedisAddr                        string        `mapstructure:"redisAddr"`
+	DB                               int           `mapstructure:"db"`
+	Pass                             string        `mapstructure:"pass"`
+	Concurrency                      int           `mapstructure:"concurrency"`
+	Queue                            string        `mapstructure:"queue"`
+	Retention                        time.Duration `mapstructure:"retention"` // in hours
+	RetryCount                       int           `mapstructure:"retryCount"`
+	Delay                            time.Duration `mapstructure:"delay"` // in seconds
+	EmailInvitationTaskDelay         time.Duration `mapstructure:"emailInvitationTaskDelay"`
+	EmailInvitationTaskRetryCount    int           `mapstructure:"emailInvitationTaskRetryCount"`
+	EmailInvitationTaskRetryDelay    time.Duration `mapstructure:"emailInvitationTaskRetryDelay"`
+	EventReminderTaskRetryCount      int           `mapstructure:"eventReminderTaskRetryCount"`
+	EventReminderTaskRetryDelay      time.Duration `mapstructure:"eventReminderTaskRetryDelay"`
+	EventReminderEmailTaskDelay      time.Duration `mapstructure:"eventReminderEmailTaskDelay"`
+	EventReminderEmailTaskRetryCount int           `mapstructure:"eventReminderEmailTaskRetryCount"`
+	EventReminderEmailTaskRetryDelay time.Duration `mapstructure:"eventReminderEmailTaskRetryDelay"`
+}
+
 type RedisConfig struct {
-	Host     string `mapstructure:"host"`
-	Port     int    `mapstructure:"port"`
-	Password string `mapstructure:"password"`
-	DB       int    `mapstructure:"db"`
+	Host               string        `mapstructure:"host"`
+	Port               int           `mapstructure:"port"`
+	Password           string        `mapstructure:"password"`
+	DB                 int           `mapstructure:"db"`
+	MandatoryPrefix    string        `mapstructure:"mandatoryPrefix"`
+	AccessUuidPrefix   string        `mapstructure:"accessUuidPrefix"`
+	RefreshUuidPrefix  string        `mapstructure:"refreshUuidPrefix"`
+	UserPrefix         string        `mapstructure:"userPrefix"`
+	PermissionPrefix   string        `mapstructure:"permissionPrefix"`
+	UserCacheTTL       time.Duration `mapstructure:"userCacheTTL"`
+	PermissionCacheTTL time.Duration `mapstructure:"permissionCacheTTL"`
 }
 
 type EmailConfig struct {
+	Url      string
+	Timeout  time.Duration
 	Host     string `mapstructure:"host"`
 	Port     int    `mapstructure:"port"`
 	Username string `mapstructure:"username"`
@@ -137,32 +167,32 @@ const (
 // LoadConfig loads configuration from file, environment variables, or SSM Parameter Store
 func LoadConfig() {
 	// Set default values
-	setDefaults()
+	defaultConfig := getDefaults()
+	viper.SetDefault("app", defaultConfig.App)
+	viper.SetDefault("database", defaultConfig.Database)
+	viper.SetDefault("redis", defaultConfig.Redis)
+	viper.SetDefault("email", defaultConfig.Email)
+	viper.SetDefault("aws", defaultConfig.AWS)
+	viper.SetDefault("logger", defaultConfig.Logger)
+	viper.SetDefault("keycloak", defaultConfig.Keycloak)
 
-	// Unmarshal config
-	if err := viper.Unmarshal(&appConfig); err != nil {
-		fmt.Printf("Error unmarshaling config: %v\n", err)
-		os.Exit(1)
-	}
-
-	// Read from SSM Parameter Store if enabled
 	if os.Getenv(EnvConfigFromSSM) != "false" {
 		ssmParam := os.Getenv(EnvConfigSSMParam)
 		if ssmParam == "" {
-			ssmParam = appConfig.AWS.ConfigService.SSM
+			ssmParam = defaultConfig.AWS.ConfigService.SSM
 		}
 		region := os.Getenv(EnvAWSRegion)
 		if region == "" {
-			region = appConfig.AWS.Region
+			region = defaultConfig.AWS.Region
 		}
 		endpoint := os.Getenv(EnvAWSEndpoint)
 		if endpoint == "" {
-			endpoint = appConfig.AWS.Endpoint
+			endpoint = defaultConfig.AWS.Endpoint
 		}
 		useLocalEnv := os.Getenv(EnvAWSUseLocalStack)
 		useLocalStack := useLocalEnv == "true"
 		if useLocalEnv == "" {
-			useLocalStack = appConfig.AWS.UseLocalStack
+			useLocalStack = defaultConfig.AWS.UseLocalStack
 		}
 
 		var awsCfg aws.Config
@@ -209,7 +239,6 @@ func LoadConfig() {
 		}
 	}
 
-	// Read from environment variables
 	loadFromEnv()
 
 	// Unmarshal config
@@ -217,107 +246,114 @@ func LoadConfig() {
 		fmt.Printf("Error unmarshaling config: %v\n", err)
 		os.Exit(1)
 	}
+
+	fmt.Println("Config Loaded")
 }
 
-func setDefaults() {
-	// App defaults
-	viper.SetDefault("app.name", "NotificationManagement")
-	viper.SetDefault("app.version", "1.0.0")
-	viper.SetDefault("app.port", 8080)
-	viper.SetDefault("app.env", "development")
-	viper.SetDefault("app.encryption", "laeoGcA0ZFFsm3d9SUKevwG4VL4QN9Yi")
-
-	// Database defaults
-	viper.SetDefault("database.host", "localhost")
-	viper.SetDefault("database.port", 5432)
-	viper.SetDefault("database.user", "postgres")
-	viper.SetDefault("database.password", "")
-	viper.SetDefault("database.name", "notification_management")
-	viper.SetDefault("database.ssl_mode", "disable")
-
-	// Redis defaults
-	viper.SetDefault("redis.host", "localhost")
-	viper.SetDefault("redis.port", 6379)
-	viper.SetDefault("redis.password", "")
-	viper.SetDefault("redis.db", 0)
-
-	// Email defaults
-	viper.SetDefault("email.host", "localhost")
-	viper.SetDefault("email.port", 587)
-	viper.SetDefault("email.username", "")
-	viper.SetDefault("email.password", "")
-	viper.SetDefault("email.from", "noreply@example.com")
-
-	// AWS defaults
-	viper.SetDefault("aws.region", "us-east-1")
-	viper.SetDefault("aws.access_key_id", "test")
-	viper.SetDefault("aws.secret_access_key", "test")
-	viper.SetDefault("aws.endpoint", "http://localhost:4566")
-	viper.SetDefault("aws.use_localstack", true)
-	viper.SetDefault("aws.config_service.enabled", true)
-	viper.SetDefault("aws.config_service.ssm", "/myapp/config")
-
-	// Logger defaults
-	viper.SetDefault("logger.level", "info")
-	viper.SetDefault("logger.file_path", "logs/app.log")
-	viper.SetDefault("logger.format", "console")
-
-	// Keycloak defaults
-	viper.SetDefault("keycloak.server_url", "http://localhost:8081")
-	viper.SetDefault("keycloak.realm", "gocloak")
-	viper.SetDefault("keycloak.client_id", "gocloak")
-	viper.SetDefault("keycloak.client_secret", "gocloak-secret")
+func getDefaults() *Config {
+	conf := &Config{}
+	conf.App = AppConfig{
+		Name:       "NotificationManagement",
+		Version:    "1.0.0",
+		Port:       8080,
+		Env:        "development",
+		Encryption: "laeoGcA0ZFFsm3d9SUKevwG4VL4QN9Yi",
+	}
+	conf.Database = DatabaseConfig{
+		Host:     "localhost",
+		Port:     5432,
+		User:     "postgres",
+		Password: "",
+		Name:     "notification_management",
+		SSLMode:  "disable",
+	}
+	conf.Redis = RedisConfig{
+		Host:     "localhost",
+		Port:     6379,
+		Password: "",
+		DB:       0,
+	}
+	conf.Email = EmailConfig{
+		Host:     "localhost",
+		Port:     587,
+		Username: "",
+		Password: "",
+		From:     "noreply@example.com",
+	}
+	conf.AWS = AWSConfig{
+		Region:          "us-east-1",
+		AccessKeyID:     "test",
+		SecretAccessKey: "test",
+		Endpoint:        "http://localhost:4566",
+		UseLocalStack:   true,
+		ConfigService: ConfigServiceConfig{
+			Enabled: true,
+			SSM:     "/myapp/config",
+		},
+	}
+	conf.Logger = LoggerConfig{
+		Level:    "info",
+		FilePath: "logs/app.log",
+		Format:   "console",
+	}
+	conf.Keycloak = KeycloakConfig{
+		ServerURL:    "http://localhost:8081",
+		Realm:        "gocloak",
+		ClientID:     "gocloak",
+		ClientSecret: "gocloak-secret",
+	}
+	return conf
 }
 
 func loadFromEnv() {
 	// App environment variables
-	viper.BindEnv("app.name", EnvAppName)
-	viper.BindEnv("app.version", EnvAppVersion)
-	viper.BindEnv("app.port", EnvAppPort)
-	viper.BindEnv("app.env", EnvAppEnv)
-	viper.BindEnv("app.encryption", EnvAPIKeyEncryptionSecret)
+	_ = viper.BindEnv("app.name", EnvAppName)
+	_ = viper.BindEnv("app.version", EnvAppVersion)
+	_ = viper.BindEnv("app.port", EnvAppPort)
+	_ = viper.BindEnv("app.env", EnvAppEnv)
+	_ = viper.BindEnv("app.encryption", EnvAPIKeyEncryptionSecret)
 
 	// Database environment variables
-	viper.BindEnv("database.host", EnvDBHost)
-	viper.BindEnv("database.port", EnvDBPort)
-	viper.BindEnv("database.user", EnvDBUser)
-	viper.BindEnv("database.password", EnvDBPassword)
-	viper.BindEnv("database.name", EnvDBName)
-	viper.BindEnv("database.ssl_mode", EnvDBSSLMode)
+	_ = viper.BindEnv("database.host", EnvDBHost)
+	_ = viper.BindEnv("database.port", EnvDBPort)
+	_ = viper.BindEnv("database.user", EnvDBUser)
+	_ = viper.BindEnv("database.password", EnvDBPassword)
+	_ = viper.BindEnv("database.name", EnvDBName)
+	_ = viper.BindEnv("database.ssl_mode", EnvDBSSLMode)
 
 	// Redis environment variables
-	viper.BindEnv("redis.host", EnvRedisHost)
-	viper.BindEnv("redis.port", EnvRedisPort)
-	viper.BindEnv("redis.password", EnvRedisPassword)
-	viper.BindEnv("redis.db", EnvRedisDB)
+	_ = viper.BindEnv("redis.host", EnvRedisHost)
+	_ = viper.BindEnv("redis.port", EnvRedisPort)
+	_ = viper.BindEnv("redis.password", EnvRedisPassword)
+	_ = viper.BindEnv("redis.db", EnvRedisDB)
 
 	// Email environment variables
-	viper.BindEnv("email.host", EnvEmailHost)
-	viper.BindEnv("email.port", EnvEmailPort)
-	viper.BindEnv("email.username", EnvEmailUsername)
-	viper.BindEnv("email.password", EnvEmailPassword)
-	viper.BindEnv("email.from", EnvEmailFrom)
+	_ = viper.BindEnv("email.host", EnvEmailHost)
+	_ = viper.BindEnv("email.port", EnvEmailPort)
+	_ = viper.BindEnv("email.username", EnvEmailUsername)
+	_ = viper.BindEnv("email.password", EnvEmailPassword)
+	_ = viper.BindEnv("email.from", EnvEmailFrom)
 
 	// AWS environment variables
-	viper.BindEnv("aws.region", EnvAWSRegion)
-	viper.BindEnv("aws.region", EnvAWSRegion)
-	viper.BindEnv("aws.region", EnvAWSRegion)
-	viper.BindEnv("aws.access_key_id", EnvAWSAccessKeyID)
-	viper.BindEnv("aws.secret_access_key", EnvAWSSecretAccessKey)
-	viper.BindEnv("aws.endpoint", EnvAWSEndpoint)
-	viper.BindEnv("aws.use_localstack", EnvAWSUseLocalStack)
-	viper.BindEnv("aws.config_service.enabled", EnvAWSConfigServiceEnabled)
+	_ = viper.BindEnv("aws.region", EnvAWSRegion)
+	_ = viper.BindEnv("aws.region", EnvAWSRegion)
+	_ = viper.BindEnv("aws.region", EnvAWSRegion)
+	_ = viper.BindEnv("aws.access_key_id", EnvAWSAccessKeyID)
+	_ = viper.BindEnv("aws.secret_access_key", EnvAWSSecretAccessKey)
+	_ = viper.BindEnv("aws.endpoint", EnvAWSEndpoint)
+	_ = viper.BindEnv("aws.use_localstack", EnvAWSUseLocalStack)
+	_ = viper.BindEnv("aws.config_service.enabled", EnvAWSConfigServiceEnabled)
 
 	// Logger environment variables
-	viper.BindEnv("logger.level", EnvLogLevel)
-	viper.BindEnv("logger.file_path", EnvLogFilePath)
-	viper.BindEnv("logger.format", EnvLogFormat)
+	_ = viper.BindEnv("logger.level", EnvLogLevel)
+	_ = viper.BindEnv("logger.file_path", EnvLogFilePath)
+	_ = viper.BindEnv("logger.format", EnvLogFormat)
 
 	// Keycloak environment variables
-	viper.BindEnv("keycloak.server_url", EnvKeycloakServerURL)
-	viper.BindEnv("keycloak.realm", EnvKeycloakRealm)
-	viper.BindEnv("keycloak.client_id", EnvKeycloakClientID)
-	viper.BindEnv("keycloak.client_secret", EnvKeycloakClientSecret)
+	_ = viper.BindEnv("keycloak.server_url", EnvKeycloakServerURL)
+	_ = viper.BindEnv("keycloak.realm", EnvKeycloakRealm)
+	_ = viper.BindEnv("keycloak.client_id", EnvKeycloakClientID)
+	_ = viper.BindEnv("keycloak.client_secret", EnvKeycloakClientSecret)
 }
 
 // GetConfig returns the application configuration
@@ -333,6 +369,10 @@ func App() AppConfig {
 // Database returns the database configuration
 func Database() DatabaseConfig {
 	return appConfig.Database
+}
+
+func Asynq() AsynqConfig {
+	return appConfig.AsynqConfig
 }
 
 // Redis returns the redis configuration

@@ -52,7 +52,7 @@ func parseBasicCurl(raw string) (method, url string, headers map[string]string, 
 	re := regexp.MustCompile(`curl\s+(?:'([^']+)'|"([^"]+)"|\\'([^\\']+)\\')`)
 	matches := re.FindStringSubmatch(raw)
 	if len(matches) < 2 {
-		err = errors.New("could not parse URL from curl command")
+		err = errutil.NewAppError(errutil.ErrCurlParseError, errors.New("could not parse URL from curl command"))
 		return
 	}
 	// Find the first non-empty group
@@ -100,7 +100,7 @@ func executeCurlCommand(command string) (string, error) {
 	cmd := exec.Command("bash", "-c", command)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return "", fmt.Errorf("error executing curl command: %w\nOutput: %s", err, output)
+		return "", errutil.NewAppErrorWithMessage(errutil.ErrCurlCommandExecutionFailed, err, fmt.Sprintf("Output: %s", output))
 	}
 	return string(output), nil
 }

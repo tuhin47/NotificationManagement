@@ -43,7 +43,7 @@ func (s *DeepseekServiceImpl) MakeAIRequest(c context.Context, m *models.AIModel
 	if err != nil {
 		return nil, err
 	}
-	curlResponse, err := s.CurlService.ProcessCurlRequest(nil, curl)
+	curlResponse, err := s.CurlService.ProcessCurlRequest(c, curl)
 	if err != nil {
 		return nil, err
 	}
@@ -74,13 +74,13 @@ func (s *DeepseekServiceImpl) PullModel(c context.Context, model *models.Deepsee
 
 	jsonData, err := json.Marshal(payload)
 	if err != nil {
-		return fmt.Errorf("failed to marshal pull request: %w", err)
+		return errutil.NewAppError(errutil.ErrAIMarshalRequestFailed, err)
 	}
 
 	url := fmt.Sprintf("%s/api/pull", model.BaseURL)
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
-		return fmt.Errorf("failed to create pull request: %w", err)
+		return errutil.NewAppError(errutil.ErrAICreateRequestFailed, err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -89,12 +89,12 @@ func (s *DeepseekServiceImpl) PullModel(c context.Context, model *models.Deepsee
 	}
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("failed to pull model: %w", err)
+		return errutil.NewAppError(errutil.ErrAIPullModelFailed, err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to pull model, status code: %d", resp.StatusCode)
+		return errutil.NewAppError(errutil.ErrAIPullModelFailed, fmt.Errorf("status code: %d", resp.StatusCode))
 	}
 
 	return nil

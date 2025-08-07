@@ -1,4 +1,4 @@
-package db
+package conn
 
 import (
 	"NotificationManagement/logger"

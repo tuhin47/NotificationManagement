@@ -1,6 +1,7 @@
 package server
 
 import (
+	"NotificationManagement/conn"
 	"NotificationManagement/controllers"
 	"NotificationManagement/domain"
 	"NotificationManagement/logger"
@@ -47,6 +48,8 @@ func interceptLogger(next echo.HandlerFunc) echo.HandlerFunc {
 var Module = fx.Options(
 	fx.Provide(
 		NewEcho,
+		conn.NewAsynq,
+		conn.NewAsynqInspector,
 		controllers.NewAIRequestController,
 		controllers.NewCurlController,
 		controllers.NewLLMController,
@@ -65,6 +68,7 @@ var Module = fx.Options(
 		services.NewDeepseekServiceManager,
 		services.NewGeminiServiceManager,
 		services.NewAIModelService,
+		services.NewAsynqService,
 		services.NewCurlService,
 		services.NewDeepseekModelService,
 		services.NewGeminiService,

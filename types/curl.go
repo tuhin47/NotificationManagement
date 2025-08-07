@@ -93,52 +93,52 @@ func (cr *CurlRequest) ToModel() (*models.CurlRequest, error) {
 
 func (response *CurlResponse) GetAssistantContent(respType string) (*string, error) {
 	if response.ErrMessage != "" {
-		return nil, fmt.Errorf("error : %s", response.ErrMessage)
+		return nil, errutil.NewAppError(errutil.ErrExternalServiceError, fmt.Errorf("error : %s", response.ErrMessage))
 	}
 	if response.Body == nil {
-		return nil, fmt.Errorf("error : empty response")
+		return nil, errutil.NewAppError(errutil.ErrEmptyResponse, fmt.Errorf("Body not valid "))
 	}
 
 	switch respType {
 	case ResponseTypeJSON:
 		bodyBytes, err := json.Marshal(response.Body)
 		if err != nil {
-			return nil, fmt.Errorf("failed to marshal response body: %w", err)
+			return nil, errutil.NewAppError(errutil.ErrCurlMarshalResponseBodyFailed, err)
 		}
 		s := "Here is a json string  `" + string(bodyBytes) + "`"
 		return &s, nil
 	case ResponseTypeHTML:
 		htmlContent, ok := response.Body.(string)
 		if !ok {
-			return nil, fmt.Errorf("response body is not a string for HTML type")
+			return nil, errutil.NewAppError(errutil.ErrCurlInvalidResponseBodyType, fmt.Errorf("response body is not a string for HTML type"))
 		}
 		tmpfile, err := os.CreateTemp("", "response-*.html")
 		if err != nil {
-			return nil, fmt.Errorf("failed to create temporary file: %w", err)
+			return nil, errutil.NewAppError(errutil.ErrCurlCreateTempFileFailed, err)
 		}
 		defer tmpfile.Close()
 
 		_, err = tmpfile.WriteString(htmlContent)
 		if err != nil {
-			return nil, fmt.Errorf("failed to write HTML content to temporary file: %w", err)
+			return nil, errutil.NewAppError(errutil.ErrCurlWriteTempFileFailed, err)
 		}
 		filePath := tmpfile.Name()
 		return &filePath, nil
 	case ResponseTypeXML:
 		xmlContent, ok := response.Body.(string)
 		if !ok {
-			return nil, fmt.Errorf("response body is not a string for XML type")
+			return nil, errutil.NewAppError(errutil.ErrCurlInvalidResponseBodyType, fmt.Errorf("response body is not a string for XML type"))
 		}
 		s := "Here is an XML string  `" + xmlContent + "`"
 		return &s, nil
 	case ResponseTypeText:
 		textContent, ok := response.Body.(string)
 		if !ok {
-			return nil, fmt.Errorf("response body is not a string for Text type")
+			return nil, errutil.NewAppError(errutil.ErrCurlInvalidResponseBodyType, fmt.Errorf("response body is not a string for Text type"))
 		}
 		s := "Here is a text string  `" + textContent + "`"
 		return &s, nil
 	default:
-		return nil, fmt.Errorf("unsupported response type: %s", respType)
+		return nil, errutil.NewAppError(errutil.ErrCurlUnsupportedResponseType, fmt.Errorf("unsupported response type: %s", respType))
 	}
 }

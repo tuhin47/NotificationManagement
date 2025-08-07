@@ -10,11 +10,12 @@ import (
 )
 
 type ReminderControllerImpl struct {
-	Service domain.ReminderService
+	reminderService domain.ReminderService
+	asynqService    domain.AsynqService
 }
 
-func NewReminderController(service domain.ReminderService) domain.ReminderController {
-	return &ReminderControllerImpl{Service: service}
+func NewReminderController(service domain.ReminderService, asynqService domain.AsynqService) domain.ReminderController {
+	return &ReminderControllerImpl{reminderService: service, asynqService: asynqService}
 }
 
 func (rc *ReminderControllerImpl) CreateReminder(c echo.Context) error {
@@ -27,7 +28,13 @@ func (rc *ReminderControllerImpl) CreateReminder(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	err = rc.Service.CreateModel(c.Request().Context(), reminder)
+	ctx := c.Request().Context()
+	err = rc.reminderService.CreateModel(ctx, reminder)
+	if err != nil {
+		return err
+	}
+	_, err = rc.asynqService.CreateReminderTask(ctx, reminder)
+
 	if err != nil {
 		return err
 	}
@@ -42,7 +49,7 @@ func (rc *ReminderControllerImpl) GetReminderByID(c echo.Context) error {
 		return err
 	}
 
-	reminder, err := rc.Service.GetModelById(c.Request().Context(), id)
+	reminder, err := rc.reminderService.GetModelById(c.Request().Context(), id)
 	if err != nil {
 		return err
 	}
@@ -54,7 +61,7 @@ func (rc *ReminderControllerImpl) GetReminderByID(c echo.Context) error {
 func (rc *ReminderControllerImpl) GetAllReminders(c echo.Context) error {
 	limit, offset := utils.ParseLimitAndOffset(c)
 
-	reminders, err := rc.Service.GetAllModels(c.Request().Context(), limit, offset)
+	reminders, err := rc.reminderService.GetAllModels(c.Request().Context(), limit, offset)
 	if err != nil {
 		return err
 	}
@@ -82,7 +89,7 @@ func (rc *ReminderControllerImpl) UpdateReminder(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	reminder, err = rc.Service.UpdateModel(c.Request().Context(), id, reminder)
+	reminder, err = rc.reminderService.UpdateModel(c.Request().Context(), id, reminder)
 	if err != nil {
 		return err
 	}
@@ -97,7 +104,7 @@ func (rc *ReminderControllerImpl) DeleteReminder(c echo.Context) error {
 		return err
 	}
 
-	err = rc.Service.DeleteModel(c.Request().Context(), id)
+	err = rc.reminderService.DeleteModel(c.Request().Context(), id)
 	if err != nil {
 		return err
 	}

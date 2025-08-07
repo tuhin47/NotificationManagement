@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"NotificationManagement/config"
-	"NotificationManagement/db"
+	"NotificationManagement/conn"
 	"NotificationManagement/logger"
 	"NotificationManagement/server"
 	"context"
@@ -21,7 +21,7 @@ var serveCmd = &cobra.Command{
 	Long:  `Start the notification management server with the specified configuration`,
 	Run: func(cmd *cobra.Command, args []string) {
 		app := fx.New(
-			fx.Provide(db.NewDB),
+			fx.Provide(conn.NewDB),
 			server.Module,
 			fx.Invoke(func(lc fx.Lifecycle, e *echo.Echo) {
 				// Health check route
