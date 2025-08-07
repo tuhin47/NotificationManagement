@@ -15,6 +15,7 @@ var (
 	ErrNoRoleInformation     = errors.New("no role information in context")
 	ErrInsufficientRoles     = errors.New("user does not have required roles")
 	ErrInvalidFeature        = errors.New("invalid feature")
+	ErrUndefine              = errors.New("undefine error")
 )
 
 // Predefined error codes

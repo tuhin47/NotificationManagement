@@ -54,6 +54,9 @@ func NewAppErrorWithMessage(errCode ErrorCode, err error, message string) error 
 		logger.DPanic("Duplicate Throws", err)
 		return err
 	}
+	if err == nil {
+		err = ErrUndefine
+	}
 	logger.DPanic("Error occurred", err)
 	return &AppError{
 		Code:    errCode,

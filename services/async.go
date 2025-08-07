@@ -33,19 +33,19 @@ func (s *AsynqServiceImpl) CreateReminderTask(ctx context.Context, reminder *mod
 	reminderTime := reminder.NextTriggerTime
 	now := time.Now().UTC()
 
+	if reminder.Upto.Before(now) {
+		logger.Info("Current time is beyond the 'Upto' time, skipping event reminder for event: ", reminder.Message)
+		_ = s.CancelReminderTask(ctx, reminder.ID)
+		return "", errutil.NewAppError(errutil.ErrInvalidRequestBody, fmt.Errorf("error reminder time is beyond 'Upto' time"))
+	}
 	if reminderTime.Before(now) {
-		logger.Info("Reminder time is in the past, skipping event reminder email for event: ", reminder.Message)
+		logger.Info("Reminder time is in the past, skipping event reminder  for event: ", reminder.Message)
+		// TODO : rather than canceling it figure out next occurrence
 		_ = s.CancelReminderTask(ctx, reminder.ID)
 		return "", errutil.NewAppError(errutil.ErrInvalidRequestBody, fmt.Errorf("error time already passed"))
 	}
 
-	if reminder.Upto != nil && reminder.Upto.Before(reminderTime) {
-		logger.Info("Reminder time is beyond the 'Upto' time, skipping event reminder email for event: ", reminder.Message)
-		_ = s.CancelReminderTask(ctx, reminder.ID)
-		return "", errutil.NewAppError(errutil.ErrInvalidRequestBody, fmt.Errorf("error reminder time is beyond 'Upto' time"))
-	}
-
-	logger.Info("Enqueuing event reminder email for event: ", reminder.Message)
+	logger.Info("Enqueuing event reminder  for event: ", reminder.Message)
 
 	// Convert reminder to payload
 	payload, err := json.Marshal(reminder)
