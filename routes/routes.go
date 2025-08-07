@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"NotificationManagement/controllers"
 	"NotificationManagement/domain"
 	"NotificationManagement/middleware"
 	"NotificationManagement/utils"
@@ -51,4 +52,8 @@ func RegisterAIRoutes(e *echo.Echo, controller domain.AIRequestController, keycl
 
 func RegisterUserRoutes(e *echo.Echo, controller domain.UserController, keycloakMiddleware *echo.MiddlewareFunc) {
 
+}
+
+func RegisterNotificationRoutes(e *echo.Echo, notificationController *controllers.NotificationController) {
+	e.POST("/notify", notificationController.NotifyAll)
 }

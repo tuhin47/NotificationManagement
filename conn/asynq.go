@@ -8,7 +8,7 @@ import (
 func NewAsynq() *asynq.Client {
 	return asynq.NewClient(asynq.RedisClientOpt{
 		Addr:     config.Asynq().RedisAddr,
-		DB:       config.Asynq().DB,
+		DB:       *config.Asynq().DB,
 		Password: config.Asynq().Pass,
 	})
 }
@@ -16,7 +16,7 @@ func NewAsynq() *asynq.Client {
 func NewAsynqInspector() *asynq.Inspector {
 	return asynq.NewInspector(asynq.RedisClientOpt{
 		Addr:     config.Asynq().RedisAddr,
-		DB:       config.Asynq().DB,
+		DB:       *config.Asynq().DB,
 		Password: config.Asynq().Pass,
 	})
 }

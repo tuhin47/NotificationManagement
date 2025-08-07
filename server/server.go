@@ -22,13 +22,14 @@ func NewEcho() *echo.Echo {
 	return e
 }
 
-func RegisterRoutes(e *echo.Echo, curlController domain.CurlController, llmController domain.LLMController, reminderController domain.ReminderController, aiController domain.AIRequestController, userController domain.UserController, userService domain.UserService) {
+func RegisterRoutes(e *echo.Echo, curlController domain.CurlController, llmController domain.LLMController, reminderController domain.ReminderController, aiController domain.AIRequestController, userController domain.UserController, notificationController *controllers.NotificationController, userService domain.UserService) {
 	keycloakMiddleware := middleware.KeycloakMiddleware(userService)
 	routes.RegisterCurlRoutes(e, curlController, &keycloakMiddleware)
 	routes.RegisterLLMRoutes(e, llmController, &keycloakMiddleware)
 	routes.RegisterReminderRoutes(e, reminderController, &keycloakMiddleware)
 	routes.RegisterAIRoutes(e, aiController, &keycloakMiddleware)
 	routes.RegisterUserRoutes(e, userController, &keycloakMiddleware)
+	routes.RegisterNotificationRoutes(e, notificationController)
 }
 
 func interceptLogger(next echo.HandlerFunc) echo.HandlerFunc {
@@ -55,6 +56,7 @@ var Module = fx.Options(
 		controllers.NewLLMController,
 		controllers.NewReminderController,
 		controllers.NewUserController,
+		controllers.NewNotificationController,
 
 		repositories.NewAIModelRepository,
 		repositories.NewCurlRequestRepository,
@@ -75,6 +77,7 @@ var Module = fx.Options(
 		services.NewLLMService,
 		services.NewReminderService,
 		services.NewUserService,
+		services.NewNotificationService,
 	),
 	fx.Invoke(RegisterRoutes),
 )

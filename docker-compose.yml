@@ -87,6 +87,22 @@ services:
       - nms_redis_local_db:/bitnami/redis/data
     networks:
       - nms-network
+
+  mailcatcher:
+    container_name: mailcatcher
+    image: schickling/mailcatcher
+    ports:
+      - '1080:1080'
+      - '1025:1025'
+    networks:
+      - nms-network
+    environment:
+      - HTTPPATH=/mails
+    healthcheck:
+      test: [ "CMD", "wget", "--spider" , "http://mailcatcher:1080" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 networks:
   nms-network:
     driver: bridge

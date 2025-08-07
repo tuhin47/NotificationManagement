@@ -3,7 +3,6 @@ package conn
 import (
 	"NotificationManagement/config"
 	"NotificationManagement/logger"
-	"fmt"
 	"github.com/go-redis/redis"
 )
 
@@ -12,12 +11,12 @@ var client *redis.Client
 func ConnectRedis() {
 	conf := config.Redis()
 
-	logger.Info("connecting to redis at ", "host", conf.Host, "port", conf.Port)
+	logger.Info("connecting to redis at ", config.GetRedisAddr())
 
 	client = redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%d", conf.Host, conf.Port),
+		Addr:     config.GetRedisAddr(),
 		Password: conf.Password,
-		DB:       conf.DB,
+		DB:       *conf.DB,
 	})
 
 	if _, err := client.Ping().Result(); err != nil {

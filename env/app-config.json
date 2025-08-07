@@ -16,7 +16,7 @@
   },
   "redis": {
     "host": "127.0.0.1",
-    "port": "6379",
+    "port": 6379,
     "pass": "",
     "db": 0,
     "mandatoryPrefix": "n_m_",
@@ -47,8 +47,8 @@
   },
   "email": {
     "host": "localhost",
-    "port": 587,
-    "username": "",
+    "port": 1025,
+    "username": "Admin",
     "password": "",
     "from": "noreply@example.com"
   },

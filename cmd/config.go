@@ -69,11 +69,12 @@ var testConnectionCmd = &cobra.Command{
 	Use:   "test-connection",
 	Short: "Test AWS Config service connection",
 	Run: func(cmd *cobra.Command, args []string) {
+		awsConfig := config.AWS()
 		logger.Info("Testing AWS Config service connection...")
-		logger.Info("Region", "region", config.AWS().Region)
-		logger.Info("Using LocalStack", "use_local_stack", config.AWS().UseLocalStack)
-		if config.AWS().UseLocalStack {
-			logger.Info("LocalStack Endpoint", "endpoint", config.AWS().Endpoint)
+		logger.Info("Region", "region", awsConfig.Region)
+		logger.Info("Using LocalStack", "use_localstack", awsConfig.UseLocalStack)
+		if *awsConfig.UseLocalStack {
+			logger.Info("LocalStack Endpoint", "endpoint", awsConfig.Endpoint)
 		}
 
 		client, err := config.NewConfigClient()

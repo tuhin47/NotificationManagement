@@ -8,11 +8,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
+	"os"
+
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
-	"net/http"
-	"os"
 )
 
 var serveCmd = &cobra.Command{
@@ -22,6 +23,7 @@ var serveCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		app := fx.New(
 			fx.Provide(conn.NewDB),
+			conn.ProvideNotifiers(),
 			server.Module,
 			fx.Invoke(func(lc fx.Lifecycle, e *echo.Echo) {
 				// Health check route
@@ -29,10 +31,7 @@ var serveCmd = &cobra.Command{
 					return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 				})
 
-				port := config.App().Port
-				if port == 0 {
-					port = 8080
-				}
+				port := *config.App().Port
 				addr := fmt.Sprintf(":%d", port)
 
 				logger.Info("Starting server", "name", config.App().Name, "port", port)

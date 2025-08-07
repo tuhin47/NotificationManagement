@@ -6,6 +6,7 @@
     <envs>
       <env name="AWS_ACCESS_KEY_ID" value="test" />
       <env name="AWS_SECRET_ACCESS_KEY" value="test" />
+      <env name="APP_PORT" value="" />
     </envs>
     <kind value="PACKAGE" />
     <package value="NotificationManagement" />

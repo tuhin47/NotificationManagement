@@ -17,35 +17,35 @@ type ConfigClient struct {
 
 // NewConfigClient creates a new AWS Config service client
 func NewConfigClient() (*ConfigClient, error) {
-	appConfig := AWS()
+	awsConfig := AWS()
 
 	var cfg aws.Config
 	var err error
 
-	if appConfig.UseLocalStack {
+	if *awsConfig.UseLocalStack {
 		// Use LocalStack configuration
 		customResolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
 			return aws.Endpoint{
 				PartitionID:   "aws",
-				URL:           appConfig.Endpoint,
-				SigningRegion: appConfig.Region,
+				URL:           awsConfig.Endpoint,
+				SigningRegion: awsConfig.Region,
 			}, nil
 		})
 
 		cfg, err = awsconfig.LoadDefaultConfig(context.TODO(),
 			awsconfig.WithEndpointResolverWithOptions(customResolver),
-			awsconfig.WithRegion(appConfig.Region),
+			awsconfig.WithRegion(awsConfig.Region),
 			awsconfig.WithCredentialsProvider(aws.CredentialsProviderFunc(func(ctx context.Context) (aws.Credentials, error) {
 				return aws.Credentials{
-					AccessKeyID:     appConfig.AccessKeyID,
-					SecretAccessKey: appConfig.SecretAccessKey,
+					AccessKeyID:     awsConfig.AccessKeyID,
+					SecretAccessKey: awsConfig.SecretAccessKey,
 				}, nil
 			})),
 		)
 	} else {
 		// Use real AWS configuration
 		cfg, err = awsconfig.LoadDefaultConfig(context.TODO(),
-			awsconfig.WithRegion(appConfig.Region),
+			awsconfig.WithRegion(awsConfig.Region),
 		)
 	}
 

@@ -14,10 +14,10 @@ if ! docker info > /dev/null 2>&1; then
 fi
 
 echo "📦 Starting LocalStack..."
-docker compose up -d config-server postgres keycloak
+docker compose up -d config-server postgres keycloak mailcatcher redis
 
 echo "⏳ Waiting for config-server to be ready..."
-sleep 10
+#sleep 10
 
 # Check if LocalStack is running
 if curl -s http://localhost:4566/_localstack/health > /dev/null; then
@@ -28,14 +28,12 @@ else
 fi
 
 echo "🔧 Setting up environment variables..."
-export AWS_USE_LOCALSTACK=true
 export AWS_ENDPOINT=http://localhost:4566
 export AWS_REGION=us-east-1
 export AWS_ACCESS_KEY_ID=test
 export AWS_SECRET_ACCESS_KEY=test
 
 echo "📋 Environment variables set:"
-echo "  AWS_USE_LOCALSTACK=$AWS_USE_LOCALSTACK"
 echo "  AWS_ENDPOINT=$AWS_ENDPOINT"
 echo "  AWS_REGION=$AWS_REGION"
 
@@ -75,11 +73,3 @@ else
     echo "❌ AWS Config service connection failed. Check LocalStack logs."
     exit 1
 fi
-
-echo ""
-echo "🎉 Development environment setup complete!"
-echo ""
-echo "📖 Next steps:"
-echo "  1. Run the application: go run main.go serve"
-echo "  2. Access web UI: http://localhost:8080"
-echo ""

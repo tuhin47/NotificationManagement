@@ -59,7 +59,7 @@ func (s *AsynqServiceImpl) CreateReminderTask(ctx context.Context, reminder *mod
 	opts := []asynq.Option{
 		asynq.Queue(config.Asynq().Queue),
 		asynq.ProcessAt(reminderTime),
-		asynq.MaxRetry(config.Asynq().EventReminderTaskRetryCount),
+		asynq.MaxRetry(*config.Asynq().EventReminderTaskRetryCount),
 		asynq.Retention(config.Asynq().Retention),
 	}
 

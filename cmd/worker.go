@@ -58,11 +58,11 @@ func NewAsynqServer() *asynq.Server {
 	return asynq.NewServer(
 		asynq.RedisClientOpt{
 			Addr:     config.Asynq().RedisAddr,
-			DB:       config.Asynq().DB,
+			DB:       *config.Asynq().DB,
 			Password: config.Asynq().Pass,
 		},
 		asynq.Config{
-			Concurrency: config.Asynq().Concurrency,
+			Concurrency: *config.Asynq().Concurrency,
 			Queues: map[string]int{
 				config.Asynq().Queue: 1,
 			},
