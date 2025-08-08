@@ -4,7 +4,7 @@ type Dispatcher struct {
 	Notifiers []Notifier
 }
 
-func NewDispatcher(email *EmailNotifier, sms *SMSNotifier, telegram *TelegramNotifier) *Dispatcher {
+func NewEmailDispatcher(email *EmailNotifier, sms *SMSNotifier, telegram *TelegramNotifier) *Dispatcher {
 	return &Dispatcher{
 		Notifiers: []Notifier{email, sms, telegram},
 	}

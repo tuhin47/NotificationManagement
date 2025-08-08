@@ -4,9 +4,10 @@
     <working_directory value="$PROJECT_DIR$" />
     <parameters value="serve" />
     <envs>
+      <env name="APP_PORT" value="" />
       <env name="AWS_ACCESS_KEY_ID" value="test" />
       <env name="AWS_SECRET_ACCESS_KEY" value="test" />
-      <env name="APP_PORT" value="" />
+      <env name="LOG_LEVEL" value="debug" />
     </envs>
     <kind value="PACKAGE" />
     <package value="NotificationManagement" />

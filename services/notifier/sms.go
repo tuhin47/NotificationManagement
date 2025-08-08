@@ -1,6 +1,9 @@
 package notifier
 
-import "fmt"
+import (
+	"NotificationManagement/logger"
+	"fmt"
+)
 
 type SMSNotifier struct{}
 
@@ -9,7 +12,7 @@ func NewSMSNotifier() *SMSNotifier {
 }
 
 func (s *SMSNotifier) Send(n Notification) error {
-	fmt.Printf("[SMS] To: %s, Message: %s\n", n.To, n.Message)
+	logger.Info(fmt.Sprintf("SMS =>To: %s, Message: %s", n.To, n.Message))
 	return nil
 }
 

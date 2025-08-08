@@ -1,6 +1,9 @@
 package notifier
 
-import "fmt"
+import (
+	"NotificationManagement/logger"
+	"fmt"
+)
 
 type TelegramNotifier struct{}
 
@@ -9,7 +12,7 @@ func NewTelegramNotifier() *TelegramNotifier {
 }
 
 func (t *TelegramNotifier) Send(n Notification) error {
-	fmt.Printf("[Telegram] To: %s, Message: %s\n", n.To, n.Message)
+	logger.Info(fmt.Sprintf("[Telegram] To: %s, Message: %s", n.To, n.Message), n)
 	return nil
 }
 

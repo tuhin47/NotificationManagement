@@ -23,7 +23,6 @@ var serveCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		app := fx.New(
 			fx.Provide(conn.NewDB),
-			conn.ProvideNotifiers(),
 			server.Module,
 			fx.Invoke(func(lc fx.Lifecycle, e *echo.Echo) {
 				// Health check route

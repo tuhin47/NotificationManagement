@@ -9,8 +9,8 @@ import (
 	"NotificationManagement/repositories"
 	"NotificationManagement/routes"
 	"NotificationManagement/services"
+	"NotificationManagement/services/notifier"
 	"NotificationManagement/utils/errutil"
-
 	"github.com/labstack/echo/v4"
 	"go.uber.org/fx"
 )
@@ -51,6 +51,11 @@ var Module = fx.Options(
 		NewEcho,
 		conn.NewAsynq,
 		conn.NewAsynqInspector,
+		notifier.NewEmailNotifier,
+		notifier.NewSMSNotifier,
+		notifier.NewTelegramNotifier,
+		notifier.NewEmailDispatcher,
+
 		controllers.NewAIRequestController,
 		controllers.NewCurlController,
 		controllers.NewLLMController,
