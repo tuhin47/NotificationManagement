@@ -10,7 +10,6 @@ import (
 	"NotificationManagement/utils/errutil"
 	"context"
 	"fmt"
-	"os"
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -23,13 +22,14 @@ type TelegramNotifier struct {
 }
 
 func NewTelegramNotifier(repo domain.TelegramRepository) domain.TelegramNotifier {
-	bot, err := tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_APITOKEN"))
+	bot, err := tgbotapi.NewBotAPI(config.Telegram().Token)
 	if err != nil {
 		logger.Error("Failed to create Telegram bot API", "error", err)
-		return &TelegramNotifier{
+		t := &TelegramNotifier{
 			active: false,
 			BotAPI: nil,
 		}
+		return t
 	}
 	t := &TelegramNotifier{
 		active:       true,
@@ -63,7 +63,7 @@ func (t *TelegramNotifier) Type() string {
 }
 
 func (t *TelegramNotifier) IsActive() bool {
-	return t.active
+	return *config.Telegram().Enabled && t.active
 }
 
 func (t *TelegramNotifier) Start() {

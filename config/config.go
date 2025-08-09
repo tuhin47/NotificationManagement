@@ -26,6 +26,7 @@ type Config struct {
 	AWS         AWSConfig      `mapstructure:"aws"`
 	Logger      LoggerConfig   `mapstructure:"logger"`
 	Keycloak    KeycloakConfig `mapstructure:"keycloak"`
+	Telegram    TelegramConfig `mapstructure:"telegram"`
 }
 
 type AppConfig struct {
@@ -87,6 +88,11 @@ type EmailConfig struct {
 	Username string `mapstructure:"username"`
 	Password string `mapstructure:"password"`
 	From     string `mapstructure:"from"`
+}
+
+type TelegramConfig struct {
+	Token   string `mapstructure:"token"`
+	Enabled *bool  `mapstructure:"enabled"`
 }
 
 type AWSConfig struct {
@@ -165,6 +171,9 @@ const (
 	EnvKeycloakRealm        = "KEYCLOAK_REALM"
 	EnvKeycloakClientID     = "KEYCLOAK_CLIENT_ID"
 	EnvKeycloakClientSecret = "KEYCLOAK_CLIENT_SECRET"
+
+	EnvTelegramToken   = "TELEGRAM_TOKEN"
+	EnvTelegramEnabled = "TELEGRAM_ENABLED"
 
 	EnvAPIKeyEncryptionSecret = "API_KEY_ENCRYPTION_SECRET"
 )
@@ -329,6 +338,10 @@ func getDefaults() *Config {
 			ClientID:     "gocloak",
 			ClientSecret: "gocloak-secret",
 		},
+		Telegram: TelegramConfig{
+			Token:   "",
+			Enabled: &TruePointer,
+		},
 	}
 	setViperFields(conf, "")
 	return conf
@@ -456,6 +469,10 @@ func loadFromEnv() *Config {
 			ClientID:     os.Getenv(EnvKeycloakClientID),
 			ClientSecret: os.Getenv(EnvKeycloakClientSecret),
 		},
+		Telegram: TelegramConfig{
+			Token:   os.Getenv(EnvTelegramToken),
+			Enabled: toBool(os.Getenv(EnvTelegramEnabled)),
+		},
 	}
 	setViperFields(c, "")
 	return c
@@ -503,6 +520,10 @@ func Logger() LoggerConfig {
 // Keycloak returns the keycloak configuration
 func Keycloak() KeycloakConfig {
 	return appConfig.Keycloak
+}
+
+func Telegram() TelegramConfig {
+	return appConfig.Telegram
 }
 
 // GetDSN returns the database connection string

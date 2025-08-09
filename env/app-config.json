@@ -70,5 +70,9 @@
   "logger": {
     "level": "info",
     "file_path": "logs/app.log"
+  },
+  "telegram": {
+    "token": "",
+    "enabled": true
   }
-} 
+}
