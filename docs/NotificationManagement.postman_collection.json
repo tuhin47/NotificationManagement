@@ -1,0 +1,1321 @@
+{
+	"info": {
+		"_postman_id": "adb88753-3572-44f6-89a5-03b3cbfc3613",
+		"name": "NotificationManagement",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17612290"
+	},
+	"item": [
+		{
+			"name": "AI-Model",
+			"item": [
+				{
+					"name": "/api/ai",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"gemini-2.5-flash\",\n    \"model\": \"gemini-2.5-flash\",\n    \"modified_at\": \"2025-07-20T07:44:29.156565162Z\",\n    \"size\": 1117322768,\n    \"base_url\" : \"{{$randomUrl}}\",\n    \"type\": \"gemini\",\n    \"api_secret\" : \"{{$randomPassword}}\"\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/ai",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"ai"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/ai",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response = pm.response.json();",
+									"if (Array.isArray(response) && response.length > 0) {",
+									"    pm.collectionVariables.set(\"ai_model_id\", response[0].id);",
+									"     if(response.length>1){",
+									"        pm.collectionVariables.set(\"update_id\", response[1].id);",
+									"    }",
+									"    if(response.length>2){",
+									"        pm.collectionVariables.set(\"delete_id\", response[2].id);",
+									"    }",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/ai?limit=10&offset=0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"ai"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/ai/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/ai/{{ai_model_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"ai",
+								"{{ai_model_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/ai/:id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"gemini-2.5-flash\",\n    \"type\": \"gemini\",\n    \"model\": \"gemini-2.5-flash\",\n    \"gemini\": \"gemini-2.5-flash\",\n    \"deepseek\": \"deepseek-r1:1.8b\",\n    \"base_url\": \"{{$randomUrl}}\",\n    \"size\": 1117322768,\n    \"created_at\": \"2025-08-02T19:15:21+06:00\",\n    \"updated_at\": \"2025-08-02T19:15:21+06:00\",\n    \"api_secret\": \"{{$randomPassword}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/ai/{{update_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"ai",
+								"{{update_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/ai/:id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/ai/{{delete_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"ai",
+								"{{delete_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Curl",
+			"item": [
+				{
+					"name": "/api/curl",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"body\": \"Please check the current rate from the json.Is it greater than 111.6?\",\n    \"rawCurl\": \"curl \\\"https://api.elevatepay.co/api/v1/fxRate/webSite/transfer?quote=BDT&base=USD&amount=1296.33\\\" -H \\\"accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\\\" -H \\\"accept-language: en-US,en;q=0.9,bn;q=0.8\\\" -H \\\"cache-control: max-age=0\\\" -H \\\"priority: u=0, i\\\" -H \\\"referer: https://www.google.com/\\\" -H \\\"sec-ch-ua: \\\\\\\"Not)A;Brand\\\\\\\";v=\\\\\\\"8\\\\\\\", \\\\\\\"Chromium\\\\\\\";v=\\\\\\\"138\\\\\\\", \\\\\\\"Microsoft Edge\\\\\\\";v=\\\\\\\"138\\\\\\\"\\\" -H \\\"sec-ch-ua-mobile: ?0\\\" -H \\\"sec-ch-ua-platform: \\\\\\\"Linux\\\\\\\"\\\" -H \\\"sec-fetch-dest: document\\\" -H \\\"sec-fetch-mode: navigate\\\" -H \\\"sec-fetch-site: cross-site\\\" -H \\\"sec-fetch-user: ?1\\\" -H \\\"upgrade-insecure-requests: 1\\\" -H \\\"user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0\\\"\",\n    \"responseType\": \"json\",\n    \"user_id\": 1,\n    \"additional_fields\": [\n        {\n            \"id\": 13,\n            \"property_name\": \"CurrentRate\",\n            \"type\": \"number\",\n            \"description\": \"The current rate from json\",\n            \"request_id\": 1\n        },\n        {\n            \"id\": 14,\n            \"property_name\": \"TargetedRate\",\n            \"type\": \"number\",\n            \"description\": \"The target rate from statement\",\n            \"request_id\": 1\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/curl",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"curl"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/curl/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/curl/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"curl",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/curl/{{id}} Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/curl/2",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"curl",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/curl/{{id}} - 1.Currency",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"body\": \"Please check the current rate from the json.Is it greater than 111.6?\",\n    \"rawCurl\": \"curl \\\"https://api.elevatepay.co/api/v1/fxRate/webSite/transfer?quote=BDT&base=USD&amount=1296.33\\\" -H \\\"accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7\\\" -H \\\"accept-language: en-US,en;q=0.9,bn;q=0.8\\\" -H \\\"cache-control: max-age=0\\\" -H \\\"priority: u=0, i\\\" -H \\\"referer: https://www.google.com/\\\" -H \\\"sec-ch-ua: \\\\\\\"Not)A;Brand\\\\\\\";v=\\\\\\\"8\\\\\\\", \\\\\\\"Chromium\\\\\\\";v=\\\\\\\"138\\\\\\\", \\\\\\\"Microsoft Edge\\\\\\\";v=\\\\\\\"138\\\\\\\"\\\" -H \\\"sec-ch-ua-mobile: ?0\\\" -H \\\"sec-ch-ua-platform: \\\\\\\"Linux\\\\\\\"\\\" -H \\\"sec-fetch-dest: document\\\" -H \\\"sec-fetch-mode: navigate\\\" -H \\\"sec-fetch-site: cross-site\\\" -H \\\"sec-fetch-user: ?1\\\" -H \\\"upgrade-insecure-requests: 1\\\" -H \\\"user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 Edg/138.0.0.0\\\"\",\n    \"responseType\": \"json\",\n    \"user_id\": 1,\n    \"additional_fields\": [\n         {\n            \"id\": 15,\n            \"property_name\": \"CurrentRate\",\n            \"type\": \"number\",\n            \"description\": \"The current rate from json\",\n            \"request_id\": 1\n        },\n        {\n            \"id\": 16,\n            \"property_name\": \"TargetedRate\",\n            \"type\": \"number\",\n            \"description\": \"The target rate from statement\",\n            \"request_id\": 1\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/curl/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"curl",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/curl/{{id}} - 3.Electricy",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"responseType\": \"json\",\n    \"body\": \"The balance is below 400?\",\n    \"rawCurl\": \"curl \\\\'https://prepaid.desco.org.bd/api/unified/customer/getBalance?accountNo=41036730\\\\'  --insecure\",\n    \"additional_fields\": [\n        {\n            \"id\": 29,\n            \"property_name\": \"CurrentBalace\",\n            \"type\": \"number\",\n            \"description\": \"Current Balance From Json\",\n            \"request_id\": 3\n        },\n        {\n            \"id\": 30,\n            \"property_name\": \"TargetBalace\",\n            \"type\": \"number\",\n            \"description\": \"The target balance from statement\",\n            \"request_id\": 3\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/curl/{{curl_electricity_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"curl",
+								"{{curl_electricity_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/curl/{{id}} - 4. HTML",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"body\": \"Please check the html.Product seems not available\",\n    \"rawCurl\": \"curl -s https://www.startech.com.bd/huawei-mateview-ssn-24bz-se-monitor\",\n    \"responseType\": \"html\",\n    \"additional_fields\": [\n        {\n            \"id\": 21,\n            \"property_name\": \"ProductName\",\n            \"type\": \"text\",\n            \"description\": \"Product Name from html\"\n        },\n        {\n            \"id\": 22,\n            \"property_name\": \"Price\",\n            \"type\": \"number\",\n            \"description\": \"The price of the product from html\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/curl/{{curl_online_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"curl",
+								"{{curl_online_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/curl/{{id}} - 2.Weather",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"responseType\": \"json\",\n    \"body\": \"Is there any rain propbaliblity for next 2 hours?\",\n    \"rawCurl\": \"curl \\\\'https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m\\\\' \",\n    \"additional_fields\": [\n        {\n            \"id\": 44,\n            \"property_name\": \"RainProbablity\",\n            \"type\": \"text\",\n            \"description\": \"Any Probablity For rain\",\n            \"request_id\": 2\n        },\n        {\n            \"id\": 45,\n            \"property_name\": \"MaximumTemperature\",\n            \"type\": \"text\",\n            \"description\": \"Maximum Temperature\",\n            \"request_id\": 2\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/curl/{{weater_curl_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"curl",
+								"{{weater_curl_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/curl/{{id}} - 5. HTML(Tags)",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"body\": \"Within 2 days we got the latest model\",\n    \"rawCurl\": \"curl -s https://ollama.com/library/gemma3n/tags\",\n    \"responseType\": \"html\",\n    \"additional_fields\": [\n        {\n            \"id\": 41,\n            \"property_name\": \"LatestModelName\",\n            \"type\": \"text\",\n            \"description\": \"Latest Model Name from html\",\n            \"request_id\": 11\n        },\n        {\n            \"id\": 42,\n            \"property_name\": \"Size\",\n            \"type\": \"text\",\n            \"description\": \"Size of that model\",\n            \"request_id\": 11\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/curl/{{curl_online_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"curl",
+								"{{curl_online_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "LLM",
+			"item": [
+				{
+					"name": "/api/llm",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"request_id\": 11,\n    \"ai_model_id\": {{ai_model_id}},\n    \"is_active\": true\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/llm",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"llm"
+							]
+						},
+						"description": "Generated from cURL: curl -X POST http://localhost:8080/api/llm \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"llm_id\": 1,\n    \"model_name\": \"gpt-4\",\n    \"type\": \"openai\",\n    \"is_active\": true\n  }'"
+					},
+					"response": []
+				},
+				{
+					"name": "/api/llm",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response = pm.response.json();",
+									"if (Array.isArray(response) && response.length > 0) {",
+									"    pm.collectionVariables.set(\"user_llm_id\", response[0].id);",
+									"    if(response.length>1){",
+									"        pm.collectionVariables.set(\"update_id\", response[1].id);",
+									"    }",
+									"    if(response.length>2){",
+									"        pm.collectionVariables.set(\"delete_id\", response[2].id);",
+									"    }",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/llm?limit=10&offset=0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"llm"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl \"{{base_url}}/api/llm?limit=10&offset=0\""
+					},
+					"response": []
+				},
+				{
+					"name": "/api/llm/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/llm/{{user_llm_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"llm",
+								"{{user_llm_id}}"
+							]
+						},
+						"description": "Generated from cURL: curl {{base_url}}/api/llm/1"
+					},
+					"response": []
+				},
+				{
+					"name": "/api/llm/:id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"request_id\": 1,\n    \"ai_model_id\": {{ai_model_id}},\n    \"is_active\": false\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/llm/{{update_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"llm",
+								"{{update_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/llm/:id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/llm/{{delete_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"llm",
+								"{{delete_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reminder",
+			"item": [
+				{
+					"name": "/api/reminder",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"function addTimeAndFormat(date, secondsToAdd) {",
+									"    ",
+									"    date.setSeconds(date.getSeconds() + secondsToAdd);",
+									"",
+									"    let pad = (num, size) => num.toString().padStart(size, '0');",
+									"",
+									"    let offsetMinutes = date.getTimezoneOffset();",
+									"    let offsetSign = offsetMinutes <= 0 ? \"+\" : \"-\";",
+									"    let offsetHours = pad(Math.floor(Math.abs(offsetMinutes) / 60), 2);",
+									"    let offsetMins = pad(Math.abs(offsetMinutes) % 60, 2);",
+									"",
+									"    return (",
+									"        date.getFullYear() +",
+									"        \"-\" + pad(date.getMonth() + 1, 2) +",
+									"        \"-\" + pad(date.getDate(), 2) +",
+									"        \"T\" + pad(date.getHours(), 2) +",
+									"        \":\" + pad(date.getMinutes(), 2) +",
+									"        \":\" + pad(date.getSeconds(), 2) +",
+									"        \".\" + pad(date.getMilliseconds(), 3) + \"000\" + offsetSign + offsetHours + \":\" + offsetMins",
+									"    );",
+									"}",
+									"",
+									"let original = new Date();",
+									"pm.collectionVariables.set(\"triggered_time\", addTimeAndFormat(original, 10));",
+									"pm.collectionVariables.set(\"upto\", addTimeAndFormat(original, 200));",
+									"",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"request_id\": 1,\n    \"message\": \"Do Party 47\",\n    \"triggered_time\": \"{{triggered_time}}\",\n    \"after_every\": 35,\n    \"upto\": \"{{upto}}\",\n    \"recurrence\": \"seconds\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/reminder",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"reminder"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/reminder",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const response = pm.response.json();",
+									"if (Array.isArray(response) && response.length > 0) {",
+									"    pm.collectionVariables.set(\"reminder_id\", response[0].id);",
+									"    if(response.length>1){",
+									"        pm.collectionVariables.set(\"update_id\", response[1].id);",
+									"    }",
+									"    if(response.length>2){",
+									"        pm.collectionVariables.set(\"delete_id\", response[2].id);",
+									"    }",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/reminder?limit=10&offset=0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"reminder"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/reminder/:id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/reminder/{{reminder_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"reminder",
+								"{{reminder_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/reminder/:id",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"request_id\": 1,\n    \"message\": \"Thank You\",\n    \"triggered_time\": \"2024-06-01T09:00:00Z\",\n    \"next_trigger_time\": \"2024-06-03T09:00:00Z\",\n    \"occurrence\": 2,\n    \"recurrence\": \"daily\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/reminder/{{update_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"reminder",
+								"{{update_id}}"
+							]
+						},
+						"description": "Generated from cURL: curl -X PUT ${base_url}/api/reminder/1 \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"request_id\": 1,\n    \"message\": \"Take your vitamins\",\n    \"triggered_time\": \"2024-06-01T09:00:00Z\",\n    \"next_trigger_time\": \"2024-06-03T09:00:00Z\",\n    \"occurrence\": 2,\n    \"recurrence\": \"daily\"\n  }'"
+					},
+					"response": []
+				},
+				{
+					"name": "/api/reminder/:deleteId",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/reminder/:deleteId",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"reminder",
+								":deleteId"
+							],
+							"variable": [
+								{
+									"key": "deleteId",
+									"value": "{{delete_id}}"
+								}
+							]
+						},
+						"description": "Generated from cURL: curl -X DELETE ${base_url}/api/reminder/1"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AI",
+			"item": [
+				{
+					"name": "/api/ai/make-request",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"curl_request_id\": 1,\n    \"model_id\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/ai/make-request",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"ai",
+								"make-request"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Telegram",
+			"item": [
+				{
+					"name": "/api/telegram/verify",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"otp\" : \"777901\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/telegram/verify",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"telegram",
+								"verify"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Ollama",
+			"item": [
+				{
+					"name": "/api/pull",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{COOKIE}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{model}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ollama_url}}/api/pull",
+							"host": [
+								"{{ollama_url}}"
+							],
+							"path": [
+								"api",
+								"pull"
+							]
+						},
+						"description": "https://ollama.com/library/deepseek-r1\n"
+					},
+					"response": []
+				},
+				{
+					"name": "/api/tags",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{COOKIE}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{ollama_url}}/api/tags",
+							"host": [
+								"{{ollama_url}}"
+							],
+							"path": [
+								"api",
+								"tags"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/api/delete",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{COOKIE}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{model}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ollama_url}}/api/delete",
+							"host": [
+								"{{ollama_url}}"
+							],
+							"path": [
+								"api",
+								"delete"
+							]
+						},
+						"description": "https://ollama.com/library/deepseek-r1\n"
+					},
+					"response": []
+				},
+				{
+					"name": "/api/chat",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseData = pm.response.json();",
+									"console.log(responseData.message.content)",
+									"const parsedResponse =  JSON.parse(responseData.message.content.substring(responseData.message.content.includes('{{') ? 1:2)) ",
+									"console.log(parsedResponse)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{COOKIE}}",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"model\": \"{{model}}\",\n       \"responseType\": \"json\",\n    \"messages\": [\n        {\n            \"role\": \"assistant\",\n            \"content\": \"Here is a json string  `{\\\"base\\\":\\\"USD\\\",\\\"fee\\\":1.5,\\\"quote\\\":\\\"BDT\\\",\\\"rate\\\":120.8,\\\"receivingAmount\\\":156415.46,\\\"sendingAmount\\\":1296.33,\\\"time\\\":\\\"2025-07-20T16:35:12Z\\\"}`\"\n        },\n        {\n            \"role\": \"user\",\n            \"content\": \"Please check the current rate from the json.Is it greater than 125 ? Return Json Response \"\n        }\n    ],\n    \"stream\": false,\n    \"format\": {\n        \"type\": \"object\",\n        \"properties\": {\n            \"IsCorrect\": {\n                \"type\": \"boolean\",\n                \"description\": \"This holds the true or false value for the Statement\"\n            },\n            \"Rate\": {\n                \"type\": \"number\",\n                \"description\": \"Current Rate from Json\"\n            },\n            \"TargetRate\": {\n                \"type\": \"number\",\n                \"description\": \"Targeted Rate\"\n            }\n        },\n        \"required\": [\n            \"IsCorrect\",\n            \"Rate\",\n            \"TargetRate\"\n        ]\n    },\n    \"options\": {\n        \"temperature\": 0.5\n    },\n    \"think\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{ollama_url}}/api/chat",
+							"host": [
+								"{{ollama_url}}"
+							],
+							"path": [
+								"api",
+								"chat"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Chat1",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"model\": \"{{model}}\",\n    \"messages\": [\n        {\n            \"role\": \"assistant\",\n            \"content\": \"Here is a json string  `{\\\"base\\\":\\\"USD\\\",\\\"fee\\\":1.5,\\\"quote\\\":\\\"BDT\\\",\\\"rate\\\":120.8,\\\"receivingAmount\\\":156415.46,\\\"sendingAmount\\\":1296.33,\\\"time\\\":\\\"2025-07-20T16:35:12Z\\\"}`\"\n        },\n        {\n            \"role\": \"user\",\n            \"content\": \"Please check the current rate from the json.Is it greater than 125 ? Return Json Response \"\n        }\n    ],\n    \"stream\": false,\n    \"format\": {\n        \"type\": \"object\",\n        \"properties\": {\n            \"IsCorrect\": {\n                \"type\": \"boolean\",\n                \"description\": \"This holds the true or false value for the Statement\"\n            },\n            \"Rate\": {\n                \"type\": \"number\",\n                \"description\": \"Current Rate from Json\"\n            },\n            \"TargetRate\": {\n                \"type\": \"number\",\n                \"description\": \"Targeted Rate\"\n            }\n        },\n        \"required\": [\n            \"IsCorrect\",\n            \"Rate\",\n            \"TargetRate\"\n        ]\n    },\n    \"options\": {\n        \"temperature\": 0.5\n    },\n    \"think\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{ollama_url}}/api/chat",
+									"host": [
+										"{{ollama_url}}"
+									],
+									"path": [
+										"api",
+										"chat"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 23 Jul 2025 03:11:44 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "369"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"model\": \"deepseek-r1:8b\",\n    \"created_at\": \"2025-07-23T03:11:44.175552445Z\",\n    \"message\": {\n        \"role\": \"assistant\",\n        \"content\": \"{\\\"{\\\"IsCorrect\\\":true, \\\"Rate\\\":120.8, \\\"TargetRate\\\":125}\\n\\n\\t\\t\"\n    },\n    \"done_reason\": \"stop\",\n    \"done\": true,\n    \"total_duration\": 8930838580,\n    \"load_duration\": 34571087,\n    \"prompt_eval_count\": 105,\n    \"prompt_eval_duration\": 121983872,\n    \"eval_count\": 26,\n    \"eval_duration\": 8772255912\n}"
+						}
+					]
+				}
+			],
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Notification",
+			"item": [
+				{
+					"name": "/api/notify",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\" : 1,\n    \"subject\": \"Greetings\",\n    \"message\": \"You have a new alert!\",\n    \"channels\": [\n        \"email\",\n        \"sms\",\n        \"telegram\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/notify",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"notify"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "scope",
+				"value": "openid",
+				"type": "string"
+			},
+			{
+				"key": "refreshRequestParams",
+				"value": [],
+				"type": "any"
+			},
+			{
+				"key": "tokenRequestParams",
+				"value": [],
+				"type": "any"
+			},
+			{
+				"key": "authRequestParams",
+				"value": [],
+				"type": "any"
+			},
+			{
+				"key": "tokenName",
+				"value": "USER_TOKEN",
+				"type": "string"
+			},
+			{
+				"key": "challengeAlgorithm",
+				"value": "S256",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "user",
+				"type": "string"
+			},
+			{
+				"key": "redirect_uri",
+				"value": "{{base_url}}",
+				"type": "string"
+			},
+			{
+				"key": "password",
+				"value": "user",
+				"type": "string"
+			},
+			{
+				"key": "grant_type",
+				"value": "authorization_code",
+				"type": "string"
+			},
+			{
+				"key": "clientSecret",
+				"value": "{{kc_secret}}",
+				"type": "string"
+			},
+			{
+				"key": "clientId",
+				"value": "{{kc_clientid}}",
+				"type": "string"
+			},
+			{
+				"key": "authUrl",
+				"value": "{{KC_GATEWAY}}/realms/gocloak/protocol/openid-connect/auth",
+				"type": "string"
+			},
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			},
+			{
+				"key": "client_authentication",
+				"value": "header",
+				"type": "string"
+			},
+			{
+				"key": "accessTokenUrl",
+				"value": "{{KC_GATEWAY}}/realms/gocloak/protocol/openid-connect/token",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "default"
+		},
+		{
+			"key": "COOKIE",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "ollama_url",
+			"value": "http://localhost:11434",
+			"type": "default"
+		},
+		{
+			"key": "model",
+			"value": "deepseek-r1:8b",
+			"type": "default"
+		},
+		{
+			"key": "ai_model_id",
+			"value": ""
+		},
+		{
+			"key": "user_llm_id",
+			"value": ""
+		},
+		{
+			"key": "update_id",
+			"value": ""
+		},
+		{
+			"key": "delete_id",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "reminder_id",
+			"value": ""
+		},
+		{
+			"key": "KC_GATEWAY",
+			"value": "http://localhost:8081",
+			"type": "default"
+		},
+		{
+			"key": "kc_clientid",
+			"value": "gocloak",
+			"type": "default"
+		},
+		{
+			"key": "kc_secret",
+			"value": "gocloak-secret",
+			"type": "default"
+		},
+		{
+			"key": "weater_curl_id",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "curl_electricity_id",
+			"value": "3",
+			"type": "default"
+		},
+		{
+			"key": "curl_star_id",
+			"value": "4",
+			"type": "default"
+		},
+		{
+			"key": "curl_online_id",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "triggered_time",
+			"value": ""
+		},
+		{
+			"key": "upto",
+			"value": ""
+		}
+	]
+}

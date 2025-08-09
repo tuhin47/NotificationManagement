@@ -66,7 +66,7 @@ func (a *AIRequestControllerImpl) GetAIModelByID(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	service, err := a.GetServiceManagerById(nil, id)
+	service, err := a.GetServiceManagerById(c, id)
 	if err != nil {
 		return err
 	}

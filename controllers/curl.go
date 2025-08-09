@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"NotificationManagement/domain"
-	"NotificationManagement/middleware"
 	"NotificationManagement/types"
 	"NotificationManagement/utils"
 	"net/http"
@@ -23,8 +22,6 @@ func NewCurlController(curlService domain.CurlService, userService domain.UserSe
 }
 
 func (cc *CurlControllerImpl) CurlHandler(c echo.Context) error {
-	ccx, _ := c.(*middleware.CustomContext)
-
 	var req types.CurlRequest
 	if err := utils.BindAndValidate(c, &req); err != nil {
 		return err
@@ -33,8 +30,9 @@ func (cc *CurlControllerImpl) CurlHandler(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	model.UserID = ccx.UserID
-
+	if model.UserID == 0 {
+		model.UserID = utils.GetUserId(c)
+	}
 	err = cc.CurlService.CreateModel(c.Request().Context(), model)
 	if err != nil {
 		return err
@@ -75,6 +73,9 @@ func (cc *CurlControllerImpl) UpdateCurlRequest(c echo.Context) error {
 	model, err := req.ToModel()
 	if err != nil {
 		return err
+	}
+	if model.UserID == 0 {
+		model.UserID = utils.GetUserId(c)
 	}
 
 	model, err = cc.CurlService.UpdateModel(c.Request().Context(), id, model)
