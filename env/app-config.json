@@ -73,6 +73,6 @@
   },
   "telegram": {
     "token": "",
-    "enabled": true
+    "enabled": false
   }
 }

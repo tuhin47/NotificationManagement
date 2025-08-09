@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var properties = []string{"app", "database", "redis", "asynq", "email", "aws", "keycloak", "logger", "config_service"}
+var properties = []string{"app", "database", "redis", "asynq", "email", "telegram", "aws", "keycloak", "logger", "config_service"}
 
 type Config struct {
 	App         AppConfig      `mapstructure:"app"`
@@ -48,7 +48,7 @@ type DatabaseConfig struct {
 }
 
 type AsynqConfig struct {
-	RedisAddr                        string        `destructure:"redisAddr"`
+	RedisAddr                        string        `mapstructure:"redisAddr"`
 	DB                               *int          `mapstructure:"db"`
 	Pass                             string        `mapstructure:"pass"`
 	Concurrency                      *int          `mapstructure:"concurrency"`
@@ -274,6 +274,7 @@ func printAllVipers() {
 
 func getDefaults() *Config {
 	TruePointer := true
+	FalsePointer := false
 	conf := &Config{
 		App: AppConfig{
 			Name:       "NotificationManagement",
@@ -311,7 +312,7 @@ func getDefaults() *Config {
 			Url:      "",
 			Timeout:  0,
 			Host:     "localhost",
-			Port:     ToInt("587"),
+			Port:     ToInt("1025"),
 			Username: "",
 			Password: "",
 			From:     "noreply@example.com",
@@ -340,7 +341,7 @@ func getDefaults() *Config {
 		},
 		Telegram: TelegramConfig{
 			Token:   "",
-			Enabled: &TruePointer,
+			Enabled: &FalsePointer,
 		},
 	}
 	setViperFields(conf, "")

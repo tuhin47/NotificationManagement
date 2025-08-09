@@ -3,6 +3,7 @@ package cmd
 import (
 	"NotificationManagement/config"
 	"NotificationManagement/conn"
+	"NotificationManagement/domain"
 	"NotificationManagement/repositories"
 	"NotificationManagement/services"
 	"NotificationManagement/services/notifier"
@@ -31,18 +32,23 @@ var workerCmd = &cobra.Command{
 
 				repositories.NewReminderRepository,
 				repositories.NewTelegramRepository,
+				repositories.NewUserRepository,
 
 				services.NewReminderService,
 				services.NewAsynqService,
+				services.NewUserService,
+				services.NewTelegramAPI,
 
 				worker.NewReminderTaskHandler,
 
 				notifier.NewEmailNotifier,
 				notifier.NewSMSNotifier,
 				notifier.NewTelegramNotifier,
+
 				notifier.NewNotificationDispatcher,
 			),
 			fx.Invoke(registerWorker),
+			fx.Invoke(registerHooks),
 		)
 
 		startCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
@@ -62,6 +68,11 @@ var workerCmd = &cobra.Command{
 			log.Fatalf("failed to stop fx app: %v", err)
 		}
 	},
+}
+
+func registerHooks(telegramAPI domain.TelegramAPI) {
+	// TODO - Need to have a separate worker for telegram, As multiple instance is not possible
+	go telegramAPI.Start()
 }
 
 func NewAsynqServer() *asynq.Server {

@@ -2,12 +2,14 @@ package domain
 
 import (
 	"NotificationManagement/models"
+	"context"
 
 	"github.com/labstack/echo/v4"
 )
 
 type ReminderService interface {
 	CommonService[models.Reminder]
+	SendReminders(ctx context.Context, reminderId uint) error
 }
 
 type ReminderRepository interface {

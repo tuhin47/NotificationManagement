@@ -8,15 +8,16 @@ import (
 
 type Reminder struct {
 	gorm.Model
-	RequestID       uint       `gorm:"index"` // Foreign key to CurlRequest
-	Message         string     `gorm:"type:text;not null"`
-	TriggeredTime   time.Time  `gorm:"index"`
-	NextTriggerTime time.Time  `gorm:"index"`
-	Occurrence      uint       `gorm:"type:int;default:0"`
-	Recurrence      string     `gorm:"size:50;not null;check:recurrence IN ('once','minutes','hour','daily','weekly')"`
-	AfterEvery      uint       `gorm:"type:int;not null"`
-	TaskID          string     `gorm:"type:text"`
-	Upto            *time.Time `gorm:"index"`
+	RequestID       uint
+	Request         *CurlRequest `gorm:"foreignKey:RequestID"`
+	Message         string       `gorm:"type:text;not null"`
+	TriggeredTime   time.Time    `gorm:"index"`
+	NextTriggerTime time.Time    `gorm:"index"`
+	Occurrence      uint         `gorm:"type:int;default:0"`
+	Recurrence      string       `gorm:"size:50;not null;check:recurrence IN ('once','minutes','hour','daily','weekly')"`
+	AfterEvery      uint         `gorm:"type:int;not null"`
+	TaskID          string       `gorm:"type:text"`
+	Upto            *time.Time   `gorm:"index"`
 }
 
 func (r *Reminder) UpdateFromModel(source ModelInterface) {

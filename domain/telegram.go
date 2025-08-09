@@ -7,9 +7,12 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+type TelegramAPI interface {
+	Start()
+}
+
 type TelegramNotifier interface {
 	Notifier
-	Start()
 	VerifyOTP(ctx context.Context, otp string, userID uint) (*models.Telegram, error)
 }
 

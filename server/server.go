@@ -87,10 +87,4 @@ var Module = fx.Options(
 		services.NewUserService,
 	),
 	fx.Invoke(RegisterRoutes),
-	fx.Invoke(registerHooks),
 )
-
-func registerHooks(telegramService domain.TelegramNotifier) {
-	// todo collect from env
-	go telegramService.Start()
-}
