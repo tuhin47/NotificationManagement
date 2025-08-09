@@ -66,7 +66,22 @@ func (s *DeepseekServiceImpl) MakeAIRequest(c context.Context, m *models.AIModel
 	return &a, nil
 }
 
-func (s *DeepseekServiceImpl) PullModel(c context.Context, model *models.DeepseekModel) error {
+func (s *DeepseekServiceImpl) GetAIJsonResponse(c context.Context, m *models.AIModel, requestId uint) (map[string]interface{}, error) {
+	request, err := s.MakeAIRequest(c, m, requestId)
+	if err != nil {
+		return nil, err
+	}
+	resp, _ := request.(*ollama.OllamaResponse)
+
+	aiResp := make(map[string]interface{})
+	if err := json.Unmarshal([]byte(resp.Message.Content), &aiResp); err != nil {
+		return nil, errutil.NewAppError(errutil.ErrExternalServiceError, err)
+	}
+	return aiResp, nil
+
+}
+
+func (s *DeepseekServiceImpl) PullModel(_ context.Context, model *models.DeepseekModel) error {
 	// Implementation for pulling/downloading the model
 	payload := map[string]interface{}{
 		"name": model.ModelName,
@@ -170,4 +185,8 @@ func deepseekCall(model *models.DeepseekModel, response *types.CurlResponse, cur
 		return nil, err
 	}
 	return body, err
+}
+
+func (s *DeepseekServiceImpl) GetModelType() string {
+	return "deepseek"
 }

@@ -9,7 +9,7 @@ import (
 
 type ReminderService interface {
 	CommonService[models.Reminder]
-	SendReminders(ctx context.Context, reminderId uint) error
+	ProcessAndSendReminders(ctx context.Context, reminderId uint) error
 }
 
 type ReminderRepository interface {

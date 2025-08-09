@@ -33,11 +33,19 @@ var workerCmd = &cobra.Command{
 				repositories.NewReminderRepository,
 				repositories.NewTelegramRepository,
 				repositories.NewUserRepository,
+				repositories.NewCurlRequestRepository,
+				repositories.NewGeminiRepository,
+				repositories.NewDeepseekModelRepository,
+				repositories.NewAdditionalFieldsRepository,
 
 				services.NewReminderService,
 				services.NewAsynqService,
 				services.NewUserService,
 				services.NewTelegramAPI,
+				services.NewGeminiService,
+				services.NewDeepseekModelService,
+				services.NewAIDispatcher,
+				services.NewCurlService,
 
 				worker.NewReminderTaskHandler,
 

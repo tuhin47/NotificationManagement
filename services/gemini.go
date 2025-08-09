@@ -8,6 +8,7 @@ import (
 	"NotificationManagement/types"
 	"NotificationManagement/utils/errutil"
 	"context"
+	"encoding/json"
 	"os"
 
 	"google.golang.org/genai"
@@ -52,8 +53,24 @@ func (s *GeminiServiceImpl) MakeAIRequest(c context.Context, m *models.AIModel, 
 	if err != nil {
 		return nil, errutil.NewAppError(errutil.ErrExternalServiceError, err)
 	}
-
 	return respBody, nil
+}
+
+func (s *GeminiServiceImpl) GetAIJsonResponse(c context.Context, m *models.AIModel, requestId uint) (map[string]interface{}, error) {
+	request, err := s.MakeAIRequest(c, m, requestId)
+	if err != nil {
+		return nil, err
+	}
+	resp, _ := request.(*genai.GenerateContentResponse)
+	var aiResp map[string]interface{}
+	if err := json.Unmarshal([]byte(resp.Text()), &aiResp); err != nil {
+		return nil, err
+	}
+	return aiResp, nil
+}
+
+func (s *GeminiServiceImpl) GetModelType() string {
+	return "gemini"
 }
 
 func geminiCall(model *models.GeminiModel, response *types.CurlResponse, req *models.CurlRequest) (*genai.GenerateContentResponse, error) {

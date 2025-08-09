@@ -73,7 +73,7 @@ func (h *ReminderTaskHandler) HandleReminderTask(ctx context.Context, task *asyn
 		logger.Info("One-time reminder marked as triggered", "reminder_id", reminder.ID)
 	}
 	logger.Info("Processing reminder task", "reminder_id", reminder.ID, "message", reminder.Message)
-	err := h.reminderService.SendReminders(ctx, reminder.ID)
+	err := h.reminderService.ProcessAndSendReminders(ctx, reminder.ID)
 
 	if err != nil {
 		logger.Error("Reminder Has issues", err)

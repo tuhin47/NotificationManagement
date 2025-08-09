@@ -11,12 +11,24 @@ import (
 type AIModelService interface {
 	CommonService[models.AIModel]
 }
+
 type AIService[T any] interface {
 	CommonService[T]
 	MakeAIRequest(c context.Context, m *models.AIModel, requestId uint) (interface{}, error)
+	GetAIJsonResponse(c context.Context, m *models.AIModel, requestId uint) (map[string]interface{}, error)
+	GetModelType() string
 }
 type AIModelRepository interface {
 	Repository[models.AIModel, uint]
+}
+
+type AiDispatcher interface {
+	RequestProcessor(c context.Context, m *models.AIModel, requestId uint) (map[string]interface{}, error)
+}
+
+type DispatchableAIService interface {
+	GetAIJsonResponse(c context.Context, m *models.AIModel, requestId uint) (map[string]interface{}, error)
+	GetModelType() string
 }
 
 type AIProcessService[T AIService[X], X any] interface {
