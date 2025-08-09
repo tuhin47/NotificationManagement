@@ -1,19 +1,24 @@
 package notifier
 
+import (
+	"NotificationManagement/domain"
+	"NotificationManagement/types"
+)
+
 type Dispatcher struct {
-	Notifiers []Notifier
+	Notifiers *[]domain.Notifier
 }
 
-func NewEmailDispatcher(email *EmailNotifier, sms *SMSNotifier, telegram *TelegramNotifier) *Dispatcher {
+func NewEmailDispatcher(email *EmailNotifier, sms *SMSNotifier, telegram *TelegramNotifier) domain.NotificationDispatcher {
 	return &Dispatcher{
-		Notifiers: []Notifier{email, sms, telegram},
+		Notifiers: &[]domain.Notifier{email, sms, telegram},
 	}
 }
 
-func (d *Dispatcher) NotifyAll(n Notification) error {
-	for _, notifier := range d.Notifiers {
+func (d *Dispatcher) Notify(n *types.Notification) error {
+	for _, notifier := range *d.GetDispatchers() {
 		for _, channel := range n.Channels {
-			if notifier.Type() == channel {
+			if notifier.Type() == channel && notifier.IsActive() {
 				if err := notifier.Send(n); err != nil {
 					return err
 				}
@@ -21,4 +26,8 @@ func (d *Dispatcher) NotifyAll(n Notification) error {
 		}
 	}
 	return nil
+}
+
+func (d *Dispatcher) GetDispatchers() *[]domain.Notifier {
+	return d.Notifiers
 }

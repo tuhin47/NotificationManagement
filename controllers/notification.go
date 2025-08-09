@@ -2,7 +2,8 @@ package controllers
 
 import (
 	"NotificationManagement/domain"
-	"NotificationManagement/services/notifier"
+	"NotificationManagement/types"
+	"NotificationManagement/utils"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -23,13 +24,13 @@ type NotifyRequest struct {
 	Channels []string `json:"channels"`
 }
 
-func (h *NotificationController) NotifyAll(c echo.Context) error {
+func (h *NotificationController) Notify(c echo.Context) error {
 	var req NotifyRequest
-	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid payload"})
+	if err := utils.BindAndValidate(c, &req); err != nil {
+		return err
 	}
 
-	err := h.NotificationService.Send(notifier.Notification{
+	err := h.NotificationService.Send(&types.Notification{
 		To:       req.To,
 		Subject:  req.Subject,
 		Message:  req.Message,

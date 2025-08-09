@@ -2,7 +2,9 @@ package utils
 
 import (
 	"NotificationManagement/utils/errutil"
+	"math/rand"
 	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -46,4 +48,23 @@ func ParseLimitAndOffset(c echo.Context) (limit, offset int) {
 		}
 	}
 	return limit, offset
+}
+
+func GenerateRandomNumber(i int) string {
+	if i <= 0 {
+		return ""
+	}
+
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	min := 1
+	for k := 0; k < i-1; k++ {
+		min *= 10
+	}
+	max := min*10 - 1
+
+	if i == 1 {
+		min = 0
+	}
+
+	return strconv.Itoa(r.Intn(max-min+1) + min)
 }

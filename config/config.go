@@ -34,6 +34,7 @@ type AppConfig struct {
 	Port       *int   `mapstructure:"port"`
 	Env        string `mapstructure:"env"`
 	Encryption string `mapstructure:"encryption"`
+	Domain     string `mapstructure:"domain"`
 }
 
 type DatabaseConfig struct {
@@ -133,6 +134,7 @@ const (
 	EnvAppVersion = "APP_VERSION"
 	EnvAppPort    = "APP_PORT"
 	EnvAppEnv     = "APP_ENV"
+	EnvAppDomain  = "APP_DOMAIN"
 
 	EnvDBHost     = "DB_HOST"
 	EnvDBPort     = "DB_PORT"
@@ -169,9 +171,18 @@ const (
 
 // LoadConfig loads configuration from file, environment variables, or SSM Parameter Store
 func LoadConfig() {
-	// Set default values
 	defaultConfig := getDefaults()
+	loadFromSsm(defaultConfig)
+	loadFromEnv()
+	printAllVipers()
 
+	if err := viper.Unmarshal(&appConfig); err != nil {
+		fmt.Printf("Error unmarshaling config: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+func loadFromSsm(defaultConfig *Config) {
 	if os.Getenv(EnvConfigFromSSM) != "false" {
 		ssmParam := os.Getenv(EnvConfigSSMParam)
 		if ssmParam == "" {
@@ -233,16 +244,6 @@ func LoadConfig() {
 
 		setViperFields(ssmConfigMap, "")
 	}
-
-	loadFromEnv()
-	printAllVipers()
-
-	// Unmarshal config
-	if err := viper.Unmarshal(&appConfig); err != nil {
-		fmt.Printf("Error unmarshaling config: %v\n", err)
-		os.Exit(1)
-	}
-
 }
 
 func printAllVipers() {
@@ -271,6 +272,7 @@ func getDefaults() *Config {
 			Port:       ToInt("8080"),
 			Env:        "development",
 			Encryption: "laeoGcA0ZFFsm3d9SUKevwG4VL4QN9Yi",
+			Domain:     "https://github.com/tuhin47/NotificationManagement",
 		},
 		Database: DatabaseConfig{
 			Host:     "localhost",
@@ -351,24 +353,16 @@ func setViperFields(conf interface{}, prefix string) {
 			if contains(properties, key) {
 				setViperFields(value.Interface(), curr)
 			} else {
-				// if value is a pointer, check if it's nil
 				if value.Kind() == reflect.Ptr && value.IsNil() {
 					continue
 				}
-
 				val := value.Interface()
-
-				// ignore nil interface
 				if val == nil {
 					continue
 				}
-
-				// if it's a string, check for empty
 				if s, ok := val.(string); ok && s == "" {
 					continue
 				}
-
-				// if it's a pointer to a string, check for empty
 				if ps, ok := val.(*string); ok && (ps == nil || *ps == "") {
 					continue
 				}
@@ -418,6 +412,7 @@ func loadFromEnv() *Config {
 			Port:       ToInt(os.Getenv(EnvAppPort)),
 			Env:        os.Getenv(EnvAppEnv),
 			Encryption: os.Getenv(EnvAPIKeyEncryptionSecret),
+			Domain:     os.Getenv(EnvAppDomain),
 		},
 		Database: DatabaseConfig{
 			Host:     os.Getenv(EnvDBHost),

@@ -31,6 +31,7 @@ func NewDB() *gorm.DB {
 		&models.DeepseekModel{},
 		&models.AdditionalFields{},
 		&models.User{},
+		&models.Telegram{},
 	); err != nil {
 		logger.Fatal("Failed to auto-migrate database schema", "error", err)
 		panic(err.Error())

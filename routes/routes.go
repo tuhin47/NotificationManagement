@@ -55,5 +55,5 @@ func RegisterUserRoutes(e *echo.Echo, controller domain.UserController, keycloak
 }
 
 func RegisterNotificationRoutes(e *echo.Echo, notificationController *controllers.NotificationController) {
-	e.POST("/notify", notificationController.NotifyAll)
+	e.POST("/notify", notificationController.Notify)
 }

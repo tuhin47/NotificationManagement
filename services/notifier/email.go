@@ -2,6 +2,7 @@ package notifier
 
 import (
 	"NotificationManagement/config"
+	"NotificationManagement/types"
 	"fmt"
 	"net/smtp"
 )
@@ -26,11 +27,15 @@ func NewEmailNotifier() *EmailNotifier {
 	}
 }
 
-func (e *EmailNotifier) Send(n Notification) error {
+func (e *EmailNotifier) Send(n *types.Notification) error {
 	msg := []byte(fmt.Sprintf("To: %s\r\nSubject: %s\r\n\r\n%s", n.To, n.Subject, n.Message))
 	return smtp.SendMail(e.Address, e.Auth, e.From, []string{n.To}, msg)
 }
 
 func (e *EmailNotifier) Type() string {
 	return "email"
+}
+
+func (e *EmailNotifier) IsActive() bool {
+	return true
 }

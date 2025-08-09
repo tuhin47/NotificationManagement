@@ -3,6 +3,7 @@ package services
 import (
 	"NotificationManagement/domain"
 	"NotificationManagement/services/notifier"
+	"NotificationManagement/types"
 )
 
 type NotificationServiceImpl struct {
@@ -15,6 +16,6 @@ func NewNotificationService(dispatcher *notifier.Dispatcher) domain.Notification
 	}
 }
 
-func (s *NotificationServiceImpl) Send(notification notifier.Notification) error {
-	return s.Dispatcher.NotifyAll(notification)
+func (s *NotificationServiceImpl) Send(notification *types.Notification) error {
+	return s.Dispatcher.Notify(notification)
 }

@@ -17,7 +17,7 @@ echo "📦 Starting LocalStack..."
 docker compose up -d config-server postgres keycloak mailcatcher redis
 
 echo "⏳ Waiting for config-server to be ready..."
-#sleep 10
+sleep 10
 
 # Check if LocalStack is running
 if curl -s http://localhost:4566/_localstack/health > /dev/null; then

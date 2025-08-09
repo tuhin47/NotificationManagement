@@ -62,6 +62,7 @@ var Module = fx.Options(
 		controllers.NewReminderController,
 		controllers.NewUserController,
 		controllers.NewNotificationController,
+		controllers.NewTelegramController,
 
 		repositories.NewAIModelRepository,
 		repositories.NewCurlRequestRepository,
@@ -71,6 +72,7 @@ var Module = fx.Options(
 		repositories.NewLLMRepository,
 		repositories.NewReminderRepository,
 		repositories.NewUserRepository,
+		repositories.NewTelegramRepository,
 
 		services.NewDeepseekServiceManager,
 		services.NewGeminiServiceManager,
@@ -85,4 +87,10 @@ var Module = fx.Options(
 		services.NewNotificationService,
 	),
 	fx.Invoke(RegisterRoutes),
+	fx.Invoke(registerHooks),
 )
+
+func registerHooks(telegramService domain.TelegramNotifier) {
+	// todo collect from env
+	go telegramService.Start()
+}

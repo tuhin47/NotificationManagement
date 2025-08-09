@@ -39,23 +39,22 @@ func (s *AsynqServiceImpl) CreateReminderTask(ctx context.Context, reminder *mod
 		return "", errutil.NewAppError(errutil.ErrInvalidRequestBody, fmt.Errorf("error reminder time is beyond 'Upto' time"))
 	}
 	if reminderTime.Before(now) {
-		logger.Info("Reminder time is in the past, skipping event reminder  for event: ", reminder.Message)
-		// TODO : rather than canceling it figure out next occurrence
+		logger.Warn("Reminder time is in the past, considering next occurrence or cancellation for event: ", reminder.Message)
 		_ = s.CancelReminderTask(ctx, reminder.ID)
 		return "", errutil.NewAppError(errutil.ErrInvalidRequestBody, fmt.Errorf("error time already passed"))
 	}
 
 	logger.Info("Enqueuing event reminder  for event: ", reminder.Message)
 
-	// Convert reminder to payload
+	logger.Debug("Converting reminder to payload")
 	payload, err := json.Marshal(reminder)
 	if err != nil {
 		return "", errutil.NewAppError(errutil.ErrTaskMarshalPayloadFailed, err)
 	}
 
-	// Create task
+	logger.Debug("Creating asynq task")
 	task := asynq.NewTask(types.AsynqTaskTypeHandleReminder.String(), payload)
-	// Configure task options
+	logger.Debug("Configuring asynq task options")
 	opts := []asynq.Option{
 		asynq.Queue(config.Asynq().Queue),
 		asynq.ProcessAt(reminderTime),
@@ -63,7 +62,7 @@ func (s *AsynqServiceImpl) CreateReminderTask(ctx context.Context, reminder *mod
 		asynq.Retention(config.Asynq().Retention),
 	}
 
-	// Enqueue the task
+	logger.Debug("Enqueuing asynq task")
 	info, err := s.client.EnqueueContext(ctx, task, opts...)
 	if err != nil {
 		return "", errutil.NewAppError(errutil.ErrTaskEnqueueFailed, err)
@@ -75,55 +74,56 @@ func (s *AsynqServiceImpl) CreateReminderTask(ctx context.Context, reminder *mod
 
 // UpdateReminderTask updates an existing asynq task
 func (s *AsynqServiceImpl) UpdateReminderTask(ctx context.Context, reminder *models.Reminder) error {
-	// If task ID is empty, create a new task
+	logger.Debug("Checking if task ID is empty to create a new task")
 	if reminder.TaskID == "" {
 		taskID, err := s.CreateReminderTask(ctx, reminder)
 		if err != nil {
 			return err
 		}
 
-		// Update the reminder with the new task ID
+		logger.Debug("Updating the reminder with the new task ID")
 		reminder.TaskID = taskID
 		return s.repo.Update(ctx, reminder)
 	}
 
-	// Otherwise, cancel the existing task and create a new one
+	logger.Debug("Task ID exists, cancelling the existing task and creating a new one")
 	err := s.CancelReminderTask(ctx, reminder.ID)
 	if err != nil {
 		logger.Warn("Failed to cancel existing task", "error", err, "reminder_id", reminder.ID)
 	}
 
-	// Create new task
+	logger.Debug("Creating new task")
 	taskID, err := s.CreateReminderTask(ctx, reminder)
 	if err != nil {
 		return err
 	}
 
-	// Update the reminder with the new task ID
+	logger.Debug("Updating the reminder with the new task ID")
 	reminder.TaskID = taskID
 	return s.repo.Update(ctx, reminder)
 }
 
 // CancelReminderTask cancels an existing reminder task
 func (s *AsynqServiceImpl) CancelReminderTask(ctx context.Context, reminderID uint) error {
-	// Get the reminder to find the task ID
+	logger.Debug("Getting the reminder to find the task ID", "reminder_id", reminderID)
 	reminder, err := s.repo.GetByID(ctx, reminderID, nil)
 	if err != nil {
 		return errutil.NewAppError(errutil.ErrRecordNotFound, err)
 	}
 
 	if reminder.TaskID == "" {
-		return nil // No task to cancel
+		logger.Debug("No task to cancel for reminder", "reminder_id", reminderID)
+		return nil
 	}
 
-	// Cancel and delete the task
+	logger.Debug("Attempting to cancel and delete task", "task_id", reminder.TaskID)
 	if err := s.inspector.CancelProcessing(reminder.TaskID); err != nil {
-		// If it's not processing, just delete it
+		logger.Debug("Task not processing, attempting to delete it directly", "task_id", reminder.TaskID)
 		if err := s.inspector.DeleteTask(config.Asynq().Queue, reminder.TaskID); err != nil {
 			return errutil.NewAppError(errutil.ErrTaskDeletionFailed, err)
 		}
 	} else {
-		// If cancel succeeded, also delete it
+		logger.Debug("Task cancellation succeeded, also attempting to delete it", "task_id", reminder.TaskID)
 		if err := s.inspector.DeleteTask(config.Asynq().Queue, reminder.TaskID); err != nil {
 			return errutil.NewAppError(errutil.ErrTaskDeletionFailed, err)
 		}
@@ -131,7 +131,7 @@ func (s *AsynqServiceImpl) CancelReminderTask(ctx context.Context, reminderID ui
 
 	logger.Info("Cancelled and deleted reminder task", "reminder_id", reminderID, "task_id", reminder.TaskID)
 
-	// Clear the task ID from the reminder
+	logger.Debug("Clearing the task ID from the reminder", "reminder_id", reminderID)
 	reminder.TaskID = ""
 	return s.repo.Update(ctx, reminder)
 }
@@ -147,28 +147,28 @@ func (s *AsynqServiceImpl) GetTaskInfo(ctx context.Context, taskID string) (inte
 
 // ScheduleTask schedules a generic task with provided payload and options
 func (s *AsynqServiceImpl) ScheduleTask(ctx context.Context, taskType string, payload interface{}, processAt time.Time, opts ...interface{}) (string, error) {
-	// Convert payload to JSON
+	logger.Debug("Converting payload to JSON for generic task", "task_type", taskType)
 	payloadBytes, err := json.Marshal(payload)
 	if err != nil {
 		return "", errutil.NewAppError(errutil.ErrTaskMarshalPayloadFailed, err)
 	}
 
-	// Create task
+	logger.Debug("Creating generic asynq task", "task_type", taskType)
 	task := asynq.NewTask(taskType, payloadBytes)
 
-	// Convert generic options to asynq options
+	logger.Debug("Converting generic options to asynq options")
 	var asynqOpts []asynq.Option
 	asynqOpts = append(asynqOpts, asynq.Queue(config.Asynq().Queue))
 	asynqOpts = append(asynqOpts, asynq.ProcessAt(processAt))
 
-	// Add any additional provided options
+	logger.Debug("Adding additional provided options to generic task")
 	for _, opt := range opts {
 		if asynqOpt, ok := opt.(asynq.Option); ok {
 			asynqOpts = append(asynqOpts, asynqOpt)
 		}
 	}
 
-	// Enqueue the task
+	logger.Debug("Enqueuing generic asynq task", "task_type", taskType)
 	info, err := s.client.EnqueueContext(ctx, task, asynqOpts...)
 	if err != nil {
 		return "", errutil.NewAppError(errutil.ErrTaskEnqueueFailed, err)

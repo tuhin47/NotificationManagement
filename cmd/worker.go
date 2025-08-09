@@ -5,6 +5,7 @@ import (
 	"NotificationManagement/conn"
 	"NotificationManagement/repositories"
 	"NotificationManagement/services"
+	"NotificationManagement/services/notifier"
 	"NotificationManagement/types"
 	"NotificationManagement/worker"
 	"context"
@@ -27,10 +28,19 @@ var workerCmd = &cobra.Command{
 				conn.NewDB,
 				conn.NewAsynq,
 				conn.NewAsynqInspector,
+
+				repositories.NewReminderRepository,
+				repositories.NewTelegramRepository,
+
 				services.NewReminderService,
 				services.NewAsynqService,
-				repositories.NewReminderRepository,
+
 				worker.NewReminderTaskHandler,
+
+				notifier.NewEmailNotifier,
+				notifier.NewSMSNotifier,
+				notifier.NewTelegramNotifier,
+				notifier.NewEmailDispatcher,
 			),
 			fx.Invoke(registerWorker),
 		)
