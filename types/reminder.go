@@ -10,6 +10,7 @@ import (
 
 type ReminderRequest struct {
 	RequestID     uint       `json:"request_id"`
+	AfterEvery    uint       `json:"after_every"`
 	Message       string     `json:"message"`
 	TriggeredTime time.Time  `json:"triggered_time"`
 	Occurrence    uint       `json:"occurrence"`
@@ -22,7 +23,8 @@ func (r *ReminderRequest) Validate() error {
 		validation.Field(&r.RequestID, validation.Required),
 		validation.Field(&r.Message, validation.Required, validation.Length(1, 2048)),
 		validation.Field(&r.TriggeredTime, validation.Required),
-		validation.Field(&r.Recurrence, validation.Required, validation.In("once", "minutes", "hour", "daily", "weekly"), validation.Length(1, 50)),
+		validation.Field(&r.AfterEvery, validation.When(r.Recurrence != "once", validation.Required)),
+		validation.Field(&r.Recurrence, validation.Required, validation.In("once", "seconds", "minutes", "hour", "daily", "weekly"), validation.Length(1, 50)),
 	)
 }
 
@@ -50,10 +52,12 @@ func (rr *ReminderRequest) ToModel() (*models.Reminder, error) {
 		RequestID:       rr.RequestID,
 		Message:         rr.Message,
 		TriggeredTime:   rr.TriggeredTime,
-		NextTriggerTime: rr.TriggeredTime,
 		Occurrence:      rr.Occurrence,
 		Recurrence:      rr.Recurrence,
 		Upto:            rr.Upto,
+		AfterEvery:      rr.AfterEvery,
+		NextTriggerTime: rr.TriggeredTime,
+		//NextTriggerTime: rr.TriggeredTime.Add(datetime.RecurrenceDuration(rr.AfterEvery, rr.Recurrence)),
 	}, nil
 }
 

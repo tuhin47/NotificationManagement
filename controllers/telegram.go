@@ -27,6 +27,7 @@ func (t TelegramControllerImpl) VerifyOtp(c echo.Context) error {
 	}
 	userID := ccx.UserID
 
+	// TODO- Consider some expiration in future
 	telegramModel, err := t.telegramService.VerifyOTP(c.Request().Context(), req.OTP, userID)
 	if err != nil {
 		return err

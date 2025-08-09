@@ -105,11 +105,17 @@ func (t *TelegramBotImpl) SendStartMessage(msg *tgbotapi.Message) {
 	background := context.Background()
 	chatId := msg.Chat.ID
 	otp := utils.GenerateRandomNumber(6)
-	telegramModel := models.Telegram{
-		ChatID: chatId,
-		Otp:    otp,
+	telegramModel, err := t.telegramRepo.GetByChatId(background, chatId)
+	if err != nil {
+		telegramModel = &models.Telegram{
+			ChatID: chatId,
+			Otp:    otp,
+		}
+		err = t.telegramRepo.Create(background, telegramModel)
+	} else {
+		telegramModel.Otp = otp
+		err = t.telegramRepo.Update(background, telegramModel)
 	}
-	err := t.telegramRepo.Create(background, &telegramModel)
 	if err != nil {
 		logger.Error("error occurred during saving", "telegram", telegramModel, err)
 	}

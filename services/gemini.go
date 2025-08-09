@@ -64,7 +64,7 @@ func geminiCall(model *models.GeminiModel, response *types.CurlResponse, req *mo
 	ctx := context.Background()
 	// The client gets the API key from the environment variable `GEMINI_API_KEY`.
 	client, err := genai.NewClient(ctx, &genai.ClientConfig{
-		APIKey: string(model.APISecret),
+		APIKey: model.GetAPIKey(),
 	})
 	if err != nil {
 		return nil, err

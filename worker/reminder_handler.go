@@ -33,13 +33,6 @@ func (h *ReminderTaskHandler) HandleReminderTask(ctx context.Context, task *asyn
 		return fmt.Errorf("failed to unmarshal reminder payload: %w", err)
 	}
 
-	logger.Info("Processing reminder task", "reminder_id", reminder.ID, "message", reminder.Message)
-	err := h.reminderService.SendReminders(ctx, reminder.ID)
-
-	if err != nil {
-		logger.Error("Reminder Has issues", err)
-	}
-
 	if reminder.Recurrence != "once" {
 		nextTrigger := reminder.NextTriggerTime.Add(reminder.GetRecurrenceDuration())
 
@@ -54,7 +47,6 @@ func (h *ReminderTaskHandler) HandleReminderTask(ctx context.Context, task *asyn
 			return nil
 		}
 
-		reminder.TriggeredTime = reminder.NextTriggerTime
 		reminder.NextTriggerTime = nextTrigger
 		reminder.Occurrence++
 
@@ -65,13 +57,12 @@ func (h *ReminderTaskHandler) HandleReminderTask(ctx context.Context, task *asyn
 		}
 		logger.Info("Recurring reminder updated and scheduled for next occurrence", "reminder_id", reminder.ID, "next_trigger_time", nextTrigger)
 
-		_, err = h.asynqService.CreateReminderTask(ctx, &reminder)
+		reminder.TaskID, err = h.asynqService.CreateReminderTask(ctx, &reminder)
 		if err != nil {
 			logger.Error("Failed to schedule next reminder task", "error", err, "reminder_id", reminder.ID)
 			return fmt.Errorf("failed to schedule next reminder task: %w", err)
 		}
 	} else {
-		reminder.TriggeredTime = reminder.NextTriggerTime
 		reminder.Occurrence++
 
 		_, err := h.reminderService.UpdateModel(ctx, reminder.ID, &reminder)
@@ -80,6 +71,12 @@ func (h *ReminderTaskHandler) HandleReminderTask(ctx context.Context, task *asyn
 			return fmt.Errorf("failed to update reminder: %w", err)
 		}
 		logger.Info("One-time reminder marked as triggered", "reminder_id", reminder.ID)
+	}
+	logger.Info("Processing reminder task", "reminder_id", reminder.ID, "message", reminder.Message)
+	err := h.reminderService.SendReminders(ctx, reminder.ID)
+
+	if err != nil {
+		logger.Error("Reminder Has issues", err)
 	}
 
 	return nil

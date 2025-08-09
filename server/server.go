@@ -85,6 +85,7 @@ var Module = fx.Options(
 		services.NewLLMService,
 		services.NewReminderService,
 		services.NewUserService,
+		services.NewTelegramAPI, // TODO : Need to remove from here.Manage By Worker
 	),
 	fx.Invoke(RegisterRoutes),
 )

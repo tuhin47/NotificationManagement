@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"NotificationManagement/middleware"
 	"NotificationManagement/utils/errutil"
 	"math/rand"
 	"strconv"
@@ -67,4 +68,9 @@ func GenerateRandomNumber(i int) string {
 	}
 
 	return strconv.Itoa(r.Intn(max-min+1) + min)
+}
+
+func GetUserId(c echo.Context) uint {
+	ccx, _ := c.(*middleware.CustomContext)
+	return ccx.UserID
 }

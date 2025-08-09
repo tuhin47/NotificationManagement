@@ -1,6 +1,7 @@
 package models
 
 import (
+	"NotificationManagement/config"
 	"gorm.io/gorm"
 )
 
@@ -34,6 +35,12 @@ func (d *AIModel) GetType() string {
 
 func (d *GeminiModel) GetType() string {
 	return d.Type
+}
+func (d *GeminiModel) GetAPIKey() string {
+	if config.IsDevelopment() && config.Development().GeminiKey != "" {
+		return config.Development().GeminiKey
+	}
+	return string(d.APISecret)
 }
 
 func (d *DeepseekModel) GetType() string {

@@ -12,8 +12,8 @@ import (
 
 type CurlRequest struct {
 	URL              string                   `json:"url"`
-	Method           string                   `json:"method"`
-	Headers          map[string]string        `json:"headers,omitempty"`
+	Method           string                   `json:"-"`
+	Headers          map[string]string        `json:"-"`
 	Body             string                   `json:"body,omitempty"`
 	RawCurl          string                   `json:"rawCurl,omitempty"`
 	ResponseType     string                   `json:"responseType,omitempty"`
@@ -23,7 +23,7 @@ type CurlRequest struct {
 
 func (cr *CurlRequest) Validate() error {
 	return validation.ValidateStruct(cr,
-		validation.Field(&cr.ResponseType, validation.In(ResponseTypeJSON, ResponseTypeXML, ResponseTypeHTML, ResponseTypeText)),
+		validation.Field(&cr.ResponseType, validation.Required, validation.In(ResponseTypeJSON, ResponseTypeXML, ResponseTypeHTML, ResponseTypeText)),
 		validation.Field(&cr.AdditionalFields, validation.Each(validation.By(func(value interface{}) error {
 			if v, ok := value.(AdditionalFieldRequest); ok {
 				return v.Validate()

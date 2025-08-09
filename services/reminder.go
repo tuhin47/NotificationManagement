@@ -21,7 +21,7 @@ func NewReminderService(repo domain.ReminderRepository, dispatcher domain.Notifi
 }
 func (r ReminderServiceImpl) SendReminders(ctx context.Context, reminderId uint) error {
 
-	reminder, err := r.CommonService.GetModelById(ctx, reminderId, &[]string{"Request", "Request.User"})
+	reminder, err := r.CommonService.GetModelById(ctx, reminderId, &[]string{"Request", "Request.User", "Request.User.Telegram"})
 	if err != nil {
 		return err
 	}

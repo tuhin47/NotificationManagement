@@ -74,5 +74,8 @@
   "telegram": {
     "token": "",
     "enabled": false
+  },
+  "development": {
+    "geminikey": ""
   }
 }

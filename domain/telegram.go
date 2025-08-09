@@ -9,6 +9,7 @@ import (
 
 type TelegramAPI interface {
 	Start()
+	SendMessage(chatID int64, text string, markup interface{})
 }
 
 type TelegramNotifier interface {
@@ -19,6 +20,7 @@ type TelegramNotifier interface {
 type TelegramRepository interface {
 	Repository[models.Telegram, uint]
 	GetByOTP(ctx context.Context, otp string) (*models.Telegram, error)
+	GetByChatId(ctx context.Context, id int64) (*models.Telegram, error)
 }
 
 type TelegramController interface {

@@ -33,13 +33,17 @@ func (rc *ReminderControllerImpl) CreateReminder(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	_, err = rc.asynqService.CreateReminderTask(ctx, reminder)
+	reminder.TaskID, err = rc.asynqService.CreateReminderTask(ctx, reminder)
+	if err != nil {
+		return err
+	}
+	model, err := rc.reminderService.UpdateModel(ctx, reminder.ID, reminder)
 
 	if err != nil {
 		return err
 	}
 
-	response := types.FromReminderModel(reminder)
+	response := types.FromReminderModel(model)
 	return c.JSON(http.StatusCreated, response)
 }
 

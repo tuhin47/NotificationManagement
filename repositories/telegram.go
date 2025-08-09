@@ -26,3 +26,12 @@ func (r *TelegramRepositoryImpl) GetByOTP(ctx context.Context, otp string) (*mod
 	}
 	return &telegram, nil
 }
+
+func (r *TelegramRepositoryImpl) GetByChatId(ctx context.Context, chatId int64) (*models.Telegram, error) {
+	var telegram models.Telegram
+	err := r.Repository.GetDB(ctx).Where("chat_id = ?", chatId).First(&telegram).Error
+	if err != nil {
+		return nil, handleDbError(err)
+	}
+	return &telegram, nil
+}

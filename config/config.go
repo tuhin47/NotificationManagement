@@ -15,18 +15,22 @@ import (
 	"github.com/spf13/viper"
 )
 
-var properties = []string{"app", "database", "redis", "asynq", "email", "telegram", "aws", "keycloak", "logger", "config_service"}
+var properties = []string{"app", "database", "redis", "asynq", "email", "telegram", "aws", "keycloak", "logger", "config_service", "development"}
 
 type Config struct {
-	App         AppConfig      `mapstructure:"app"`
-	Database    DatabaseConfig `mapstructure:"database"`
-	AsynqConfig AsynqConfig    `mapstructure:"asynq" json:"asynq"`
-	Redis       RedisConfig    `mapstructure:"redis"`
-	Email       EmailConfig    `mapstructure:"email"`
-	AWS         AWSConfig      `mapstructure:"aws"`
-	Logger      LoggerConfig   `mapstructure:"logger"`
-	Keycloak    KeycloakConfig `mapstructure:"keycloak"`
-	Telegram    TelegramConfig `mapstructure:"telegram"`
+	App         AppConfig         `mapstructure:"app"`
+	Database    DatabaseConfig    `mapstructure:"database"`
+	AsynqConfig AsynqConfig       `mapstructure:"asynq" json:"asynq"`
+	Redis       RedisConfig       `mapstructure:"redis"`
+	Email       EmailConfig       `mapstructure:"email"`
+	AWS         AWSConfig         `mapstructure:"aws"`
+	Logger      LoggerConfig      `mapstructure:"logger"`
+	Keycloak    KeycloakConfig    `mapstructure:"keycloak"`
+	Telegram    TelegramConfig    `mapstructure:"telegram"`
+	Development DevelopmentConfig `mapstructure:"development"`
+}
+type DevelopmentConfig struct {
+	GeminiKey string `mapstructure:"geminikey"`
 }
 
 type AppConfig struct {
@@ -141,6 +145,8 @@ const (
 	EnvAppPort    = "APP_PORT"
 	EnvAppEnv     = "APP_ENV"
 	EnvAppDomain  = "APP_DOMAIN"
+
+	EnvGeminiKey = "GEMINI_KEY"
 
 	EnvDBHost     = "DB_HOST"
 	EnvDBPort     = "DB_PORT"
@@ -436,6 +442,7 @@ func loadFromEnv() *Config {
 			Name:     os.Getenv(EnvDBName),
 			SSLMode:  os.Getenv(EnvDBSSLMode),
 		},
+		AsynqConfig: AsynqConfig{},
 		Redis: RedisConfig{
 			Host:     os.Getenv(EnvRedisHost),
 			Port:     ToInt(os.Getenv(EnvRedisPort)),
@@ -473,6 +480,9 @@ func loadFromEnv() *Config {
 		Telegram: TelegramConfig{
 			Token:   os.Getenv(EnvTelegramToken),
 			Enabled: toBool(os.Getenv(EnvTelegramEnabled)),
+		},
+		Development: DevelopmentConfig{
+			GeminiKey: os.Getenv(EnvGeminiKey),
 		},
 	}
 	setViperFields(c, "")
@@ -538,6 +548,10 @@ func GetDSN() string {
 func GetRedisAddr() string {
 	redis := Redis()
 	return fmt.Sprintf("%s:%d", redis.Host, *redis.Port)
+}
+
+func Development() DevelopmentConfig {
+	return appConfig.Development
 }
 
 // IsDevelopment returns true if the application is running in development mode

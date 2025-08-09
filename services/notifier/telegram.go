@@ -13,29 +13,28 @@ import (
 )
 
 type TelegramNotifierImpl struct {
-	//BotAPI       *tgbotapi.BotAPI
+	domain.TelegramAPI
 	telegramRepo domain.TelegramRepository
 }
 
-func NewTelegramNotifier(repo domain.TelegramRepository) domain.TelegramNotifier {
+func NewTelegramNotifier(repo domain.TelegramRepository, api domain.TelegramAPI) domain.TelegramNotifier {
 	return &TelegramNotifierImpl{
 		telegramRepo: repo,
+		TelegramAPI:  api,
 	}
 }
 
 func (t *TelegramNotifierImpl) Send(ctx context.Context, notification *types.Notification) error {
-	/*
-		TODO : have to call the worker
-		chatID := (*notification.User.Telegram)[0].ChatID
-		msg := tgbotapi.NewMessage(chatID, notification.Message)
-		_, err := t.BotAPI.Send(msg)
-		if err != nil {
-			logger.Error("Failed to send Telegram message", "error", err)
-			return err
-		}
-		logger.Debug(fmt.Sprintf("[Telegram] To: %s, Message: %s", chatID, notification.Message), notification)
-	*/
-	logger.Debug(notification.Message)
+
+	chatID := (*notification.User.Telegram)[0].ChatID
+	//TODO : have create an call  worker
+	if *config.Telegram().Enabled {
+		t.TelegramAPI.SendMessage(chatID, notification.Message, nil)
+		logger.Info(fmt.Sprintf("[Telegram] To: %s, Message: %s", chatID, notification.Message), notification)
+	}
+
+	logger.Info(fmt.Sprintf("[Telegram] To: %s, Message: %s", chatID, notification.Message), notification)
+
 	return nil
 }
 
