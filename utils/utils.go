@@ -2,7 +2,6 @@ package utils
 
 import (
 	"math/rand"
-	"reflect"
 	"strconv"
 	"time"
 )
@@ -35,28 +34,6 @@ func Contains[T comparable](slice []T, value T) bool {
 	return false
 }
 
-func ToInt(s string) *int {
-	if s == "" {
-		return nil
-	}
-	i, err := strconv.Atoi(s)
-	if err != nil {
-		return nil
-	}
-	return &i
-}
-
-func ToBool(s string) *bool {
-	if s == "" {
-		return nil
-	}
-	b, err := strconv.ParseBool(s)
-	if err != nil {
-		return nil
-	}
-	return &b
-}
-
 func RecurrenceDuration(every uint, recurrence string, current *time.Time) time.Duration {
 	var minutes uint
 	switch recurrence {
@@ -82,23 +59,4 @@ func RecurrenceDuration(every uint, recurrence string, current *time.Time) time.
 
 func AddMonthDate(t *time.Time, months int) time.Time {
 	return t.AddDate(0, months, 0)
-}
-
-func FirstNonEmpty[T any](values ...T) *T {
-	for _, value := range values {
-		v := reflect.ValueOf(value)
-		switch v.Kind() {
-		case reflect.Ptr:
-			if !v.IsNil() {
-				return &value
-			}
-		case reflect.String:
-			if v.String() != "" {
-				return &value
-			}
-		default:
-			return &value
-		}
-	}
-	return nil
 }

@@ -1,7 +1,7 @@
 package config
 
 import (
-	"NotificationManagement/utils"
+	"NotificationManagement/config/helper"
 	"fmt"
 	"github.com/spf13/viper"
 	"os"
@@ -159,14 +159,14 @@ func loadDefaults() *Config {
 		App: AppConfig{
 			Name:       "NotificationManagement",
 			Version:    "1.0.0",
-			Port:       utils.ToInt("8080"),
+			Port:       helper.ToInt("8080"),
 			Env:        "development",
 			Encryption: "laeoGcA0ZFFsm3d9SUKevwG4VL4QN9Yi",
 			Domain:     "https://github.com/tuhin47/NotificationManagement",
 		},
 		Database: DatabaseConfig{
 			Host:     "localhost",
-			Port:     utils.ToInt("54322"),
+			Port:     helper.ToInt("54322"),
 			User:     "user",
 			Password: "password",
 			Name:     "notification_management",
@@ -174,33 +174,33 @@ func loadDefaults() *Config {
 		},
 		Asynq: AsynqConfig{
 			RedisAddr:                   "127.0.0.1:6379",
-			DB:                          utils.ToInt("15"),
+			DB:                          helper.ToInt("15"),
 			Pass:                        "*****",
-			Concurrency:                 utils.ToInt("10"),
+			Concurrency:                 helper.ToInt("10"),
 			Queue:                       "notification-management",
-			Retention:                   utils.ToInt("168"),
-			RetryCount:                  utils.ToInt("25"),
-			EventReminderTaskRetryCount: utils.ToInt("5"),
-			EventReminderTaskRetryDelay: utils.ToInt("30"),
+			Retention:                   helper.ToInt("168"),
+			RetryCount:                  helper.ToInt("25"),
+			EventReminderTaskRetryCount: helper.ToInt("5"),
+			EventReminderTaskRetryDelay: helper.ToInt("30"),
 		},
 		Redis: RedisConfig{
 			Host:               "127.0.0.1",
-			Port:               utils.ToInt("6379"),
+			Port:               helper.ToInt("6379"),
 			Password:           "",
-			DB:                 utils.ToInt("0"),
+			DB:                 helper.ToInt("0"),
 			MandatoryPrefix:    "n_m_",
 			AccessUuidPrefix:   "a-uuid_",
 			RefreshUuidPrefix:  "r-uuid_",
 			UserPrefix:         "user_",
 			PermissionPrefix:   "permissions_",
-			UserCacheTTL:       utils.ToInt("3600"),
-			PermissionCacheTTL: utils.ToInt("86400"),
+			UserCacheTTL:       helper.ToInt("3600"),
+			PermissionCacheTTL: helper.ToInt("86400"),
 		},
 		Email: EmailConfig{
 			Url:      "",
-			Timeout:  utils.ToInt("0"),
+			Timeout:  helper.ToInt("0"),
 			Host:     "localhost",
-			Port:     utils.ToInt("1025"),
+			Port:     helper.ToInt("1025"),
 			Username: "Admin",
 			Password: "",
 			From:     "noreply@example.com",
@@ -284,14 +284,14 @@ func loadFromEnv() *Config {
 		App: AppConfig{
 			Name:       os.Getenv(EnvAppName),
 			Version:    os.Getenv(EnvAppVersion),
-			Port:       utils.ToInt(os.Getenv(EnvAppPort)),
+			Port:       helper.ToInt(os.Getenv(EnvAppPort)),
 			Env:        os.Getenv(EnvAppEnv),
 			Encryption: os.Getenv(EnvAPIKeyEncryptionSecret),
 			Domain:     os.Getenv(EnvAppDomain),
 		},
 		Database: DatabaseConfig{
 			Host:     os.Getenv(EnvDBHost),
-			Port:     utils.ToInt(os.Getenv(EnvDBPort)),
+			Port:     helper.ToInt(os.Getenv(EnvDBPort)),
 			User:     os.Getenv(EnvDBUser),
 			Password: os.Getenv(EnvDBPassword),
 			Name:     os.Getenv(EnvDBName),
@@ -300,13 +300,13 @@ func loadFromEnv() *Config {
 		Asynq: AsynqConfig{},
 		Redis: RedisConfig{
 			Host:     os.Getenv(EnvRedisHost),
-			Port:     utils.ToInt(os.Getenv(EnvRedisPort)),
+			Port:     helper.ToInt(os.Getenv(EnvRedisPort)),
 			Password: os.Getenv(EnvRedisPassword),
-			DB:       utils.ToInt(os.Getenv(EnvRedisDB)),
+			DB:       helper.ToInt(os.Getenv(EnvRedisDB)),
 		},
 		Email: EmailConfig{
 			Host:     os.Getenv(EnvEmailHost),
-			Port:     utils.ToInt(os.Getenv(EnvEmailPort)),
+			Port:     helper.ToInt(os.Getenv(EnvEmailPort)),
 			Username: os.Getenv(EnvEmailUsername),
 			Password: os.Getenv(EnvEmailPassword),
 			From:     os.Getenv(EnvEmailFrom),
@@ -316,9 +316,9 @@ func loadFromEnv() *Config {
 			AccessKeyID:     os.Getenv(EnvAWSAccessKeyID),
 			SecretAccessKey: os.Getenv(EnvAWSSecretAccessKey),
 			Endpoint:        os.Getenv(EnvAWSEndpoint),
-			UseLocalStack:   utils.ToBool(os.Getenv(EnvAWSUseLocalStack)),
+			UseLocalStack:   helper.ToBool(os.Getenv(EnvAWSUseLocalStack)),
 			ConfigService: ServiceConfig{
-				Enabled: utils.ToBool(os.Getenv(EnvAWSConfigServiceEnabled)),
+				Enabled: helper.ToBool(os.Getenv(EnvAWSConfigServiceEnabled)),
 			},
 		},
 		Logger: LoggerConfig{
@@ -334,7 +334,7 @@ func loadFromEnv() *Config {
 		},
 		Telegram: TelegramConfig{
 			Token:   os.Getenv(EnvTelegramToken),
-			Enabled: utils.ToBool(os.Getenv(EnvTelegramEnabled)),
+			Enabled: helper.ToBool(os.Getenv(EnvTelegramEnabled)),
 		},
 		Development: DevelopmentConfig{
 			GeminiKey: os.Getenv(EnvGeminiKey),
@@ -346,14 +346,14 @@ func loadFromEnv() *Config {
 
 func (c *AWSConfig) MergeWithEnv() *AWSConfig {
 	return &AWSConfig{
-		Region:          *utils.FirstNonEmpty(os.Getenv(EnvAWSRegion), c.Region),
-		AccessKeyID:     *utils.FirstNonEmpty(os.Getenv(EnvAWSAccessKeyID), c.AccessKeyID),
-		SecretAccessKey: *utils.FirstNonEmpty(os.Getenv(EnvAWSSecretAccessKey), c.SecretAccessKey),
-		Endpoint:        *utils.FirstNonEmpty(os.Getenv(EnvAWSEndpoint), c.Endpoint),
-		UseLocalStack:   *utils.FirstNonEmpty(utils.ToBool(os.Getenv(EnvAWSUseLocalStack)), c.UseLocalStack),
+		Region:          *helper.FirstNonEmpty(os.Getenv(EnvAWSRegion), c.Region),
+		AccessKeyID:     *helper.FirstNonEmpty(os.Getenv(EnvAWSAccessKeyID), c.AccessKeyID),
+		SecretAccessKey: *helper.FirstNonEmpty(os.Getenv(EnvAWSSecretAccessKey), c.SecretAccessKey),
+		Endpoint:        *helper.FirstNonEmpty(os.Getenv(EnvAWSEndpoint), c.Endpoint),
+		UseLocalStack:   *helper.FirstNonEmpty(helper.ToBool(os.Getenv(EnvAWSUseLocalStack)), c.UseLocalStack),
 		ConfigService: ServiceConfig{
-			SSM:     *utils.FirstNonEmpty(os.Getenv(EnvConfigSSMParam), c.ConfigService.SSM),
-			Enabled: *utils.FirstNonEmpty(utils.ToBool(os.Getenv(EnvAWSConfigServiceEnabled)), c.ConfigService.Enabled),
+			SSM:     *helper.FirstNonEmpty(os.Getenv(EnvConfigSSMParam), c.ConfigService.SSM),
+			Enabled: *helper.FirstNonEmpty(helper.ToBool(os.Getenv(EnvAWSConfigServiceEnabled)), c.ConfigService.Enabled),
 		},
 	}
 }
