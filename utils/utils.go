@@ -1,55 +1,11 @@
 package utils
 
 import (
-	"NotificationManagement/middleware"
-	"NotificationManagement/utils/errutil"
 	"math/rand"
+	"reflect"
 	"strconv"
 	"time"
-
-	"github.com/labstack/echo/v4"
 )
-
-// BindAndValidate binds the request body to the target struct and returns a standardized error if binding fails.
-func BindAndValidate(c echo.Context, target interface{}) error {
-	if err := c.Bind(target); err != nil {
-		return errutil.NewAppError(errutil.ErrInvalidRequestBody, err)
-	}
-	return nil
-}
-
-// ParseIDFromContext parses the "id" parameter from the echo.Context and returns it as a uint.
-func ParseIDFromContext(c echo.Context) (uint, error) {
-	idStr := c.Param("id")
-	id, err := strconv.ParseUint(idStr, 10, 32)
-	if err != nil {
-		return 0, errutil.NewAppError(errutil.ErrInvalidIdParam, err)
-	}
-	return uint(id), nil
-}
-
-// ParseLimitAndOffset parses "limit" and "offset" query parameters from the echo.Context.
-// It returns the parsed limit and offset, with default values of 10 and 0 respectively.
-func ParseLimitAndOffset(c echo.Context) (limit, offset int) {
-	limitStr := c.QueryParam("limit")
-	offsetStr := c.QueryParam("offset")
-
-	limit = 10 // default limit
-	offset = 0 // default offset
-
-	if limitStr != "" {
-		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
-			limit = l
-		}
-	}
-
-	if offsetStr != "" {
-		if o, err := strconv.Atoi(offsetStr); err == nil && o >= 0 {
-			offset = o
-		}
-	}
-	return limit, offset
-}
 
 func GenerateRandomNumber(i int) string {
 	if i <= 0 {
@@ -70,7 +26,79 @@ func GenerateRandomNumber(i int) string {
 	return strconv.Itoa(r.Intn(max-min+1) + min)
 }
 
-func GetUserId(c echo.Context) uint {
-	ccx, _ := c.(*middleware.CustomContext)
-	return ccx.UserID
+func Contains[T comparable](slice []T, value T) bool {
+	for _, v := range slice {
+		if v == value {
+			return true
+		}
+	}
+	return false
+}
+
+func ToInt(s string) *int {
+	if s == "" {
+		return nil
+	}
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		return nil
+	}
+	return &i
+}
+
+func ToBool(s string) *bool {
+	if s == "" {
+		return nil
+	}
+	b, err := strconv.ParseBool(s)
+	if err != nil {
+		return nil
+	}
+	return &b
+}
+
+func RecurrenceDuration(every uint, recurrence string, current *time.Time) time.Duration {
+	var minutes uint
+	switch recurrence {
+	case "seconds":
+		return time.Duration(every) * time.Second
+	case "minutes":
+		return time.Duration(every) * time.Minute
+	case "hour":
+		return time.Duration(every) * time.Hour
+	case "daily":
+		return time.Duration(every) * time.Hour * 24
+	case "weekly":
+		return time.Duration(every) * time.Hour * 24 * 7
+	case "monthly":
+		return AddMonthDate(current, 1).Sub(*current)
+	case "quarterly":
+		return AddMonthDate(current, 4).Sub(*current)
+	default:
+		minutes = 0
+	}
+	return time.Duration(minutes) * time.Second
+}
+
+func AddMonthDate(t *time.Time, months int) time.Time {
+	return t.AddDate(0, months, 0)
+}
+
+func FirstNonEmpty[T any](values ...T) *T {
+	for _, value := range values {
+		v := reflect.ValueOf(value)
+		switch v.Kind() {
+		case reflect.Ptr:
+			if !v.IsNil() {
+				return &value
+			}
+		case reflect.String:
+			if v.String() != "" {
+				return &value
+			}
+		default:
+			return &value
+		}
+	}
+	return nil
 }

@@ -307,7 +307,7 @@ COPY public.additional_fields (id, property_name, type, description, request_id)
 --
 
 COPY public.ai_models (id, created_at, updated_at, deleted_at, type, name, model_name, base_url, size, api_secret) FROM stdin;
-1	2025-08-03 14:57:47.363977+00	2025-08-03 15:01:38.869371+00	\N	gemini	gemini-2.5-flash	gemini-2.5-flash	https://gunner.info	1117322768	MZTH8WpITZqGKjTGVQSkSkuLzcxvSCf+ht3eYu8xhWumX5WPfdKKmtWfOSVQTVWeC2f1z67+Rhq0uWpqyWX866QuhQ==
+1	2025-08-03 14:57:47.363977+00	2025-08-03 15:01:38.869371+00	\N	gemini	gemini-2.5-flash	gemini-2.5-flash	https://gunner.info	1117322768	\N
 2	2025-08-03 14:57:54.121433+00	2025-08-03 14:57:54.223032+00	\N	deepseek	deepseek-r1:1.5b	deepseek-r1:1.5b	https://stunning-broccoli-v6w67w7xv7942pp4v-11434.app.github.dev	1117322768	\N
 3	2025-08-03 14:57:58.098482+00	2025-08-03 15:00:23.191145+00	\N	deepseek	deepseek-r1:8b	deepseek-r1:8b	http://localhost:11434	1117322768	\N
 4	2025-08-03 14:57:58.098482+00	2025-08-03 15:00:23.191145+00	\N	deepseek	deepseek-r1:8b	deepseek-r1:8b	https://stunning-broccoli-v6w67w7xv7942pp4v-11434.app.github.dev	1117322768	\N

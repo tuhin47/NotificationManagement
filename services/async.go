@@ -59,7 +59,7 @@ func (s *AsynqServiceImpl) CreateReminderTask(ctx context.Context, reminder *mod
 		asynq.Queue(config.Asynq().Queue),
 		asynq.ProcessAt(reminderTime),
 		asynq.MaxRetry(*config.Asynq().EventReminderTaskRetryCount),
-		asynq.Retention(config.Asynq().Retention),
+		asynq.Retention(time.Duration(*config.Asynq().Retention) * time.Hour),
 	}
 	logger.Debug("Enqueuing asynq task")
 	info, err := s.client.EnqueueContext(ctx, task, opts...)

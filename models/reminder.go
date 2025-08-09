@@ -1,7 +1,7 @@
 package models
 
 import (
-	"NotificationManagement/utils/datetime"
+	"NotificationManagement/utils"
 	"time"
 
 	"gorm.io/gorm"
@@ -28,5 +28,5 @@ func (r *Reminder) UpdateFromModel(source ModelInterface) {
 }
 
 func (r *Reminder) GetRecurrenceDuration() time.Duration {
-	return datetime.RecurrenceDuration(r.AfterEvery, r.Recurrence, &r.NextTriggerTime)
+	return utils.RecurrenceDuration(r.AfterEvery, r.Recurrence, &r.NextTriggerTime)
 }

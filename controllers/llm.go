@@ -1,9 +1,9 @@
 package controllers
 
 import (
+	"NotificationManagement/controllers/helper"
 	"NotificationManagement/domain"
 	"NotificationManagement/types"
-	"NotificationManagement/utils"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -19,7 +19,7 @@ func NewLLMController(service domain.LLMService) domain.LLMController {
 
 func (lc *LLMControllerImpl) CreateLLM(c echo.Context) error {
 	var req types.LLMRequest
-	if err := utils.BindAndValidate(c, &req); err != nil {
+	if err := helper.BindAndValidate(c, &req); err != nil {
 		return err
 	}
 
@@ -37,7 +37,7 @@ func (lc *LLMControllerImpl) CreateLLM(c echo.Context) error {
 }
 
 func (lc *LLMControllerImpl) GetLLMByID(c echo.Context) error {
-	id, err := utils.ParseIDFromContext(c)
+	id, err := helper.ParseIDFromContext(c)
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func (lc *LLMControllerImpl) GetLLMByID(c echo.Context) error {
 }
 
 func (lc *LLMControllerImpl) GetAllLLMs(c echo.Context) error {
-	limit, offset := utils.ParseLimitAndOffset(c)
+	limit, offset := helper.ParseLimitAndOffset(c)
 
 	llms, err := lc.Service.GetAllModels(c.Request().Context(), limit, offset)
 	if err != nil {
@@ -68,13 +68,13 @@ func (lc *LLMControllerImpl) GetAllLLMs(c echo.Context) error {
 }
 
 func (lc *LLMControllerImpl) UpdateLLM(c echo.Context) error {
-	id, err := utils.ParseIDFromContext(c)
+	id, err := helper.ParseIDFromContext(c)
 	if err != nil {
 		return err
 	}
 
 	var req types.LLMRequest
-	if err := utils.BindAndValidate(c, &req); err != nil {
+	if err := helper.BindAndValidate(c, &req); err != nil {
 		return err
 	}
 
@@ -91,7 +91,7 @@ func (lc *LLMControllerImpl) UpdateLLM(c echo.Context) error {
 }
 
 func (lc *LLMControllerImpl) DeleteLLM(c echo.Context) error {
-	id, err := utils.ParseIDFromContext(c)
+	id, err := helper.ParseIDFromContext(c)
 	if err != nil {
 		return err
 	}

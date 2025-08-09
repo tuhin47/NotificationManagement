@@ -18,7 +18,8 @@ var listRulesCmd = &cobra.Command{
 	Use:   "list-rules",
 	Short: "List all AWS Config rules",
 	Run: func(cmd *cobra.Command, args []string) {
-		client, err := config.NewConfigClient()
+		aws := config.AWS()
+		client, err := config.NewAWSClient(&aws)
 		if err != nil {
 			logger.Error("Error creating AWS Config client", "error", err)
 			return
@@ -42,7 +43,8 @@ var checkStatusCmd = &cobra.Command{
 	Use:   "check-status",
 	Short: "Check AWS Config recorder status",
 	Run: func(cmd *cobra.Command, args []string) {
-		client, err := config.NewConfigClient()
+		aws := config.AWS()
+		client, err := config.NewAWSClient(&aws)
 		if err != nil {
 			logger.Error("Error creating AWS Config client", "error", err)
 			return
@@ -77,7 +79,7 @@ var testConnectionCmd = &cobra.Command{
 			logger.Info("LocalStack Endpoint", "endpoint", awsConfig.Endpoint)
 		}
 
-		client, err := config.NewConfigClient()
+		client, err := config.NewAWSClient(&awsConfig)
 		if err != nil {
 			logger.Error("Error creating AWS Config client", "error", err)
 			return

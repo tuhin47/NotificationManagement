@@ -1,9 +1,9 @@
 package controllers
 
 import (
+	"NotificationManagement/controllers/helper"
 	"NotificationManagement/domain"
 	"NotificationManagement/types"
-	"NotificationManagement/utils"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -20,7 +20,7 @@ func NewReminderController(service domain.ReminderService, asynqService domain.A
 
 func (rc *ReminderControllerImpl) CreateReminder(c echo.Context) error {
 	var req types.ReminderRequest
-	if err := utils.BindAndValidate(c, &req); err != nil {
+	if err := helper.BindAndValidate(c, &req); err != nil {
 		return err
 	}
 
@@ -48,7 +48,7 @@ func (rc *ReminderControllerImpl) CreateReminder(c echo.Context) error {
 }
 
 func (rc *ReminderControllerImpl) GetReminderByID(c echo.Context) error {
-	id, err := utils.ParseIDFromContext(c)
+	id, err := helper.ParseIDFromContext(c)
 	if err != nil {
 		return err
 	}
@@ -63,7 +63,7 @@ func (rc *ReminderControllerImpl) GetReminderByID(c echo.Context) error {
 }
 
 func (rc *ReminderControllerImpl) GetAllReminders(c echo.Context) error {
-	limit, offset := utils.ParseLimitAndOffset(c)
+	limit, offset := helper.ParseLimitAndOffset(c)
 
 	reminders, err := rc.reminderService.GetAllModels(c.Request().Context(), limit, offset)
 	if err != nil {
@@ -79,13 +79,13 @@ func (rc *ReminderControllerImpl) GetAllReminders(c echo.Context) error {
 }
 
 func (rc *ReminderControllerImpl) UpdateReminder(c echo.Context) error {
-	id, err := utils.ParseIDFromContext(c)
+	id, err := helper.ParseIDFromContext(c)
 	if err != nil {
 		return err
 	}
 
 	var req types.ReminderRequest
-	if err := utils.BindAndValidate(c, &req); err != nil {
+	if err := helper.BindAndValidate(c, &req); err != nil {
 		return err
 	}
 
@@ -103,7 +103,7 @@ func (rc *ReminderControllerImpl) UpdateReminder(c echo.Context) error {
 }
 
 func (rc *ReminderControllerImpl) DeleteReminder(c echo.Context) error {
-	id, err := utils.ParseIDFromContext(c)
+	id, err := helper.ParseIDFromContext(c)
 	if err != nil {
 		return err
 	}

@@ -44,7 +44,19 @@ This project is a notification management system that leverages AI for processin
 
 - Go 1.24 or higher
 - Docker and Docker Compose (for LocalStack)
-- AWS CLI (optional, for production)
+- AWS CLI 
+
+#### If you don't have AWS CLI installed, you can install it using the following command:
+```bash
+sudo apt-get install python3-pip -y
+pip3 install awscli awscli-local
+
+aws configure set aws_access_key_id test
+aws configure set aws_secret_access_key test
+aws configure set region us-east-1
+
+```
+
 
 ### 1. Setup Environment
 

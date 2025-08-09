@@ -5,8 +5,8 @@ import (
 	"NotificationManagement/logger"
 	"NotificationManagement/models"
 	"NotificationManagement/repositories"
+	"NotificationManagement/services/helper"
 	"NotificationManagement/types"
-	"NotificationManagement/utils"
 	"NotificationManagement/utils/errutil"
 	"context"
 	"crypto/tls"
@@ -240,7 +240,7 @@ func (s *CurlServiceImpl) UpdateModel(c context.Context, id uint, model *models.
 			}
 		}
 	}
-	updatedAssoc, err := utils.SyncHasManyAssociation(s.CurlRepo.GetDB(c), &existing, "AdditionalFields", model.AdditionalFields)
+	updatedAssoc, err := helper.SyncHasManyAssociation(s.CurlRepo.GetDB(c), &existing, "AdditionalFields", model.AdditionalFields)
 	if err != nil {
 		return nil, err
 	}

@@ -1,10 +1,10 @@
 package controllers
 
 import (
+	"NotificationManagement/controllers/helper"
 	"NotificationManagement/domain"
 	"NotificationManagement/middleware"
 	"NotificationManagement/types"
-	"NotificationManagement/utils"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -22,7 +22,7 @@ func (t TelegramControllerImpl) VerifyOtp(c echo.Context) error {
 	ccx, _ := c.(*middleware.CustomContext)
 
 	var req types.VerifyOtpRequest
-	if err := utils.BindAndValidate(c, &req); err != nil {
+	if err := helper.BindAndValidate(c, &req); err != nil {
 		return err
 	}
 	userID := ccx.UserID

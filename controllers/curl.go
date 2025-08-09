@@ -1,9 +1,9 @@
 package controllers
 
 import (
+	"NotificationManagement/controllers/helper"
 	"NotificationManagement/domain"
 	"NotificationManagement/types"
-	"NotificationManagement/utils"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -23,7 +23,7 @@ func NewCurlController(curlService domain.CurlService, userService domain.UserSe
 
 func (cc *CurlControllerImpl) CurlHandler(c echo.Context) error {
 	var req types.CurlRequest
-	if err := utils.BindAndValidate(c, &req); err != nil {
+	if err := helper.BindAndValidate(c, &req); err != nil {
 		return err
 	}
 	model, err := req.ToModel()
@@ -31,7 +31,7 @@ func (cc *CurlControllerImpl) CurlHandler(c echo.Context) error {
 		return err
 	}
 	if model.UserID == 0 {
-		model.UserID = utils.GetUserId(c)
+		model.UserID = helper.GetUserId(c)
 	}
 	err = cc.CurlService.CreateModel(c.Request().Context(), model)
 	if err != nil {
@@ -48,7 +48,7 @@ func (cc *CurlControllerImpl) CurlHandler(c echo.Context) error {
 }
 
 func (cc *CurlControllerImpl) GetCurlRequestByID(c echo.Context) error {
-	id, err := utils.ParseIDFromContext(c)
+	id, err := helper.ParseIDFromContext(c)
 	if err != nil {
 		return err
 	}
@@ -61,13 +61,13 @@ func (cc *CurlControllerImpl) GetCurlRequestByID(c echo.Context) error {
 }
 
 func (cc *CurlControllerImpl) UpdateCurlRequest(c echo.Context) error {
-	id, err := utils.ParseIDFromContext(c)
+	id, err := helper.ParseIDFromContext(c)
 	if err != nil {
 		return err
 	}
 
 	var req types.CurlRequest
-	if err := utils.BindAndValidate(c, &req); err != nil {
+	if err := helper.BindAndValidate(c, &req); err != nil {
 		return err
 	}
 	model, err := req.ToModel()
@@ -75,7 +75,7 @@ func (cc *CurlControllerImpl) UpdateCurlRequest(c echo.Context) error {
 		return err
 	}
 	if model.UserID == 0 {
-		model.UserID = utils.GetUserId(c)
+		model.UserID = helper.GetUserId(c)
 	}
 
 	model, err = cc.CurlService.UpdateModel(c.Request().Context(), id, model)
@@ -87,7 +87,7 @@ func (cc *CurlControllerImpl) UpdateCurlRequest(c echo.Context) error {
 }
 
 func (cc *CurlControllerImpl) DeleteCurlRequest(c echo.Context) error {
-	id, err := utils.ParseIDFromContext(c)
+	id, err := helper.ParseIDFromContext(c)
 	if err != nil {
 		return err
 	}

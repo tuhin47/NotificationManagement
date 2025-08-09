@@ -13,7 +13,7 @@
     "user": "user",
     "password": "password",
     "name": "notification_management",
-    "ssl_mode": "disable"
+    "sslMode": "disable"
   },
   "redis": {
     "host": "127.0.0.1",
@@ -33,7 +33,7 @@
     "db": 15,
     "pass": "*****",
     "concurrency": 10,
-    "queue": "event-management",
+    "queue": "notification-management",
     "retention": 168,
     "retryCount": 25,
     "delay": 0,
@@ -47,29 +47,32 @@
     "eventReminderEmailTaskRetryDelay": 30
   },
   "email": {
-    "host": "localhost",
+    "host": "127.0.0.1",
     "port": 1025,
-    "username": "Admin",
+    "username": "Mr Admin",
     "password": "",
-    "from": "noreply@example.com"
+    "from": "noreply@tuhin47.com"
   },
   "aws": {
     "region": "us-east-1",
-    "access_key_id": "",
-    "secret_access_key": "",
-    "config_service": {
-      "enabled": true
+    "accessKeyID": "test",
+    "secretAccessKey": "test",
+    "endpoint": "",
+    "useLocalstack": true,
+    "configService": {
+      "enabled": true,
+      "ssm": "/myapp/config"
     }
   },
   "keycloak": {
-    "server_url": "http://localhost:8081",
+    "serverUrl": "http://localhost:8081",
     "realm": "gocloak",
-    "client_id": "gocloak",
-    "client_secret": "gocloak-secret"
+    "clientId": "gocloak",
+    "clientSecret": "gocloak-secret"
   },
   "logger": {
     "level": "info",
-    "file_path": "logs/app.log"
+    "filePath": "logs/app.log"
   },
   "telegram": {
     "token": "",

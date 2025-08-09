@@ -1,11 +1,11 @@
 package controllers
 
 import (
+	"NotificationManagement/controllers/helper"
 	"NotificationManagement/domain"
 	"NotificationManagement/models"
 	"NotificationManagement/services"
 	"NotificationManagement/types"
-	"NotificationManagement/utils"
 	"NotificationManagement/utils/errutil"
 	"net/http"
 
@@ -24,7 +24,7 @@ func NewAIRequestController(A domain.AIModelService, D services.DeepseekProcessS
 
 func (a *AIRequestControllerImpl) MakeAIRequestHandler(c echo.Context) error {
 	var req types.MakeAIRequestPayload
-	if err := utils.BindAndValidate(c, &req); err != nil {
+	if err := helper.BindAndValidate(c, &req); err != nil {
 		return err
 	}
 	service, err := a.GetServiceManagerById(c, req.ModelID)
@@ -42,7 +42,7 @@ func (a *AIRequestControllerImpl) MakeAIRequestHandler(c echo.Context) error {
 func (a *AIRequestControllerImpl) CreateAIModel(c echo.Context) error {
 
 	var req types.AIModelRequest
-	if err := utils.BindAndValidate(c, &req); err != nil {
+	if err := helper.BindAndValidate(c, &req); err != nil {
 		return err
 	}
 	model, err := req.ToModel()
@@ -62,7 +62,7 @@ func (a *AIRequestControllerImpl) CreateAIModel(c echo.Context) error {
 }
 
 func (a *AIRequestControllerImpl) GetAIModelByID(c echo.Context) error {
-	id, err := utils.ParseIDFromContext(c)
+	id, err := helper.ParseIDFromContext(c)
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func (a *AIRequestControllerImpl) GetAIModelByID(c echo.Context) error {
 }
 
 func (a *AIRequestControllerImpl) GetAllAIModels(c echo.Context) error {
-	limit, offset := utils.ParseLimitAndOffset(c)
+	limit, offset := helper.ParseLimitAndOffset(c)
 
 	deepseekService, err := a.GetServiceManagerByType("deepseek")
 	if err != nil {
@@ -113,13 +113,13 @@ func (a *AIRequestControllerImpl) GetAllAIModels(c echo.Context) error {
 }
 
 func (a *AIRequestControllerImpl) UpdateAIModel(c echo.Context) error {
-	id, err := utils.ParseIDFromContext(c)
+	id, err := helper.ParseIDFromContext(c)
 	if err != nil {
 		return err
 	}
 
 	var req types.AIModelRequest
-	if err := utils.BindAndValidate(c, &req); err != nil {
+	if err := helper.BindAndValidate(c, &req); err != nil {
 		return err
 	}
 
@@ -139,7 +139,7 @@ func (a *AIRequestControllerImpl) UpdateAIModel(c echo.Context) error {
 }
 
 func (a *AIRequestControllerImpl) DeleteAIModel(c echo.Context) error {
-	id, err := utils.ParseIDFromContext(c)
+	id, err := helper.ParseIDFromContext(c)
 	if err != nil {
 		return err
 	}

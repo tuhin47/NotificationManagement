@@ -98,7 +98,7 @@ func NewAsynqServer() *asynq.Server {
 			RetryDelayFunc: func(numOfRetry int, e error, t *asynq.Task) time.Duration {
 				switch t.Type() {
 				case types.AsynqTaskTypeHandleReminder.String():
-					return config.Asynq().EventReminderTaskRetryDelay * time.Second
+					return time.Duration(*config.Asynq().EventReminderTaskRetryDelay) * time.Second
 				default:
 					return asynq.DefaultRetryDelayFunc(numOfRetry, e, t)
 				}

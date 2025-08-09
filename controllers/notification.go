@@ -1,9 +1,9 @@
 package controllers
 
 import (
+	"NotificationManagement/controllers/helper"
 	"NotificationManagement/domain"
 	"NotificationManagement/types"
-	"NotificationManagement/utils"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -19,7 +19,7 @@ func NewNotificationController(notificationService domain.NotificationDispatcher
 
 func (h *NotificationController) Notify(c echo.Context) error {
 	var req types.NotifyRequest
-	if err := utils.BindAndValidate(c, &req); err != nil {
+	if err := helper.BindAndValidate(c, &req); err != nil {
 		return err
 	}
 

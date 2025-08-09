@@ -2,70 +2,75 @@ package config
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/configservice"
-	"github.com/aws/aws-sdk-go-v2/service/configservice/types"
+	configtype "github.com/aws/aws-sdk-go-v2/service/configservice/types"
+	"github.com/aws/aws-sdk-go-v2/service/ssm"
+	"os"
 )
 
-type ConfigClient struct {
-	client *configservice.Client
-	cfg    aws.Config
+type AWSClient struct {
+	config    *configservice.Client
+	ssm       *ssm.Client
+	awsConfig *AWSConfig
 }
 
-// NewConfigClient creates a new AWS Config service client
-func NewConfigClient() (*ConfigClient, error) {
-	awsConfig := AWS()
-
-	var cfg aws.Config
-	var err error
-
-	if *awsConfig.UseLocalStack {
-		// Use LocalStack configuration
-		customResolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-			return aws.Endpoint{
-				PartitionID:   "aws",
-				URL:           awsConfig.Endpoint,
-				SigningRegion: awsConfig.Region,
-			}, nil
-		})
-
-		cfg, err = awsconfig.LoadDefaultConfig(context.TODO(),
-			awsconfig.WithEndpointResolverWithOptions(customResolver),
-			awsconfig.WithRegion(awsConfig.Region),
-			awsconfig.WithCredentialsProvider(aws.CredentialsProviderFunc(func(ctx context.Context) (aws.Credentials, error) {
-				return aws.Credentials{
-					AccessKeyID:     awsConfig.AccessKeyID,
-					SecretAccessKey: awsConfig.SecretAccessKey,
-				}, nil
-			})),
-		)
-	} else {
-		// Use real AWS configuration
-		cfg, err = awsconfig.LoadDefaultConfig(context.TODO(),
-			awsconfig.WithRegion(awsConfig.Region),
+func NewAWSClient(cnf *AWSConfig) (*AWSClient, error) {
+	var creds aws.CredentialsProvider
+	if cnf.AccessKeyID != "" && cnf.SecretAccessKey != "" {
+		creds = credentials.NewStaticCredentialsProvider(
+			cnf.AccessKeyID,
+			cnf.SecretAccessKey,
+			"", // session token
 		)
 	}
+	var opts []func(*awsconfig.LoadOptions) error
 
+	if cnf.Region != "" {
+		opts = append(opts, awsconfig.WithRegion(cnf.Region))
+	}
+
+	if creds != nil {
+		opts = append(opts, awsconfig.WithCredentialsProvider(creds))
+	}
+
+	// Load AWS awsconfig
+	cfg, err := awsconfig.LoadDefaultConfig(context.TODO(), opts...)
 	if err != nil {
-		return nil, fmt.Errorf("unable to load SDK config: %v", err)
+		return nil, fmt.Errorf("failed to load AWS config: %w", err)
 	}
 
-	client := configservice.NewFromConfig(cfg)
+	// Create SSM client with custom endpoint
+	configOptions := []func(*configservice.Options){
+		func(o *configservice.Options) {
+			if cnf.Endpoint != "" {
+				o.BaseEndpoint = aws.String(cnf.Endpoint)
+			}
+		},
+	}
+	ssmOptions := []func(*ssm.Options){
+		func(o *ssm.Options) {
+			if cnf.Endpoint != "" {
+				o.BaseEndpoint = aws.String(cnf.Endpoint)
+			}
+		},
+	}
 
-	return &ConfigClient{
-		client: client,
-		cfg:    cfg,
+	return &AWSClient{
+		config:    configservice.NewFromConfig(cfg, configOptions...),
+		ssm:       ssm.NewFromConfig(cfg, ssmOptions...),
+		awsConfig: cnf,
 	}, nil
 }
 
-// ListConfigRules lists all Config rules
-func (c *ConfigClient) ListConfigRules(ctx context.Context) ([]types.ConfigRule, error) {
+func (c *AWSClient) ListConfigRules(ctx context.Context) ([]configtype.ConfigRule, error) {
 	input := &configservice.DescribeConfigRulesInput{}
 
-	result, err := c.client.DescribeConfigRules(ctx, input)
+	result, err := c.config.DescribeConfigRules(ctx, input)
 	if err != nil {
 		return nil, fmt.Errorf("failed to describe config rules: %v", err)
 	}
@@ -73,11 +78,10 @@ func (c *ConfigClient) ListConfigRules(ctx context.Context) ([]types.ConfigRule,
 	return result.ConfigRules, nil
 }
 
-// GetConfigurationRecorderStatus gets the status of configuration recorder
-func (c *ConfigClient) GetConfigurationRecorderStatus(ctx context.Context) (*types.ConfigurationRecorderStatus, error) {
+func (c *AWSClient) GetConfigurationRecorderStatus(ctx context.Context) (*configtype.ConfigurationRecorderStatus, error) {
 	input := &configservice.DescribeConfigurationRecorderStatusInput{}
 
-	result, err := c.client.DescribeConfigurationRecorderStatus(ctx, input)
+	result, err := c.config.DescribeConfigurationRecorderStatus(ctx, input)
 	if err != nil {
 		return nil, fmt.Errorf("failed to describe configuration recorder status: %v", err)
 	}
@@ -87,4 +91,24 @@ func (c *ConfigClient) GetConfigurationRecorderStatus(ctx context.Context) (*typ
 	}
 
 	return &result.ConfigurationRecordersStatus[0], nil
+}
+
+func (c *AWSClient) loadFromSsm() {
+	if os.Getenv(EnvConfigFromSSM) == "false" {
+		return
+	}
+	resp, err := c.ssm.GetParameter(context.TODO(), &ssm.GetParameterInput{
+		Name:           &c.awsConfig.ConfigService.SSM,
+		WithDecryption: aws.Bool(true),
+	})
+	if err != nil {
+		panic("failed to get config from SSM: " + err.Error())
+	}
+	var ssmConfigMap Config
+	err = json.Unmarshal([]byte(*resp.Parameter.Value), &ssmConfigMap)
+	if err != nil {
+		panic("failed to unmarshal config from SSM: " + err.Error())
+	}
+
+	setViperFields(ssmConfigMap, "")
 }
