@@ -2,15 +2,14 @@ package services
 
 import (
 	"NotificationManagement/domain"
-	"NotificationManagement/services/notifier"
 	"NotificationManagement/types"
 )
 
 type NotificationServiceImpl struct {
-	Dispatcher *notifier.Dispatcher
+	Dispatcher domain.NotificationDispatcher
 }
 
-func NewNotificationService(dispatcher *notifier.Dispatcher) domain.NotificationService {
+func NewNotificationService(dispatcher domain.NotificationDispatcher) domain.NotificationService {
 	return &NotificationServiceImpl{
 		Dispatcher: dispatcher,
 	}

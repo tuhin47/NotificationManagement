@@ -108,7 +108,7 @@ networks:
     driver: bridge
 volumes:
   postgres-data:
-    name: nms-mysql-local_db
+    name: nms-local_db
   nms_redis_local_db:
     name: nms_redis-local_db
 

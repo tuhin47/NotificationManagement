@@ -11,7 +11,7 @@ type Notifier interface {
 }
 
 type NotificationDispatcher interface {
-	GetDispatchers() *[]Notifier
+	Notify(n *types.Notification) error
 }
 
 type NotificationService interface {

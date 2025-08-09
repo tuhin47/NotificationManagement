@@ -22,14 +22,15 @@ func NewEcho() *echo.Echo {
 	return e
 }
 
-func RegisterRoutes(e *echo.Echo, curlController domain.CurlController, llmController domain.LLMController, reminderController domain.ReminderController, aiController domain.AIRequestController, userController domain.UserController, notificationController *controllers.NotificationController, userService domain.UserService) {
+func RegisterRoutes(e *echo.Echo, curlController domain.CurlController, llmController domain.LLMController, reminderController domain.ReminderController, aiController domain.AIRequestController, userController domain.UserController, notificationController *controllers.NotificationController, userService domain.UserService, telegramController domain.TelegramController) {
 	keycloakMiddleware := middleware.KeycloakMiddleware(userService)
 	routes.RegisterCurlRoutes(e, curlController, &keycloakMiddleware)
 	routes.RegisterLLMRoutes(e, llmController, &keycloakMiddleware)
 	routes.RegisterReminderRoutes(e, reminderController, &keycloakMiddleware)
 	routes.RegisterAIRoutes(e, aiController, &keycloakMiddleware)
 	routes.RegisterUserRoutes(e, userController, &keycloakMiddleware)
-	routes.RegisterNotificationRoutes(e, notificationController)
+	routes.RegisterTelegramRoutes(e, telegramController, &keycloakMiddleware)
+	routes.RegisterNotificationRoutes(e, notificationController, &keycloakMiddleware)
 }
 
 func interceptLogger(next echo.HandlerFunc) echo.HandlerFunc {
@@ -54,7 +55,7 @@ var Module = fx.Options(
 		notifier.NewEmailNotifier,
 		notifier.NewSMSNotifier,
 		notifier.NewTelegramNotifier,
-		notifier.NewEmailDispatcher,
+		notifier.NewNotificationDispatcher,
 
 		controllers.NewAIRequestController,
 		controllers.NewCurlController,

@@ -40,7 +40,7 @@ var workerCmd = &cobra.Command{
 				notifier.NewEmailNotifier,
 				notifier.NewSMSNotifier,
 				notifier.NewTelegramNotifier,
-				notifier.NewEmailDispatcher,
+				notifier.NewNotificationDispatcher,
 			),
 			fx.Invoke(registerWorker),
 		)

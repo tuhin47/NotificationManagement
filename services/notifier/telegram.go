@@ -22,7 +22,7 @@ type TelegramNotifier struct {
 	telegramRepo domain.TelegramRepository
 }
 
-func NewTelegramNotifier(repo domain.TelegramRepository) *TelegramNotifier {
+func NewTelegramNotifier(repo domain.TelegramRepository) domain.TelegramNotifier {
 	bot, err := tgbotapi.NewBotAPI(os.Getenv("TELEGRAM_APITOKEN"))
 	if err != nil {
 		logger.Error("Failed to create Telegram bot API", "error", err)
@@ -92,7 +92,7 @@ func (t *TelegramNotifier) VerifyOTP(ctx context.Context, otp string, userID uin
 	}
 
 	if strings.EqualFold(telegramModel.Otp, otp) {
-		telegramModel.UserID = userID
+		telegramModel.UserID = &userID
 		err = t.telegramRepo.Update(ctx, telegramModel)
 		if err != nil {
 			return nil, errutil.NewAppError(errutil.ErrDatabaseQuery, fmt.Errorf("failed to update telegram user ID: %w", err))

@@ -9,7 +9,7 @@ type Dispatcher struct {
 	Notifiers *[]domain.Notifier
 }
 
-func NewEmailDispatcher(email *EmailNotifier, sms *SMSNotifier, telegram *TelegramNotifier) domain.NotificationDispatcher {
+func NewNotificationDispatcher(email *EmailNotifier, sms *SMSNotifier, telegram domain.TelegramNotifier) domain.NotificationDispatcher {
 	return &Dispatcher{
 		Notifiers: &[]domain.Notifier{email, sms, telegram},
 	}

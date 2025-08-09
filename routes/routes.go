@@ -54,6 +54,11 @@ func RegisterUserRoutes(e *echo.Echo, controller domain.UserController, keycloak
 
 }
 
-func RegisterNotificationRoutes(e *echo.Echo, notificationController *controllers.NotificationController) {
-	e.POST("/notify", notificationController.Notify)
+func RegisterNotificationRoutes(e *echo.Echo, notificationController *controllers.NotificationController, keycloakMiddleware *echo.MiddlewareFunc) {
+	e.POST("/api/notify", notificationController.Notify, *keycloakMiddleware)
+}
+
+func RegisterTelegramRoutes(e *echo.Echo, controller domain.TelegramController, keycloakMiddleware *echo.MiddlewareFunc) {
+	tele := e.Group("/api/telegram", *keycloakMiddleware)
+	tele.POST("/verify", controller.VerifyOtp)
 }
