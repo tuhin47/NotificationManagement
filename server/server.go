@@ -85,7 +85,6 @@ var Module = fx.Options(
 		services.NewLLMService,
 		services.NewReminderService,
 		services.NewUserService,
-		services.NewNotificationService,
 	),
 	fx.Invoke(RegisterRoutes),
 	fx.Invoke(registerHooks),

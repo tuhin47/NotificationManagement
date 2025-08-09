@@ -25,7 +25,7 @@ func (f *BaseAIProcessImpl[T, X]) CreateModel(c context.Context, model models.AI
 	return f.Service.CreateModel(c, x)
 }
 func (f *BaseAIProcessImpl[T, X]) GetModelById(c context.Context, id uint) (interface{}, error) {
-	return f.Service.GetModelById(c, id)
+	return f.Service.GetModelById(c, id, nil)
 }
 func (f *BaseAIProcessImpl[T, X]) GetAllModels(c context.Context, limit, offset int) (interface{}, error) {
 	return f.Service.GetAllModels(c, limit, offset)
@@ -37,7 +37,7 @@ func (f *BaseAIProcessImpl[T, X]) UpdateModel(c context.Context, id uint, model 
 }
 
 func (f *BaseAIProcessImpl[T, X]) MakeAIRequest(c context.Context, req *types.MakeAIRequestPayload) (interface{}, error) {
-	model, err := f.AIModelService.GetModelById(c, req.ModelID)
+	model, err := f.AIModelService.GetModelById(c, req.ModelID, nil)
 	if err != nil {
 		return nil, err
 	}

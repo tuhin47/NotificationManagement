@@ -20,6 +20,14 @@ type CurlRequest struct {
 	AdditionalFields *[]AdditionalFields `gorm:"foreignKey:RequestID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"additional_fields"`
 }
 
+type AdditionalFields struct {
+	ID           uint   `gorm:"primaryKey" json:"id"`
+	PropertyName string `gorm:"type:varchar(100)" json:"property_name"`
+	Type         string `gorm:"type:varchar(10)" json:"type"`
+	Description  string `gorm:"type:text" json:"description,omitempty"`
+	RequestID    uint   `json:"request_id"`
+}
+
 func (c *CurlRequest) UpdateFromModel(source ModelInterface) {
 	if src, ok := source.(*CurlRequest); ok {
 		copyFields(c, src)
@@ -64,12 +72,4 @@ func (c *CurlRequest) GetOllamaSchemaProperties() map[string]ollama.OllamaFormat
 		}
 	}
 	return properties
-}
-
-type AdditionalFields struct {
-	ID           uint   `gorm:"primaryKey" json:"id"`
-	PropertyName string `gorm:"type:varchar(100)" json:"property_name"`
-	Type         string `gorm:"type:varchar(10)" json:"type"` // allowed: number, boolean, text
-	Description  string `gorm:"type:text" json:"description,omitempty"`
-	RequestID    uint   `json:"request_id"`
 }

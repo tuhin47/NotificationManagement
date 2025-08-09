@@ -3,6 +3,7 @@ package notifier
 import (
 	"NotificationManagement/config"
 	"NotificationManagement/types"
+	"context"
 	"fmt"
 	"net/smtp"
 )
@@ -18,7 +19,6 @@ func NewEmailNotifier() *EmailNotifier {
 	var auth smtp.Auth
 	if e.Password != "" {
 		auth = smtp.PlainAuth("", e.Username, e.Password, e.Host)
-
 	}
 	return &EmailNotifier{
 		Auth:    auth,
@@ -27,9 +27,9 @@ func NewEmailNotifier() *EmailNotifier {
 	}
 }
 
-func (e *EmailNotifier) Send(n *types.Notification) error {
-	msg := []byte(fmt.Sprintf("To: %s\r\nSubject: %s\r\n\r\n%s", n.To, n.Subject, n.Message))
-	return smtp.SendMail(e.Address, e.Auth, e.From, []string{n.To}, msg)
+func (e *EmailNotifier) Send(ctx context.Context, notification *types.Notification) error {
+	msg := []byte(fmt.Sprintf("To: %s\r\nSubject: %s\r\n\r\n%s", notification.User.Email, notification.Subject, notification.Message))
+	return smtp.SendMail(e.Address, e.Auth, e.From, []string{notification.User.Email}, msg)
 }
 
 func (e *EmailNotifier) Type() string {

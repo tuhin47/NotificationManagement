@@ -148,7 +148,7 @@ func (a *AIRequestControllerImpl) DeleteAIModel(c echo.Context) error {
 }
 
 func (a *AIRequestControllerImpl) GetServiceManagerById(c echo.Context, id uint) (domain.AIProcessService[domain.AIService[any], any], error) {
-	model, err := a.AIModelService.GetModelById(c.Request().Context(), id)
+	model, err := a.AIModelService.GetModelById(c.Request().Context(), id, nil)
 	if err != nil {
 		return nil, err
 	}

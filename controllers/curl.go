@@ -54,7 +54,7 @@ func (cc *CurlControllerImpl) GetCurlRequestByID(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	curlRequest, err := cc.CurlService.GetModelById(c.Request().Context(), id)
+	curlRequest, err := cc.CurlService.GetModelById(c.Request().Context(), id, nil)
 	if err != nil {
 		return err
 	}

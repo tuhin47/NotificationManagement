@@ -3,6 +3,7 @@ package notifier
 import (
 	"NotificationManagement/logger"
 	"NotificationManagement/types"
+	"context"
 	"fmt"
 )
 
@@ -12,8 +13,8 @@ func NewSMSNotifier() *SMSNotifier {
 	return &SMSNotifier{}
 }
 
-func (s *SMSNotifier) Send(n *types.Notification) error {
-	logger.Info(fmt.Sprintf("SMS =>To: %s, Message: %s", n.To, n.Message))
+func (s *SMSNotifier) Send(ctx context.Context, notification *types.Notification) error {
+	logger.Info(fmt.Sprintf("SMS =>To: %s, Message: %s", notification.UserId, notification.Message))
 	return nil
 }
 

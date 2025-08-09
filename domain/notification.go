@@ -2,18 +2,15 @@ package domain
 
 import (
 	"NotificationManagement/types"
+	"context"
 )
 
 type Notifier interface {
-	Send(*types.Notification) error
+	Send(context.Context, *types.Notification) error
 	Type() string
 	IsActive() bool
 }
 
 type NotificationDispatcher interface {
-	Notify(n *types.Notification) error
-}
-
-type NotificationService interface {
-	Send(notification *types.Notification) error
+	Notify(ctx context.Context, n *types.Notification) error
 }

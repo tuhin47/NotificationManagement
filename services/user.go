@@ -6,7 +6,6 @@ import (
 	"NotificationManagement/utils/errutil"
 	"context"
 	"errors"
-	"strings"
 )
 
 type UserServiceImpl struct {
@@ -51,53 +50,4 @@ func (s *UserServiceImpl) RegisterOrUpdateUser(user *models.User) (*models.User,
 
 func (s *UserServiceImpl) GetContext() context.Context {
 	return context.Background()
-}
-
-func (s *UserServiceImpl) GetInstance() domain.CommonService[models.User] {
-	return s.CommonService
-}
-
-func (s *UserServiceImpl) CreateModel(c context.Context, entity *models.User) error {
-	return s.UserRepo.Create(s.GetContext(), entity)
-}
-
-func (s *UserServiceImpl) GetModelById(c context.Context, id uint) (*models.User, error) {
-	model, err := s.UserRepo.GetByID(s.GetContext(), id, nil)
-	if err != nil {
-		return nil, err
-	}
-	return model, nil
-}
-
-func (s *UserServiceImpl) GetAllModels(c context.Context, limit, offset int) ([]models.User, error) {
-	m, err := s.UserRepo.GetAll(s.GetContext(), limit, offset)
-	if err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
-func (s *UserServiceImpl) UpdateModel(c context.Context, id uint, model *models.User) (*models.User, error) {
-	existing, err := s.UserRepo.GetByID(s.GetContext(), id, nil)
-	if err != nil {
-		return nil, err
-	}
-	existing.Username = model.Username
-	existing.Email = model.Email
-	existing.Roles = model.Roles
-	err = s.UserRepo.Update(s.GetContext(), existing)
-	return existing, err
-}
-
-func (s *UserServiceImpl) DeleteModel(c context.Context, id uint) error {
-	return s.UserRepo.Delete(s.GetContext(), id)
-}
-
-func (s *UserServiceImpl) GetUserRoles(keycloakID string) ([]string, error) {
-	ctx := context.Background()
-	user, err := s.UserRepo.FindByKeycloakID(keycloakID, ctx)
-	if err != nil {
-		return nil, err
-	}
-	return strings.Split(user.Roles, ","), nil
 }

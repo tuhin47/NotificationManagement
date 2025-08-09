@@ -6,8 +6,8 @@ import (
 
 type Telegram struct {
 	gorm.Model
-	ChatID int64  `gorm:"uniqueIndex;not null"`
 	UserID *uint  `gorm:"index"`
 	User   User   `gorm:"foreignKey:UserID"`
+	ChatID int64  `gorm:"uniqueIndex;not null"`
 	Otp    string `gorm:"size:255;not null"`
 }

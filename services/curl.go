@@ -26,8 +26,11 @@ type CurlServiceImpl struct {
 	AdditionalFieldRepo domain.AdditionalFieldsRepository
 }
 
-func (s *CurlServiceImpl) GetModelById(c context.Context, id uint) (*models.CurlRequest, error) {
-	return s.CurlRepo.GetByID(s.GetInstance().GetContext(), id, &[]string{"AdditionalFields"})
+func (s *CurlServiceImpl) GetModelById(c context.Context, id uint, preloads *[]string) (*models.CurlRequest, error) {
+	if preloads == nil {
+		preloads = &[]string{"AdditionalFields"}
+	}
+	return s.CurlRepo.GetByID(s.GetInstance().GetContext(), id, preloads)
 }
 
 func NewCurlService(repo domain.CurlRequestRepository, fieldsRepository domain.AdditionalFieldsRepository) domain.CurlService {

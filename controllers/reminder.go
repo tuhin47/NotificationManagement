@@ -49,7 +49,7 @@ func (rc *ReminderControllerImpl) GetReminderByID(c echo.Context) error {
 		return err
 	}
 
-	reminder, err := rc.reminderService.GetModelById(c.Request().Context(), id)
+	reminder, err := rc.reminderService.GetModelById(c.Request().Context(), id, nil)
 	if err != nil {
 		return err
 	}

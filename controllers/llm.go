@@ -42,7 +42,7 @@ func (lc *LLMControllerImpl) GetLLMByID(c echo.Context) error {
 		return err
 	}
 
-	llm, err := lc.Service.GetModelById(c.Request().Context(), id)
+	llm, err := lc.Service.GetModelById(c.Request().Context(), id, nil)
 	if err != nil {
 		return err
 	}

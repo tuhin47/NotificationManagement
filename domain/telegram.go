@@ -9,7 +9,6 @@ import (
 
 type TelegramNotifier interface {
 	Notifier
-	NotificationService
 	Start()
 	VerifyOTP(ctx context.Context, otp string, userID uint) (*models.Telegram, error)
 }

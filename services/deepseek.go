@@ -39,7 +39,7 @@ func (s *DeepseekServiceImpl) GetContext() context.Context {
 }
 
 func (s *DeepseekServiceImpl) MakeAIRequest(c context.Context, m *models.AIModel, requestId uint) (interface{}, error) {
-	curl, err := s.CurlService.GetModelById(c, requestId)
+	curl, err := s.CurlService.GetModelById(c, requestId, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (s *DeepseekServiceImpl) MakeAIRequest(c context.Context, m *models.AIModel
 	if err != nil {
 		return nil, err
 	}
-	model, err := s.GetModelById(c, m.ID)
+	model, err := s.GetModelById(c, m.ID, nil)
 	if err != nil {
 		return nil, err
 	}

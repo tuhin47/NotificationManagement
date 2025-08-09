@@ -10,10 +10,10 @@ import (
 	"NotificationManagement/utils/errutil"
 	"context"
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"os"
-	"strconv"
 	"strings"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 type TelegramNotifier struct {
@@ -39,22 +39,22 @@ func NewTelegramNotifier(repo domain.TelegramRepository) domain.TelegramNotifier
 	return t
 }
 
-func (t *TelegramNotifier) Send(n *types.Notification) error {
+func (t *TelegramNotifier) Send(ctx context.Context, notification *types.Notification) error {
 	if !t.active {
 		return fmt.Errorf("telegram notifier is not active")
 	}
-	chatID, err := strconv.ParseInt(n.To, 10, 64)
-	if err != nil {
-		logger.Error("Failed to parse chat ID from notification", "error", err)
-		return err
+	if len(*notification.User.Telegram) != 1 {
+		logger.Error("telegram chat not found")
+		return fmt.Errorf("telegram chat not found")
 	}
-	msg := tgbotapi.NewMessage(chatID, n.Message)
-	_, err = t.BotAPI.Send(msg) // Changed := to =
+	chatID := (*notification.User.Telegram)[0].ChatID
+	msg := tgbotapi.NewMessage(chatID, notification.Message)
+	_, err := t.BotAPI.Send(msg)
 	if err != nil {
 		logger.Error("Failed to send Telegram message", "error", err)
 		return err
 	}
-	logger.Info(fmt.Sprintf("[Telegram] To: %s, Message: %s", n.To, n.Message), n)
+	logger.Debug(fmt.Sprintf("[Telegram] To: %s, Message: %s", chatID, notification.Message), notification)
 	return nil
 }
 

@@ -27,8 +27,8 @@ func (s *CommonServiceImpl[T]) CreateModel(c context.Context, entity *T) error {
 	return s.Repo.Create(s.Instance.GetContext(), entity)
 }
 
-func (s *CommonServiceImpl[T]) GetModelById(c context.Context, id uint) (*T, error) {
-	model, err := s.Repo.GetByID(s.Instance.GetContext(), id, nil)
+func (s *CommonServiceImpl[T]) GetModelById(c context.Context, id uint, preloads *[]string) (*T, error) {
+	model, err := s.Repo.GetByID(s.Instance.GetContext(), id, preloads)
 	if err != nil {
 		return nil, err
 	}

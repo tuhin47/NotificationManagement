@@ -10,28 +10,21 @@ import (
 )
 
 type NotificationController struct {
-	NotificationService domain.NotificationService
+	domain.NotificationDispatcher
 }
 
-func NewNotificationController(notificationService domain.NotificationService) *NotificationController {
-	return &NotificationController{NotificationService: notificationService}
-}
-
-type NotifyRequest struct {
-	To       string   `json:"to"`
-	Subject  string   `json:"subject"`
-	Message  string   `json:"message"`
-	Channels []string `json:"channels"`
+func NewNotificationController(notificationService domain.NotificationDispatcher) *NotificationController {
+	return &NotificationController{NotificationDispatcher: notificationService}
 }
 
 func (h *NotificationController) Notify(c echo.Context) error {
-	var req NotifyRequest
+	var req types.NotifyRequest
 	if err := utils.BindAndValidate(c, &req); err != nil {
 		return err
 	}
 
-	err := h.NotificationService.Send(&types.Notification{
-		To:       req.To,
+	err := h.NotificationDispatcher.Notify(c.Request().Context(), &types.Notification{
+		UserId:   req.UserId,
 		Subject:  req.Subject,
 		Message:  req.Message,
 		Channels: req.Channels,
