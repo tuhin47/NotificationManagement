@@ -215,6 +215,7 @@ func (s *CurlServiceImpl) UpdateModel(c context.Context, id uint, model *models.
 			}
 			(*model.AdditionalFields)[i].RequestID = id
 		}
+		existingIDsMap := make(map[uint]bool)
 
 		if len(idsToCheck) > 0 {
 			background := context.Background()
@@ -227,19 +228,17 @@ func (s *CurlServiceImpl) UpdateModel(c context.Context, id uint, model *models.
 				return nil, err
 			}
 
-			existingIDsMap := make(map[uint]bool)
 			for _, existingAf := range existingAdditionalFields {
 				existingIDsMap[existingAf.ID] = true
 			}
-
-			for i, af := range *model.AdditionalFields {
-				if af.ID != 0 && !existingIDsMap[af.ID] {
-					(*model.AdditionalFields)[i].ID = 0
-				}
-
+		}
+		for i, af := range *model.AdditionalFields {
+			if af.ID != 0 && !existingIDsMap[af.ID] {
+				(*model.AdditionalFields)[i].ID = 0
 			}
 		}
 	}
+
 	updatedAssoc, err := helper.SyncHasManyAssociation(s.CurlRepo.GetDB(c), &existing, "AdditionalFields", model.AdditionalFields)
 	if err != nil {
 		return nil, err

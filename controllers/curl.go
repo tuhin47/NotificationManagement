@@ -30,6 +30,9 @@ func (cc *CurlControllerImpl) CurlHandler(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+	for i, _ := range *model.AdditionalFields {
+		(*model.AdditionalFields)[i].ID = 0
+	}
 	if model.UserID == 0 {
 		model.UserID = helper.GetUserId(c)
 	}
