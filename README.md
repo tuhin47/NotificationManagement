@@ -99,6 +99,8 @@ go run main.go worker
 | LocalStack  | AWS services emulation | 4566  |
 | Keycloak    | SSO                    | 8081  |
 | Mailcatcher | Email testing          | 1080  |
+| Prometheus  | Monitoring system      | 9090  |
+| Grafana     | Data visualization     | 3000  |
 
 ## Authentication
 
@@ -119,5 +121,4 @@ Now you can use the APIs in the collection.
 - AI based todo setup
 - Report generation based on periodic results
 - Additional notification formats (e.g., PDF, Excel)
-- Add prometheus and grafana for monitoring
 - Add OPENAI integration for AI processing

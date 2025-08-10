@@ -134,7 +134,7 @@ func LoadConfig() {
 }
 
 func printAllVipers() {
-	if IsDevelopment() {
+	if !IsDevelopment() {
 		return
 	}
 	for _, s := range viper.AllKeys() {

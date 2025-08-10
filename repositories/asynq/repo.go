@@ -6,8 +6,9 @@ import (
 	"NotificationManagement/types"
 	"encoding/json"
 	"errors"
-	"github.com/hibiken/asynq"
 	"time"
+
+	"github.com/hibiken/asynq"
 )
 
 type Repository struct {
@@ -73,7 +74,7 @@ func (repo *Repository) DequeueTask(taskID string) error {
 func (repo *Repository) asynqOptions(customOpts types.AsynqOption) []asynq.Option {
 	retryOpt := asynq.MaxRetry(0)
 	queueOpt := asynq.Queue(config.Asynq().Queue)
-	retentionOpt := asynq.Retention(config.Asynq().Retention * time.Hour)
+	retentionOpt := asynq.Retention(time.Duration(*config.Asynq().Retention) * time.Hour)
 
 	if customOpts.Retry > 0 {
 		retryOpt = asynq.MaxRetry(customOpts.Retry)

@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
@@ -28,6 +29,10 @@ var serveCmd = &cobra.Command{
 				e.GET("/health", func(c echo.Context) error {
 					return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 				})
+
+				// Add Prometheus middleware
+				e.Use(echoprometheus.NewMiddleware("notification_management"))
+				e.GET("/metrics", echoprometheus.NewHandler())
 
 				port := *config.App().Port
 				addr := fmt.Sprintf(":%d", port)

@@ -103,6 +103,39 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+  prometheus:
+    image: prom/prometheus:v2.53.5
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus:/etc/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # Required for Linux to resolve host.docker.internal
+    networks:
+      - nms-network
+
+  grafana:
+    image: grafana/grafana:12.0.2
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - nms-network
+    depends_on:
+      - prometheus
+
 networks:
   nms-network:
     driver: bridge
@@ -111,4 +144,5 @@ volumes:
     name: nms-local_db
   nms_redis_local_db:
     name: nms_redis-local_db
-
+  grafana-data:
+    name: nms-grafana-data
