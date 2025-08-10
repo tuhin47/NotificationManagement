@@ -125,18 +125,18 @@ func LoadConfig() {
 	}
 
 	loadFromEnv()
-	printAllVipers()
 
 	if err := viper.Unmarshal(&appConfig); err != nil {
 		fmt.Printf("Error unmarshaling config: %v\n", err)
 		os.Exit(1)
 	}
-	if IsDevelopment() {
-		fmt.Println(*appConfig)
-	}
+	printAllVipers()
 }
 
 func printAllVipers() {
+	if IsDevelopment() {
+		return
+	}
 	for _, s := range viper.AllKeys() {
 		val := viper.Get(s)
 		v := reflect.ValueOf(val)
