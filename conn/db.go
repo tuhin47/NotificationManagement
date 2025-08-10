@@ -36,7 +36,6 @@ func NewDB() *gorm.DB {
 		logger.Fatal("Failed to auto-migrate database schema", "error", err)
 		panic(err.Error())
 	}
-	// As grom doesn't support single table model. We need to execute it separately
 	if err := dB.AutoMigrate(
 		&models.GeminiModel{},
 	); err != nil {

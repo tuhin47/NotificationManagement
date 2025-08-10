@@ -87,7 +87,6 @@ var testConnectionCmd = &cobra.Command{
 
 		logger.Info("✅ AWS Config client created successfully!")
 
-		// Try to list rules to test the connection
 		ctx := context.Background()
 		_, err = client.ListConfigRules(ctx)
 		if err != nil {

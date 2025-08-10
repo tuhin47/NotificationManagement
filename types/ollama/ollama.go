@@ -2,20 +2,20 @@ package ollama
 
 import "github.com/go-ozzo/ozzo-validation/v4"
 
-type OllamaRequest struct {
-	Model    string           `json:"model"`
-	Messages []*OllamaMessage `json:"messages"`
-	Stream   bool             `json:"stream"`
-	Format   *OllamaFormat    `json:"format,omitempty"`
-	Options  *OllamaOptions   `json:"options,omitempty"`
-	Think    bool             `json:"think,omitempty"`
+type Request struct {
+	Model    string     `json:"model"`
+	Messages []*Message `json:"messages"`
+	Stream   bool       `json:"stream"`
+	Format   *Format    `json:"format,omitempty"`
+	Options  *Options   `json:"options,omitempty"`
+	Think    bool       `json:"think,omitempty"`
 }
 
-func (r *OllamaRequest) Validate() error {
+func (r *Request) Validate() error {
 	return validation.ValidateStruct(r,
 		validation.Field(&r.Model, validation.Required),
 		validation.Field(&r.Messages, validation.Required, validation.Length(1, 0), validation.Each(validation.By(func(value interface{}) error {
-			if v, ok := value.(*OllamaMessage); ok {
+			if v, ok := value.(*Message); ok {
 				return v.Validate()
 			}
 			return nil
@@ -23,35 +23,35 @@ func (r *OllamaRequest) Validate() error {
 	)
 }
 
-type OllamaPullRequest struct {
+type PullRequest struct {
 	Name string `json:"name"`
 }
 
-func (r *OllamaPullRequest) Validate() error {
+func (r *PullRequest) Validate() error {
 	return validation.ValidateStruct(r,
 		validation.Field(&r.Name, validation.Required),
 	)
 }
 
-type OllamaMessage struct {
+type Message struct {
 	Role    string `json:"role"`
 	Content string `json:"content"`
 }
 
-func (m *OllamaMessage) Validate() error {
+func (m *Message) Validate() error {
 	return validation.ValidateStruct(m,
 		validation.Field(&m.Role, validation.Required, validation.In("system", "user", "assistant")),
 		validation.Field(&m.Content, validation.Required),
 	)
 }
 
-type OllamaFormat struct {
-	Type       string                          `json:"type"`
-	Properties map[string]OllamaFormatProperty `json:"properties"`
-	Required   []string                        `json:"required"`
+type Format struct {
+	Type       string                    `json:"type"`
+	Properties map[string]FormatProperty `json:"properties"`
+	Required   []string                  `json:"required"`
 }
 
-func (f *OllamaFormat) Validate() error {
+func (f *Format) Validate() error {
 	return validation.ValidateStruct(f,
 		validation.Field(&f.Type, validation.Required),
 		validation.Field(&f.Properties, validation.Required),
@@ -59,31 +59,31 @@ func (f *OllamaFormat) Validate() error {
 	)
 }
 
-type OllamaOptions struct {
+type Options struct {
 	Temperature float64 `json:"temperature,omitempty"`
 }
 
-type OllamaFormatProperty struct {
+type FormatProperty struct {
 	Type        string `json:"type"`
 	Description string `json:"description,omitempty"`
 }
 
-func (p *OllamaFormatProperty) Validate() error {
+func (p *FormatProperty) Validate() error {
 	return validation.ValidateStruct(p,
 		validation.Field(&p.Type, validation.Required),
 	)
 }
 
-type OllamaResponse struct {
-	Model              string         `json:"model"`
-	CreatedAt          string         `json:"created_at"`
-	Message            *OllamaMessage `json:"message"`
-	DoneReason         string         `json:"done_reason"`
-	Done               bool           `json:"done"`
-	TotalDuration      int64          `json:"total_duration"`
-	LoadDuration       int64          `json:"load_duration"`
-	PromptEvalCount    int            `json:"prompt_eval_count"`
-	PromptEvalDuration int64          `json:"prompt_eval_duration"`
-	EvalCount          int            `json:"eval_count"`
-	EvalDuration       int64          `json:"eval_duration"`
+type Response struct {
+	Model              string   `json:"model"`
+	CreatedAt          string   `json:"created_at"`
+	Message            *Message `json:"message"`
+	DoneReason         string   `json:"done_reason"`
+	Done               bool     `json:"done"`
+	TotalDuration      int64    `json:"total_duration"`
+	LoadDuration       int64    `json:"load_duration"`
+	PromptEvalCount    int      `json:"prompt_eval_count"`
+	PromptEvalDuration int64    `json:"prompt_eval_duration"`
+	EvalCount          int      `json:"eval_count"`
+	EvalDuration       int64    `json:"eval_duration"`
 }

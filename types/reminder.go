@@ -41,27 +41,24 @@ type ReminderResponse struct {
 	UpdatedAt       string     `json:"updated_at"`
 }
 
-// ToModel converts a types.ReminderRequest to a models.Reminder
-func (rr *ReminderRequest) ToModel() (*models.Reminder, error) {
-	err := rr.Validate()
+func (r *ReminderRequest) ToModel() (*models.Reminder, error) {
+	err := r.Validate()
 	if err != nil {
 		return nil, errutil.NewAppError(errutil.ErrInvalidRequestBody, err)
 	}
 
 	return &models.Reminder{
-		RequestID:       rr.RequestID,
-		Message:         rr.Message,
-		TriggeredTime:   rr.TriggeredTime,
-		Occurrence:      rr.Occurrence,
-		Recurrence:      rr.Recurrence,
-		Upto:            rr.Upto,
-		AfterEvery:      rr.AfterEvery,
-		NextTriggerTime: rr.TriggeredTime,
-		//NextTriggerTime: rr.TriggeredTime.Add(datetime.RecurrenceDuration(rr.AfterEvery, rr.Recurrence)),
+		RequestID:       r.RequestID,
+		Message:         r.Message,
+		TriggeredTime:   r.TriggeredTime,
+		Occurrence:      r.Occurrence,
+		Recurrence:      r.Recurrence,
+		Upto:            r.Upto,
+		AfterEvery:      r.AfterEvery,
+		NextTriggerTime: r.TriggeredTime,
 	}, nil
 }
 
-// FromReminderModel FromModel converts a models.Reminder to a types.ReminderResponse
 func FromReminderModel(model *models.Reminder) *ReminderResponse {
 	return &ReminderResponse{
 		ID:              model.ID,

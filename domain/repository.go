@@ -5,9 +5,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// Repository is a generic interface for CRUD operations
-// T is the model type
-// ID is the type of the primary key (e.g., uint, string)
 type Repository[T any, ID comparable] interface {
 	GetDB(ctx context.Context) *gorm.DB
 	Create(ctx context.Context, entity *T) error

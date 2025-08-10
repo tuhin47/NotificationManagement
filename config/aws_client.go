@@ -25,7 +25,7 @@ func NewAWSClient(cnf *AWSConfig) (*AWSClient, error) {
 		creds = credentials.NewStaticCredentialsProvider(
 			cnf.AccessKeyID,
 			cnf.SecretAccessKey,
-			"", // session token
+			"",
 		)
 	}
 	var opts []func(*awsconfig.LoadOptions) error

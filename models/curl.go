@@ -55,8 +55,8 @@ func (c *CurlRequest) GetGenaiSchemaProperties() map[string]*genai.Schema {
 	return properties
 }
 
-func (c *CurlRequest) GetOllamaSchemaProperties() map[string]ollama.OllamaFormatProperty {
-	properties := make(map[string]ollama.OllamaFormatProperty)
+func (c *CurlRequest) GetOllamaSchemaProperties() map[string]ollama.FormatProperty {
+	properties := make(map[string]ollama.FormatProperty)
 	for _, field := range *c.AdditionalFields {
 		var ollamaType string
 		switch field.Type {
@@ -67,7 +67,7 @@ func (c *CurlRequest) GetOllamaSchemaProperties() map[string]ollama.OllamaFormat
 		default:
 			ollamaType = "string"
 		}
-		properties[field.PropertyName] = ollama.OllamaFormatProperty{
+		properties[field.PropertyName] = ollama.FormatProperty{
 			Type:        ollamaType,
 			Description: field.Description,
 		}

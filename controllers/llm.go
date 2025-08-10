@@ -54,13 +54,13 @@ func (lc *LLMControllerImpl) GetLLMByID(c echo.Context) error {
 func (lc *LLMControllerImpl) GetAllLLMs(c echo.Context) error {
 	limit, offset := helper.ParseLimitAndOffset(c)
 
-	llms, err := lc.Service.GetAllModels(c.Request().Context(), limit, offset)
+	models, err := lc.Service.GetAllModels(c.Request().Context(), limit, offset)
 	if err != nil {
 		return err
 	}
 
 	var responses []*types.LLMResponse
-	for _, llm := range llms {
+	for _, llm := range models {
 		responses = append(responses, types.FromLLMModel(&llm))
 	}
 

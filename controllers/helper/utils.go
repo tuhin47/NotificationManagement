@@ -27,8 +27,8 @@ func ParseLimitAndOffset(c echo.Context) (limit, offset int) {
 	limitStr := c.QueryParam("limit")
 	offsetStr := c.QueryParam("offset")
 
-	limit = 10 // default limit
-	offset = 0 // default offset
+	limit = 10
+	offset = 0
 
 	if limitStr != "" {
 		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {

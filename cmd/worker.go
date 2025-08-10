@@ -17,13 +17,11 @@ import (
 	"time"
 )
 
-// Inside your worker command
 var workerCmd = &cobra.Command{
 	Use:   "worker",
 	Short: "Start the asynq task worker",
 	Run: func(cmd *cobra.Command, args []string) {
 		app := fx.New(
-			// Provide config, logger, etc. if needed
 			fx.Provide(
 				NewAsynqServer,
 				conn.NewDB,
@@ -67,7 +65,6 @@ var workerCmd = &cobra.Command{
 			log.Fatalf("failed to start fx app: %v", err)
 		}
 
-		// Wait for interrupt signal or similar
 		<-app.Done()
 
 		stopCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
@@ -80,7 +77,6 @@ var workerCmd = &cobra.Command{
 }
 
 func registerHooks(telegramAPI domain.TelegramAPI) {
-	// TODO - Need to have a separate worker for telegram, As multiple instance is not possible
 	go telegramAPI.Start()
 }
 

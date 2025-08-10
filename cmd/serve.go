@@ -25,7 +25,6 @@ var serveCmd = &cobra.Command{
 			fx.Provide(conn.NewDB),
 			server.Module,
 			fx.Invoke(func(lc fx.Lifecycle, e *echo.Echo) {
-				// Health check route
 				e.GET("/health", func(c echo.Context) error {
 					return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 				})

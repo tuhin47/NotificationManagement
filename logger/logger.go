@@ -14,7 +14,6 @@ var (
 	loggerOnce sync.Once
 )
 
-// Init initializes the global Zap logger using config.Logger(). Only runs once.
 func Init() {
 	loggerOnce.Do(func() {
 		cfg := config.Logger()
@@ -58,7 +57,6 @@ func Init() {
 	})
 }
 
-// L returns the global Zap logger. Panics if not initialized.
 func L() *zap.Logger {
 	if logger == nil {
 		panic("logger not initialized: call logger.Init() first")
@@ -66,14 +64,12 @@ func L() *zap.Logger {
 	return logger
 }
 
-// Sync flushes any buffered log entries.
 func Sync() {
 	if logger != nil {
 		_ = logger.Sync()
 	}
 }
 
-// toZapField converts various types to zap.Field for flexible logging.
 func toZapField(val interface{}) zap.Field {
 	switch v := val.(type) {
 	case zap.Field:
@@ -86,13 +82,11 @@ func toZapField(val interface{}) zap.Field {
 		return zap.Any("data", v)
 	case map[string]string:
 		return zap.Any("data", v)
-	// Note: []zap.Field is not supported directly; flatten in the caller if needed.
 	default:
 		return zap.Any("data", v)
 	}
 }
 
-// Info logs a message at InfoLevel. Accepts zap.Field, error, map, key-value pairs, or any value.
 func Info(msg string, fields ...interface{}) {
 	zapFields := make([]zap.Field, 0, len(fields))
 	if len(fields) > 1 && len(fields)%2 == 0 {
@@ -124,7 +118,6 @@ func Info(msg string, fields ...interface{}) {
 	L().Info(msg, zapFields...)
 }
 
-// Error logs a message at ErrorLevel. Accepts zap.Field, error, map, key-value pairs, or any value.
 func Error(msg string, fields ...interface{}) {
 	zapFields := make([]zap.Field, 0, len(fields))
 	if len(fields) > 1 && len(fields)%2 == 0 {
@@ -156,7 +149,6 @@ func Error(msg string, fields ...interface{}) {
 	L().Error(msg, zapFields...)
 }
 
-// Warn logs a message at WarnLevel. Accepts zap.Field, error, map, key-value pairs, or any value.
 func Warn(msg string, fields ...interface{}) {
 	zapFields := make([]zap.Field, 0, len(fields))
 	if len(fields) > 1 && len(fields)%2 == 0 {
@@ -188,7 +180,6 @@ func Warn(msg string, fields ...interface{}) {
 	L().Warn(msg, zapFields...)
 }
 
-// Debug logs a message at DebugLevel. Accepts zap.Field, error, map, key-value pairs, or any value.
 func Debug(msg string, fields ...interface{}) {
 	zapFields := make([]zap.Field, 0, len(fields))
 	if len(fields) > 1 && len(fields)%2 == 0 {
@@ -220,7 +211,6 @@ func Debug(msg string, fields ...interface{}) {
 	L().Debug(msg, zapFields...)
 }
 
-// Fatal logs a message at FatalLevel and then calls os.Exit(1). Accepts zap.Field, error, map, key-value pairs, or any value.
 func Fatal(msg string, fields ...interface{}) {
 	zapFields := make([]zap.Field, 0, len(fields))
 	if len(fields) > 1 && len(fields)%2 == 0 {
@@ -252,7 +242,6 @@ func Fatal(msg string, fields ...interface{}) {
 	L().Fatal(msg, zapFields...)
 }
 
-// DPanic logs a message at DPanicLevel. In development, it then panics. Accepts zap.Field, error, map, key-value pairs, or any value.
 func DPanic(msg string, fields ...interface{}) {
 	zapFields := make([]zap.Field, 0, len(fields))
 	if len(fields) > 1 && len(fields)%2 == 0 {

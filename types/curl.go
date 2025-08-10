@@ -59,7 +59,6 @@ type CurlResponse struct {
 	UserID     uint              `json:"user_id,omitempty"`
 }
 
-// ToModel converts a types.CurlRequest to a models.CurlRequest
 func (cr *CurlRequest) ToModel() (*models.CurlRequest, error) {
 	err := cr.Validate()
 	if err != nil {

@@ -17,17 +17,13 @@ func init() {
 	RootCmd.AddCommand(workerCmd)
 }
 
-// Execute executes the root command
 func Execute() {
-	// load config
 	config.LoadConfig()
 
-	// Initialize logger
 	logger.Init()
 	defer logger.Sync()
 
 	conn.ConnectRedis()
-	// conn.ConnectEmail()
 
 	if err := RootCmd.Execute(); err != nil {
 		logger.Error("command execution failed", "error", err)

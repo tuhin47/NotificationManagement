@@ -6,21 +6,18 @@ import (
 	"time"
 )
 
-// ErrorCode represents different types of errors with their codes
 type ErrorCode struct {
 	Code    string
 	Message string
 	Status  int
 }
 
-// AppError represents a custom error with additional context
 type AppError struct {
 	Code    ErrorCode
 	Message string
 	Err     error
 }
 
-// ErrorResponse represents a standardized error response structure
 type ErrorResponse struct {
 	Message    string    `json:"message"`
 	Error      string    `json:"error"`
@@ -29,7 +26,6 @@ type ErrorResponse struct {
 	ErrorCode  string    `json:"error_code"`
 }
 
-// Error implements the error interface
 func (e *AppError) Error() string {
 	if e.Err != nil {
 		return e.Err.Error()
@@ -37,17 +33,14 @@ func (e *AppError) Error() string {
 	return e.Message
 }
 
-// Unwrap returns the underlying error
 func (e *AppError) Unwrap() error {
 	return e.Err
 }
 
-// NewAppError creates a new AppError
 func NewAppError(errCode ErrorCode, err error) error {
 	return NewAppErrorWithMessage(errCode, err, errCode.Message)
 }
 
-// NewAppErrorWithMessage creates a new AppError with custom message
 func NewAppErrorWithMessage(errCode ErrorCode, err error, message string) error {
 	var target *AppError
 	if errors.As(err, &target) {
@@ -65,7 +58,6 @@ func NewAppErrorWithMessage(errCode ErrorCode, err error, message string) error 
 	}
 }
 
-// CreateErrorResponse creates a new ErrorResponse with the given error code and actual error
 func CreateErrorResponse(errCode ErrorCode, actualError error) ErrorResponse {
 	return ErrorResponse{
 		Message:    errCode.Message,
@@ -76,7 +68,6 @@ func CreateErrorResponse(errCode ErrorCode, actualError error) ErrorResponse {
 	}
 }
 
-// CreateErrorResponseWithMessage creates a new ErrorResponse with custom message
 func CreateErrorResponseWithMessage(errCode ErrorCode, actualError error, customMessage string) ErrorResponse {
 	return ErrorResponse{
 		Message:    customMessage,
@@ -87,7 +78,6 @@ func CreateErrorResponseWithMessage(errCode ErrorCode, actualError error, custom
 	}
 }
 
-// AppErrorToErrorResponse converts an AppError to ErrorResponse
 func AppErrorToErrorResponse(appErr error) ErrorResponse {
 	var appError *AppError
 	if errors.As(appErr, &appError) {
@@ -100,11 +90,9 @@ func AppErrorToErrorResponse(appErr error) ErrorResponse {
 		}
 	}
 
-	// If it's not an AppError, treat it as internal server error
 	return CreateErrorResponse(ErrInternalServer, appErr)
 }
 
-// GetCurrentTime returns the current time for error responses
 func GetCurrentTime() time.Time {
 	return time.Now()
 }

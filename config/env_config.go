@@ -41,7 +41,6 @@ const (
 	EnvLogFilePath = "LOG_FILE_PATH"
 	EnvLogFormat   = "LOGGER_FORMAT"
 
-	// Keycloak environment variables
 	EnvKeycloakServerURL    = "KEYCLOAK_SERVER_URL"
 	EnvKeycloakRealm        = "KEYCLOAK_REALM"
 	EnvKeycloakClientID     = "KEYCLOAK_CLIENT_ID"

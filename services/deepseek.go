@@ -56,8 +56,7 @@ func (s *DeepseekServiceImpl) MakeAIRequest(c context.Context, m *models.AIModel
 		return nil, errutil.NewAppError(errutil.ErrExternalServiceError, err)
 	}
 
-	// Parse the response
-	var ollamaResp ollama.OllamaResponse
+	var ollamaResp ollama.Response
 	if err := json.Unmarshal(respBody, &ollamaResp); err != nil {
 		return nil, errutil.NewAppError(errutil.ErrExternalServiceError, err)
 	}
@@ -71,7 +70,7 @@ func (s *DeepseekServiceImpl) GetAIJsonResponse(c context.Context, m *models.AIM
 	if err != nil {
 		return nil, err
 	}
-	resp, _ := request.(*ollama.OllamaResponse)
+	resp, _ := request.(*ollama.Response)
 
 	aiResp := make(map[string]interface{})
 	if err := json.Unmarshal([]byte(resp.Message.Content), &aiResp); err != nil {
@@ -122,7 +121,7 @@ func deepseekCall(model *models.DeepseekModel, response *types.CurlResponse, cur
 	}
 
 	properties := curl.GetOllamaSchemaProperties()
-	properties["IsCorrect"] = ollama.OllamaFormatProperty{
+	properties["IsCorrect"] = ollama.FormatProperty{
 		Type:        "boolean",
 		Description: "This holds the true or false value for the Statement",
 	}
@@ -131,9 +130,9 @@ func deepseekCall(model *models.DeepseekModel, response *types.CurlResponse, cur
 		assistantContent = &s
 	}
 
-	ollamaReq := ollama.OllamaRequest{
+	ollamaReq := ollama.Request{
 		Model: model.ModelName,
-		Messages: []*ollama.OllamaMessage{
+		Messages: []*ollama.Message{
 			{
 				Role:    "assistant",
 				Content: *assistantContent,
@@ -144,7 +143,7 @@ func deepseekCall(model *models.DeepseekModel, response *types.CurlResponse, cur
 			},
 		},
 		Stream: false,
-		Format: &ollama.OllamaFormat{
+		Format: &ollama.Format{
 			Type:       "object",
 			Properties: properties,
 			Required: func() []string {
@@ -155,7 +154,7 @@ func deepseekCall(model *models.DeepseekModel, response *types.CurlResponse, cur
 				return requiredKeys
 			}(),
 		},
-		Options: &ollama.OllamaOptions{
+		Options: &ollama.Options{
 			Temperature: 0.5,
 		},
 		Think: true,
