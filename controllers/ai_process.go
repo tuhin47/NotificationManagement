@@ -3,23 +3,19 @@ package controllers
 import (
 	"NotificationManagement/controllers/helper"
 	"NotificationManagement/domain"
-	"NotificationManagement/models"
-	"NotificationManagement/services"
 	"NotificationManagement/types"
-	"NotificationManagement/utils/errutil"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
 
 type AIRequestControllerImpl struct {
-	AIModelService domain.AIModelService
-	D              services.DeepseekProcessServiceImpl
-	G              services.GeminiProcessServiceImpl
+	domain.AIModelService
+	domain.AiDispatcher
 }
 
-func NewAIRequestController(A domain.AIModelService, D services.DeepseekProcessServiceImpl, G services.GeminiProcessServiceImpl) domain.AIRequestController {
-	return &AIRequestControllerImpl{AIModelService: A, D: D, G: G}
+func NewAIRequestController(aiModelService domain.AIModelService, service domain.AiDispatcher) domain.AIRequestController {
+	return &AIRequestControllerImpl{AIModelService: aiModelService, AiDispatcher: service}
 }
 
 func (a *AIRequestControllerImpl) MakeAIRequestHandler(c echo.Context) error {
@@ -27,11 +23,12 @@ func (a *AIRequestControllerImpl) MakeAIRequestHandler(c echo.Context) error {
 	if err := helper.BindAndValidate(c, &req); err != nil {
 		return err
 	}
-	service, err := a.GetServiceManagerById(c, req.ModelID)
+	context := c.Request().Context()
+	model, err := a.GetModelById(context, req.ModelID, nil)
 	if err != nil {
 		return err
 	}
-	aiResponse, err := service.MakeAIRequest(c.Request().Context(), &req)
+	aiResponse, err := a.RequestProcessor(context, model, req.CurlRequestID)
 	if err != nil {
 		return err
 	}
@@ -49,11 +46,7 @@ func (a *AIRequestControllerImpl) CreateAIModel(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	service, err := a.GetServiceManagerByType(model.GetType())
-	if err != nil {
-		return err
-	}
-	err = service.CreateModel(c.Request().Context(), model)
+	err = a.ProcessCreateModel(c.Request().Context(), model)
 	if err != nil {
 		return err
 	}
@@ -61,81 +54,46 @@ func (a *AIRequestControllerImpl) CreateAIModel(c echo.Context) error {
 
 }
 
+func (a *AIRequestControllerImpl) UpdateAIModel(c echo.Context) error {
+	var req types.AIModelRequest
+	if err := helper.BindAndValidate(c, &req); err != nil {
+		return err
+	}
+	id, err := helper.ParseIDFromContext(c)
+	if err != nil {
+		return err
+	}
+	req.ID = id
+	model, err := req.ToModel()
+	if err != nil {
+		return err
+	}
+	updateModel, err := a.ProcessUpdateModel(c.Request().Context(), model)
+	if err != nil {
+		return err
+	}
+	return c.JSON(http.StatusCreated, updateModel)
+}
+
 func (a *AIRequestControllerImpl) GetAIModelByID(c echo.Context) error {
 	id, err := helper.ParseIDFromContext(c)
 	if err != nil {
 		return err
 	}
-	service, err := a.GetServiceManagerById(c, id)
+	modelById, err := a.ProcessModelById(c.Request().Context(), id)
 	if err != nil {
 		return err
 	}
-	modelById, err := service.GetModelById(c.Request().Context(), id)
-	if err != nil {
-		return err
-	}
-
 	return c.JSON(http.StatusOK, modelById)
 }
 
 func (a *AIRequestControllerImpl) GetAllAIModels(c echo.Context) error {
-	limit, offset := helper.ParseLimitAndOffset(c)
+	//limit, offset := helper.ParseLimitAndOffset(c)
+	var responses []any
 
-	deepseekService, err := a.GetServiceManagerByType("deepseek")
-	if err != nil {
-		return err
-	}
-	deepseekModels, err := deepseekService.GetAllModels(c.Request().Context(), limit, offset)
-	if err != nil {
-		return err
-	}
-
-	geminiService, err := a.GetServiceManagerByType("gemini")
-	if err != nil {
-		return err
-	}
-	geminiModels, err := geminiService.GetAllModels(c.Request().Context(), limit, offset)
-	if err != nil {
-		return err
-	}
-
-	var responses []interface{}
-	for _, model := range deepseekModels.([]models.DeepseekModel) {
-		//deepseekModel := any(model).(*models.DeepseekModel)
-		responses = append(responses, types.FromDeepseekModel(&model))
-	}
-	for _, model := range geminiModels.([]models.GeminiModel) {
-		//geminiModel := any(model).(*models.GeminiModel)
-		responses = append(responses, types.FromGeminiModel(&model))
-	}
+	responses = a.ProcessAllAIModels(c.Request().Context())
 
 	return c.JSON(http.StatusOK, responses)
-}
-
-func (a *AIRequestControllerImpl) UpdateAIModel(c echo.Context) error {
-	id, err := helper.ParseIDFromContext(c)
-	if err != nil {
-		return err
-	}
-
-	var req types.AIModelRequest
-	if err := helper.BindAndValidate(c, &req); err != nil {
-		return err
-	}
-
-	model, err := req.ToModel()
-	if err != nil {
-		return err
-	}
-	s, err := a.GetServiceManagerByType(req.Type)
-	if err != nil {
-		return err
-	}
-	updateModel, err := s.UpdateModel(c.Request().Context(), id, model)
-	if err != nil {
-		return err
-	}
-	return c.JSON(http.StatusOK, updateModel)
 }
 
 func (a *AIRequestControllerImpl) DeleteAIModel(c echo.Context) error {
@@ -144,23 +102,5 @@ func (a *AIRequestControllerImpl) DeleteAIModel(c echo.Context) error {
 		return err
 	}
 
-	return a.AIModelService.DeleteModel(c.Request().Context(), id)
-}
-
-func (a *AIRequestControllerImpl) GetServiceManagerById(c echo.Context, id uint) (domain.AIProcessService[domain.AIService[any], any], error) {
-	model, err := a.AIModelService.GetModelById(c.Request().Context(), id, nil)
-	if err != nil {
-		return nil, err
-	}
-	return a.GetServiceManagerByType(model.Type)
-}
-
-func (a *AIRequestControllerImpl) GetServiceManagerByType(modelType string) (domain.AIProcessService[domain.AIService[any], any], error) {
-	switch modelType {
-	case "deepseek":
-		return a.D, nil
-	case "gemini":
-		return a.G, nil
-	}
-	return nil, errutil.NewAppError(errutil.ErrFeatureNotAvailable, errutil.ErrInvalidFeature)
+	return a.DeleteModel(c.Request().Context(), id)
 }

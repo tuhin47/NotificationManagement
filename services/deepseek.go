@@ -190,3 +190,27 @@ func deepseekCall(model *models.DeepseekModel, response *types.CurlResponse, cur
 func (s *DeepseekServiceImpl) GetModelType() string {
 	return "deepseek"
 }
+
+func (s *DeepseekServiceImpl) CreateAIModel(c context.Context, model any) error {
+	deepseekModel := (model).(*models.DeepseekModel)
+	return s.CreateModel(c, deepseekModel)
+}
+func (s *DeepseekServiceImpl) UpdateAIModel(c context.Context, model any) (any, error) {
+	deepseekModel := (model).(*models.DeepseekModel)
+	return s.UpdateModel(c, deepseekModel.ID, deepseekModel)
+}
+
+func (s *DeepseekServiceImpl) GetAIModelById(ctx context.Context, id uint) (any, error) {
+	return s.GetModelById(ctx, id, nil)
+}
+func (s *DeepseekServiceImpl) GetAllAIModels(ctx context.Context) ([]any, error) {
+	allModels, err := s.GetAllModels(ctx, 100, 0)
+	if err != nil {
+		return nil, err
+	}
+	i := make([]any, len(allModels))
+	for idx, model := range allModels {
+		i[idx] = model
+	}
+	return i, err
+}

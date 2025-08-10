@@ -31,6 +31,7 @@ var workerCmd = &cobra.Command{
 				conn.NewAsynqInspector,
 
 				repositories.NewReminderRepository,
+				repositories.NewAIModelRepository,
 				repositories.NewTelegramRepository,
 				repositories.NewUserRepository,
 				repositories.NewCurlRequestRepository,
@@ -46,13 +47,13 @@ var workerCmd = &cobra.Command{
 				services.NewDeepseekModelService,
 				services.NewAIDispatcher,
 				services.NewCurlService,
+				services.NewAIModelService,
 
 				worker.NewReminderTaskHandler,
 
 				notifier.NewEmailNotifier,
 				notifier.NewSMSNotifier,
 				notifier.NewTelegramNotifier,
-
 				notifier.NewNotificationDispatcher,
 			),
 			fx.Invoke(registerWorker),

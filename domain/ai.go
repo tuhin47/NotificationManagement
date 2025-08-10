@@ -2,7 +2,6 @@ package domain
 
 import (
 	"NotificationManagement/models"
-	"NotificationManagement/types"
 	"context"
 
 	"github.com/labstack/echo/v4"
@@ -13,6 +12,7 @@ type AIModelService interface {
 }
 
 type AIService[T any] interface {
+	DispatchableAIService
 	CommonService[T]
 	MakeAIRequest(c context.Context, m *models.AIModel, requestId uint) (interface{}, error)
 	GetAIJsonResponse(c context.Context, m *models.AIModel, requestId uint) (map[string]interface{}, error)
@@ -24,19 +24,19 @@ type AIModelRepository interface {
 
 type AiDispatcher interface {
 	RequestProcessor(c context.Context, m *models.AIModel, requestId uint) (map[string]interface{}, error)
+	ProcessCreateModel(ctx context.Context, model models.AIModelInterface) error
+	ProcessModelById(ctx context.Context, id uint) (any, error)
+	ProcessAllAIModels(ctx context.Context) []any
+	ProcessUpdateModel(ctx context.Context, model models.AIModelInterface) (any, error)
 }
 
 type DispatchableAIService interface {
 	GetAIJsonResponse(c context.Context, m *models.AIModel, requestId uint) (map[string]interface{}, error)
 	GetModelType() string
-}
-
-type AIProcessService[T AIService[X], X any] interface {
-	MakeAIRequest(c context.Context, req *types.MakeAIRequestPayload) (interface{}, error)
-	CreateModel(c context.Context, model models.AIModelInterface) error
-	UpdateModel(c context.Context, id uint, model models.AIModelInterface) (interface{}, error)
-	GetModelById(c context.Context, id uint) (interface{}, error)
-	GetAllModels(c context.Context, limit, offset int) (interface{}, error)
+	CreateAIModel(c context.Context, model any) error
+	GetAIModelById(ctx context.Context, id uint) (any, error)
+	GetAllAIModels(ctx context.Context) ([]any, error)
+	UpdateAIModel(c context.Context, model any) (any, error)
 }
 
 type AIRequestController interface {

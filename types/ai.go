@@ -4,6 +4,7 @@ import (
 	"NotificationManagement/models"
 	"NotificationManagement/utils/errutil"
 	"fmt"
+	"gorm.io/gorm"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
@@ -21,6 +22,7 @@ func (p *MakeAIRequestPayload) Validate() error {
 }
 
 type AIModelRequest struct {
+	ID        uint   `json:"-"`
 	Name      string `json:"name"`
 	Type      string `json:"type"`
 	ModelName string `json:"model"`
@@ -48,13 +50,15 @@ func (r *AIModelRequest) Validate() error {
 	return validation.ValidateStruct(r, rules...)
 }
 
-// ToModel converts a types.AIModelRequest to a models.DeepseekModel or models.GeminiModel
 func (dr *AIModelRequest) ToModel() (models.AIModelInterface, error) {
 	err := dr.Validate()
 	if err != nil {
 		return nil, errutil.NewAppError(errutil.ErrInvalidRequestBody, err)
 	}
 	aiModel := models.AIModel{
+		Model: gorm.Model{
+			ID: dr.ID,
+		},
 		Type: dr.Type,
 	}
 	switch dr.Type {

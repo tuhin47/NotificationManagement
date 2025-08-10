@@ -147,3 +147,29 @@ func geminiCall(model *models.GeminiModel, response *types.CurlResponse, req *mo
 
 	return result, err
 }
+
+func (s *GeminiServiceImpl) CreateAIModel(c context.Context, model any) error {
+	geminiModel := (model).(*models.GeminiModel)
+	return s.CommonService.CreateModel(c, geminiModel)
+}
+
+func (s *GeminiServiceImpl) UpdateAIModel(c context.Context, model any) (any, error) {
+	geminiModel := (model).(*models.GeminiModel)
+	return s.CommonService.UpdateModel(c, geminiModel.ID, geminiModel)
+}
+
+func (s *GeminiServiceImpl) GetAIModelById(ctx context.Context, id uint) (any, error) {
+	return s.GetModelById(ctx, id, nil)
+}
+
+func (s *GeminiServiceImpl) GetAllAIModels(ctx context.Context) ([]any, error) {
+	allModels, err := s.GetAllModels(ctx, 100, 0)
+	if err != nil {
+		return nil, err
+	}
+	i := make([]any, len(allModels))
+	for idx, model := range allModels {
+		i[idx] = model
+	}
+	return i, err
+}
