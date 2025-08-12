@@ -19,9 +19,6 @@ func NewNotificationDispatcher(email *EmailNotifier, sms *SMSNotifier, telegram 
 }
 
 func (d *Dispatcher) Notify(ctx context.Context, notification *types.Notification) error {
-	if ctx != nil {
-		ctx = context.Background()
-	}
 	if notification.User == nil {
 		user, err := d.UserService.GetModelById(ctx, notification.UserId, &[]string{"Telegram"})
 		if err != nil {

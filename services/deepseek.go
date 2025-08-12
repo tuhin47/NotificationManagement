@@ -30,12 +30,13 @@ func NewDeepseekModelService(repo domain.DeepseekModelRepository, curl domain.Cu
 	return service
 }
 
-func (s *DeepseekServiceImpl) GetContext() context.Context {
-	background := context.Background()
-	f := []repositories.Filter{
-		{Field: "type", Op: "=", Value: "deepseek"},
+func (s *DeepseekServiceImpl) ProcessContext(ctx context.Context) context.Context {
+	if txContext, ok := repositories.GetTxContext(ctx); ok {
+		filters := append(txContext.Filter, repositories.NewFilter("type", "=", s.GetModelType()))
+		txContext.Filter = filters
 	}
-	return context.WithValue(background, repositories.ContextStruct{}, &repositories.ContextStruct{Filter: &f})
+
+	return ctx
 }
 
 func (s *DeepseekServiceImpl) MakeAIRequest(c context.Context, m *models.AIModel, requestId uint) (interface{}, error) {

@@ -11,5 +11,5 @@ type CommonService[T any] interface {
 	UpdateModel(c context.Context, id uint, model *T) (*T, error)
 	DeleteModel(c context.Context, id uint) error
 	GetInstance() CommonService[T]
-	GetContext() context.Context
+	ProcessContext(context.Context) context.Context
 }

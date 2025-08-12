@@ -15,12 +15,12 @@ func ErrorHandler() echo.MiddlewareFunc {
 			if err == nil {
 				return nil
 			}
-			return handleError(c, err)
+			return HandleError(c, err)
 		}
 	}
 }
 
-func handleError(c echo.Context, err error) error {
+func HandleError(c echo.Context, err error) error {
 
 	var appError *AppError
 	if errors.As(err, &appError) {

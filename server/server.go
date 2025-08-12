@@ -10,15 +10,16 @@ import (
 	"NotificationManagement/routes"
 	"NotificationManagement/services"
 	"NotificationManagement/services/notifier"
-	"NotificationManagement/utils/errutil"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/fx"
+	"gorm.io/gorm" // Import gorm
 )
 
-func NewEcho() *echo.Echo {
+func NewEcho(db *gorm.DB) *echo.Echo {
 	e := echo.New()
 	e.Use(interceptLogger)
-	e.Use(errutil.ErrorHandler())
+	//e.Use(errutil.ErrorHandler())
+	e.Use(middleware.TransactionMiddleware(db))
 	return e
 }
 
@@ -50,6 +51,7 @@ func interceptLogger(next echo.HandlerFunc) echo.HandlerFunc {
 var Module = fx.Options(
 	fx.Provide(
 		NewEcho,
+		conn.NewDB,
 		conn.NewAsynq,
 		conn.NewAsynqInspector,
 		notifier.NewEmailNotifier,

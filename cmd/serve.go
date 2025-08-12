@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"NotificationManagement/config"
-	"NotificationManagement/conn"
 	"NotificationManagement/logger"
 	"NotificationManagement/server"
 	"context"
@@ -23,7 +22,6 @@ var serveCmd = &cobra.Command{
 	Long:  `Start the notification management server with the specified configuration`,
 	Run: func(cmd *cobra.Command, args []string) {
 		app := fx.New(
-			fx.Provide(conn.NewDB),
 			server.Module,
 			fx.Invoke(func(lc fx.Lifecycle, e *echo.Echo) {
 				e.GET("/health", func(c echo.Context) error {

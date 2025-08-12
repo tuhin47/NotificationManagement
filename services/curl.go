@@ -30,7 +30,7 @@ func (s *CurlServiceImpl) GetModelById(c context.Context, id uint, preloads *[]s
 	if preloads == nil {
 		preloads = &[]string{"AdditionalFields"}
 	}
-	return s.CurlRepo.GetByID(s.GetInstance().GetContext(), id, preloads)
+	return s.CurlRepo.GetByID(s.GetInstance().ProcessContext(c), id, preloads)
 }
 
 func NewCurlService(repo domain.CurlRequestRepository, fieldsRepository domain.AdditionalFieldsRepository) domain.CurlService {
@@ -218,12 +218,11 @@ func (s *CurlServiceImpl) UpdateModel(c context.Context, id uint, model *models.
 		existingIDsMap := make(map[uint]bool)
 
 		if len(idsToCheck) > 0 {
-			background := context.Background()
-			f := []repositories.Filter{
-				{Field: "request_id", Op: "=", Value: id},
+			if txContext, ok := repositories.GetTxContext(c); ok {
+				filters := append(txContext.Filter, repositories.NewFilter("request_id", "=", id))
+				txContext.Filter = filters
 			}
-			background = context.WithValue(background, repositories.ContextStruct{}, &repositories.ContextStruct{Filter: &f})
-			existingAdditionalFields, err := s.AdditionalFieldRepo.GetByIDs(background, idsToCheck, nil)
+			existingAdditionalFields, err := s.AdditionalFieldRepo.GetByIDs(c, idsToCheck, nil)
 			if err != nil {
 				return nil, err
 			}

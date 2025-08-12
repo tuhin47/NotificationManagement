@@ -21,8 +21,7 @@ func NewUserService(repo domain.UserRepository) domain.UserService {
 	return service
 }
 
-func (s *UserServiceImpl) RegisterOrUpdateUser(user *models.User) (*models.User, error) {
-	ctx := context.Background()
+func (s *UserServiceImpl) RegisterOrUpdateUser(ctx context.Context, user *models.User) (*models.User, error) {
 	existingUser, err := s.UserRepo.FindByKeycloakID(user.KeycloakID, ctx)
 	if err != nil {
 		var appErr *errutil.AppError
@@ -46,8 +45,4 @@ func (s *UserServiceImpl) RegisterOrUpdateUser(user *models.User) (*models.User,
 		return nil, err
 	}
 	return existingUser, nil
-}
-
-func (s *UserServiceImpl) GetContext() context.Context {
-	return context.Background()
 }

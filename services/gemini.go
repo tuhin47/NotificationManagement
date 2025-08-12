@@ -27,12 +27,12 @@ func NewGeminiService(repo domain.GeminiModelRepository, curlService domain.Curl
 	return service
 }
 
-func (s *GeminiServiceImpl) GetContext() context.Context {
-	background := context.Background()
-	f := []repositories.Filter{
-		{Field: "type", Op: "=", Value: "gemini"},
+func (s *GeminiServiceImpl) ProcessContext(ctx context.Context) context.Context {
+	if txContext, ok := repositories.GetTxContext(ctx); ok {
+		filters := append(txContext.Filter, repositories.NewFilter("type", "=", s.GetModelType()))
+		txContext.Filter = filters
 	}
-	return context.WithValue(background, repositories.ContextStruct{}, &repositories.ContextStruct{Filter: &f})
+	return ctx
 }
 
 func (s *GeminiServiceImpl) MakeAIRequest(c context.Context, m *models.AIModel, requestId uint) (interface{}, error) {
@@ -49,7 +49,7 @@ func (s *GeminiServiceImpl) MakeAIRequest(c context.Context, m *models.AIModel, 
 	if err != nil {
 		return nil, err
 	}
-	respBody, err := geminiCall(model, curlResponse, curl)
+	respBody, err := geminiCall(c, model, curlResponse, curl)
 	if err != nil {
 		return nil, errutil.NewAppError(errutil.ErrExternalServiceError, err)
 	}
@@ -73,13 +73,11 @@ func (s *GeminiServiceImpl) GetModelType() string {
 	return "gemini"
 }
 
-func geminiCall(model *models.GeminiModel, response *types.CurlResponse, req *models.CurlRequest) (*genai.GenerateContentResponse, error) {
+func geminiCall(ctx context.Context, model *models.GeminiModel, response *types.CurlResponse, req *models.CurlRequest) (*genai.GenerateContentResponse, error) {
 	assistantContent, err := response.GetAssistantContent(req.ResponseType)
 	if err != nil {
 		return nil, err
 	}
-	ctx := context.Background()
-	// The client gets the API key from the environment variable `GEMINI_API_KEY`.
 	client, err := genai.NewClient(ctx, &genai.ClientConfig{
 		APIKey: model.GetAPIKey(),
 	})

@@ -102,7 +102,7 @@ func KeycloakMiddleware(userService domain.UserService) echo.MiddlewareFunc {
 					Roles:      strings.Join(roles, ","),
 				}
 
-				user, err := userService.RegisterOrUpdateUser(user)
+				user, err := userService.RegisterOrUpdateUser(c.Request().Context(), user)
 				if err != nil {
 					return errutil.NewAppError(errutil.ErrUserRegistrationFailed, err)
 				}

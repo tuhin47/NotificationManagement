@@ -2,11 +2,13 @@ package domain
 
 import (
 	"context"
+
 	"gorm.io/gorm"
 )
 
 type Repository[T any, ID comparable] interface {
 	GetDB(ctx context.Context) *gorm.DB
+	WithTx(tx *gorm.DB) Repository[T, ID]
 	Create(ctx context.Context, entity *T) error
 	GetByID(ctx context.Context, id ID, preloads *[]string) (*T, error)
 	GetByIDs(ctx context.Context, ids []uint, preloads *[]string) ([]T, error)

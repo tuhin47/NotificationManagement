@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/jackc/pgx/v5/pgconn"
 	"gorm.io/gorm"
 )
@@ -13,26 +14,64 @@ import (
 type SQLRepository[T any] struct {
 	db *gorm.DB
 }
+type txContextKey string
 
-type Filter struct {
-	Field string
-	Op    string // e.g., "=", "LIKE", "IN"
-	Value interface{}
+const TXContextKey txContextKey = "txContext"
+
+type TxContextKey struct {
+	DB     *gorm.DB
+	Filter []*Filter
 }
 
-type ContextStruct struct {
-	Filter *[]Filter
+type Filter struct {
+	Field   string
+	Op      string
+	Value   interface{}
+	Applied bool
+}
+
+func NewFilter(field string, op string, value interface{}) *Filter {
+	return &Filter{Value: value, Op: op, Field: field, Applied: false}
 }
 
 func NewSQLRepository[T any](db *gorm.DB) domain.Repository[T, uint] {
 	return &SQLRepository[T]{db: db}
 }
+
 func (r *SQLRepository[T]) GetDB(ctx context.Context) *gorm.DB {
-	return r.db
+	if tx, ok := GetTxContext(ctx); ok {
+		return tx.DB.WithContext(ctx)
+	}
+	return r.db.WithContext(ctx)
+}
+
+func GetTxContext(ctx context.Context) (*TxContextKey, bool) {
+	if contextKey, ok := ctx.Value(TXContextKey).(*TxContextKey); ok {
+		return contextKey, true
+	}
+	return nil, false
+}
+
+func ApplyFilter(ctx context.Context, query *gorm.DB) *gorm.DB {
+	if contextKey, ok := GetTxContext(ctx); ok {
+		for i, f := range contextKey.Filter {
+			if f.Applied {
+				continue
+			}
+			clause := fmt.Sprintf("%s %s ?", f.Field, f.Op)
+			query = query.Where(clause, f.Value)
+			(contextKey.Filter)[i].Applied = true
+		}
+	}
+	return query
+}
+
+func (r *SQLRepository[T]) WithTx(tx *gorm.DB) domain.Repository[T, uint] {
+	return &SQLRepository[T]{db: tx}
 }
 
 func (r *SQLRepository[T]) Create(ctx context.Context, entity *T) error {
-	withContext := r.db.WithContext(ctx)
+	withContext := r.GetDB(ctx)
 	withContext = ApplyFilter(ctx, withContext)
 	err := withContext.Create(entity).Error
 	if err != nil {
@@ -60,7 +99,7 @@ func handleDbError(err error) error {
 
 func (r *SQLRepository[T]) GetByID(ctx context.Context, id uint, preloads *[]string) (*T, error) {
 	var entity T
-	dbContext := r.db.WithContext(ctx)
+	dbContext := r.GetDB(ctx)
 	if preloads != nil {
 		for _, it := range *preloads {
 			dbContext = dbContext.Preload(it)
@@ -76,7 +115,7 @@ func (r *SQLRepository[T]) GetByID(ctx context.Context, id uint, preloads *[]str
 
 func (r *SQLRepository[T]) GetAll(ctx context.Context, limit, offset int) ([]T, error) {
 	var entities []T
-	withContext := r.db.WithContext(ctx)
+	withContext := r.GetDB(ctx)
 	withContext = ApplyFilter(ctx, withContext)
 	err := withContext.Limit(limit).Offset(offset).Find(&entities).Error
 	if err != nil {
@@ -85,21 +124,8 @@ func (r *SQLRepository[T]) GetAll(ctx context.Context, limit, offset int) ([]T, 
 	return entities, nil
 }
 
-func ApplyFilter(ctx context.Context, query *gorm.DB) *gorm.DB {
-	key := ContextStruct{}
-
-	type ExtraFilters *[]Filter
-	if contextKey, ok := ctx.Value(key).(*ContextStruct); ok {
-		for _, f := range *contextKey.Filter {
-			clause := fmt.Sprintf("%s %s ?", f.Field, f.Op)
-			query = query.Where(clause, f.Value)
-		}
-	}
-	return query
-}
-
 func (r *SQLRepository[T]) Update(ctx context.Context, entity *T) error {
-	err := r.db.WithContext(ctx).Save(entity).Error
+	err := r.GetDB(ctx).Save(entity).Error
 	if err != nil {
 		return handleDbError(err)
 	}
@@ -108,7 +134,7 @@ func (r *SQLRepository[T]) Update(ctx context.Context, entity *T) error {
 
 func (r *SQLRepository[T]) Delete(ctx context.Context, id uint) error {
 	var entity T
-	res := r.db.WithContext(ctx).Delete(&entity, id)
+	res := r.GetDB(ctx).Delete(&entity, id)
 	err := res.Error
 	if err != nil {
 		return errutil.NewAppError(errutil.ErrDatabaseQuery, err)
@@ -122,7 +148,7 @@ func (r *SQLRepository[T]) Delete(ctx context.Context, id uint) error {
 
 func (r *SQLRepository[T]) Count(ctx context.Context) (int64, error) {
 	var count int64
-	err := r.db.Model(new(T)).Count(&count).Error
+	err := r.GetDB(ctx).Model(new(T)).Count(&count).Error
 	if err != nil {
 		return 0, handleDbError(err)
 	}
@@ -131,13 +157,13 @@ func (r *SQLRepository[T]) Count(ctx context.Context) (int64, error) {
 
 func (r *SQLRepository[T]) GetByIDs(ctx context.Context, ids []uint, preloads *[]string) ([]T, error) {
 	var entities []T
-	dbContext := r.db.WithContext(ctx)
+	dbContext := r.GetDB(ctx)
 	if preloads != nil {
 		for _, it := range *preloads {
 			dbContext = dbContext.Preload(it)
 		}
 	}
-	dbContext = ApplyFilter(ctx, r.db)
+	dbContext = ApplyFilter(ctx, dbContext)
 	err := dbContext.Where("id IN (?)", ids).Find(&entities).Error
 	if err != nil {
 		return nil, handleDbError(err)
