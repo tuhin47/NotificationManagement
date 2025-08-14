@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  labels:
+    app: keycloak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+        - name: keycloak
+          image: keycloak/keycloak:25.0.6
+          command:
+            - start-dev
+            - --import-realm
+          env:
+            - name: KC_HOSTNAME
+              value: "localhost"
+            - name: KEYCLOAK_USER
+              value: "admin"
+            - name: KEYCLOAK_PASSWORD
+              value: "secret"
+            - name: KEYCLOAK_ADMIN
+              value: "admin"
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              value: "secret"
+            - name: KC_HEALTH_ENABLED
+              value: "true"
+            - name: KC_FEATURES
+              value: "account-api,account3,authorization,client-policies,impersonation,docker,scripts,admin-fine-grained-authz"
+          ports:
+            - containerPort: 8080
+            - containerPort: 9000
+          volumeMounts:
+            - name: keycloak-import
+              mountPath: /opt/keycloak/data/import/
+      volumes:
+        - name: keycloak-import
+          hostPath:
+            path: /home/towhidul/GoProjects/NotificationManagement/keycloak/import
+            type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  labels:
+    app: keycloak
+spec:
+  selector:
+    app: keycloak
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8080
+      name: http
+    - protocol: TCP
+      port: 9000
+      targetPort: 9000
+      name: management
+  type: ClusterIP

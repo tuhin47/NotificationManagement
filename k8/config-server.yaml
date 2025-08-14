@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-server
+  labels:
+    app: config-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: config-server
+  template:
+    metadata:
+      labels:
+        app: config-server
+    spec:
+      containers:
+        - name: config-server
+          image: localstack/localstack:3.2.0
+          ports:
+            - containerPort: 4566
+          env:
+            - name: SERVICES
+              value: "ssm,config"
+            - name: DEBUG
+              value: "1"
+            - name: PERSISTENCE
+              value: "1"
+            - name: DATA_DIR
+              value: "/tmp/localstack/data"
+            - name: LAMBDA_EXECUTOR
+              value: "docker"
+          volumeMounts:
+            - name: docker-sock
+              mountPath: /var/run/docker.sock
+      volumes:
+        - name: docker-sock
+          hostPath:
+            path: /var/run/docker.sock
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: config-server
+  labels:
+    app: config-server
+spec:
+  selector:
+    app: config-server
+  ports:
+    - protocol: TCP
+      port: 4566
+      targetPort: 4566
+  type: ClusterIP
