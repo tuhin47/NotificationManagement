@@ -136,6 +136,47 @@ services:
     depends_on:
       - prometheus
 
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-nms
+    command:
+      - serve
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - LOG_LEVEL
+      - TELEGRAM_TOKEN
+      - GEMINI_KEY
+    volumes:
+      - ./app.log:/app.log
+    depends_on:
+      redis:
+        condition: service_started
+    networks:
+      - nms-network
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-ems-worker
+    command:
+      - worker
+    restart: unless-stopped
+    environment:
+      - LOG_LEVEL
+      - TELEGRAM_TOKEN
+      - GEMINI_KEY
+    volumes:
+      - ./app.log:/app.log
+    depends_on:
+      redis:
+        condition: service_started
+    networks:
+      - nms-network
 networks:
   nms-network:
     driver: bridge
