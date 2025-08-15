@@ -155,7 +155,7 @@ services:
       - REDIS_HOST
       - DB_HOST
       - DB_PORT
-      - KEYCLOAK_SERVER_URL
+      - KEYCLOAK_SERVER_URL=http://${HOSTNAME}:8080
     volumes:
       - ./app.log:/app.log
     depends_on:
@@ -185,7 +185,6 @@ services:
       - REDIS_HOST
       - DB_HOST
       - DB_PORT
-      - KEYCLOAK_SERVER_URL
     volumes:
       - ./app.log:/app.log
     depends_on:

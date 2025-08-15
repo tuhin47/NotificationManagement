@@ -19,9 +19,9 @@ spec:
           image: bitnami/redis:6.0.9
           ports:
             - containerPort: 6379
-          env:
-            - name: ALLOW_EMPTY_PASSWORD
-              value: "yes"
+          envFrom:
+            - configMapRef:
+                name: nms-config
           volumeMounts:
             - name: redis-data
               mountPath: /bitnami/redis/data

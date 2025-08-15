@@ -21,20 +21,19 @@ spec:
             - start-dev
             - --import-realm
           env:
-            - name: KC_HOSTNAME
-              value: "localhost"
-            - name: KEYCLOAK_USER
-              value: "admin"
             - name: KEYCLOAK_PASSWORD
-              value: "secret"
-            - name: KEYCLOAK_ADMIN
-              value: "admin"
+              valueFrom:
+                secretKeyRef:
+                  name: nms-secrets
+                  key: KEYCLOAK_PASSWORD
             - name: KEYCLOAK_ADMIN_PASSWORD
-              value: "secret"
-            - name: KC_HEALTH_ENABLED
-              value: "true"
-            - name: KC_FEATURES
-              value: "account-api,account3,authorization,client-policies,impersonation,docker,scripts,admin-fine-grained-authz"
+              valueFrom:
+                secretKeyRef:
+                  name: nms-secrets
+                  key: KEYCLOAK_ADMIN_PASSWORD
+          envFrom:
+            - configMapRef:
+                name: nms-config
           ports:
             - containerPort: 8080
             - containerPort: 9000

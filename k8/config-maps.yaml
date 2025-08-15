@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nms-config
+data:
+  SERVICES: "ssm,config"
+  POSTGRES_USER: "user"
+  POSTGRES_DB: "notification_management"
+  KC_HOSTNAME: "keycloak"
+  KEYCLOAK_USER: "admin"
+  KEYCLOAK_ADMIN: "admin"
+  KC_HEALTH_ENABLED: "true"
+  KC_FEATURES: "account-api,account3,authorization,client-policies,impersonation,docker,scripts,admin-fine-grained-authz"
+  ALLOW_EMPTY_PASSWORD: "yes"
+  HTTPPATH: "/mails"
+  GF_SECURITY_ADMIN_USER: "admin"
+  LOG_LEVEL: "debug"
+  AWS_ENDPOINT: "http://config-server:4566"
+  AWS_CONFIG_SERVICE_ENABLED: "false"
+  REDIS_HOST: "redis"
+  DB_HOST: "postgres"
+  DB_PORT: "5432"
+  KEYCLOAK_SERVER_URL: "http://keycloak:8080"

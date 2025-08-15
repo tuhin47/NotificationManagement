@@ -20,10 +20,14 @@ spec:
           ports:
             - containerPort: 3000
           env:
-            - name: GF_SECURITY_ADMIN_USER
-              value: "admin"
             - name: GF_SECURITY_ADMIN_PASSWORD
-              value: "admin"
+              valueFrom:
+                secretKeyRef:
+                  name: nms-secrets
+                  key: GF_SECURITY_ADMIN_PASSWORD
+          envFrom:
+            - configMapRef:
+                name: nms-config
           volumeMounts:
             - name: grafana-data
               mountPath: /var/lib/grafana

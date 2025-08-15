@@ -20,12 +20,14 @@ spec:
           ports:
             - containerPort: 5432
           env:
-            - name: POSTGRES_USER
-              value: "user"
             - name: POSTGRES_PASSWORD
-              value: "password"
-            - name: POSTGRES_DB
-              value: "notification_management"
+              valueFrom:
+                secretKeyRef:
+                  name: nms-secrets
+                  key: POSTGRES_PASSWORD
+          envFrom:
+            - configMapRef:
+                name: nms-config
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql/data

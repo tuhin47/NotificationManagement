@@ -19,17 +19,9 @@ spec:
           image: localstack/localstack:3.2.0
           ports:
             - containerPort: 4566
-          env:
-            - name: SERVICES
-              value: "ssm,config"
-            - name: DEBUG
-              value: "1"
-            - name: PERSISTENCE
-              value: "1"
-            - name: DATA_DIR
-              value: "/tmp/localstack/data"
-            - name: LAMBDA_EXECUTOR
-              value: "docker"
+          envFrom:
+            - configMapRef:
+                name: nms-config
           volumeMounts:
             - name: docker-sock
               mountPath: /var/run/docker.sock
