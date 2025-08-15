@@ -42,7 +42,7 @@ type DatabaseConfig struct {
 }
 
 type AsynqConfig struct {
-	RedisAddr                   string `mapstructure:"redisaddr"`
+	//RedisAddr                   string `mapstructure:"redisaddr"`
 	DB                          *int   `mapstructure:"db"`
 	Pass                        string `mapstructure:"pass"`
 	Concurrency                 *int   `mapstructure:"concurrency"`
@@ -173,7 +173,7 @@ func loadDefaults() *Config {
 			SSLMode:  "disable",
 		},
 		Asynq: AsynqConfig{
-			RedisAddr:                   "127.0.0.1:6379",
+			//RedisAddr:                   "127.0.0.1:6379",
 			DB:                          helper.ToInt("15"),
 			Pass:                        "*****",
 			Concurrency:                 helper.ToInt("10"),

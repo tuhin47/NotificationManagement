@@ -1,32 +1,18 @@
-# Use the official Golang image as a base for building
-FROM golang:1.22-alpine AS builder
+ARG GO_VERSION=1.24.2
+FROM golang:${GO_VERSION}-alpine AS builder
+RUN mkdir /user && \
+    echo 'nobody:x:65534:65534:nobody:/:' > /user/passwd && \
+    echo 'nobody:x:65534:' > /user/group
+RUN apk add --no-cache ca-certificates
+WORKDIR /src
+COPY ./ ./
+RUN CGO_ENABLED=0 GOFLAGS=-mod=vendor GOOS=linux go build -a -o /app .
 
-# Set the current working directory inside the container
-WORKDIR /app
+FROM alpine:latest AS final
+COPY --from=builder /user/group /user/passwd /etc/
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /app /app
+USER nobody:nobody
 
-# Copy go.mod and go.sum files and download dependencies
-COPY go.mod go.sum ./
-RUN go mod download
-
-# Copy the rest of the application source code
-COPY . .
-
-# Build the Go application
-# CGO_ENABLED=0 is important for static binaries, useful for scratch images
-# -o specifies the output file name
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o notification-management ./main.go
-
-# Use a minimal image for the final stage
-FROM alpine:latest
-
-# Set the current working directory inside the container
-WORKDIR /root/
-
-# Copy the compiled binary from the builder stage
-COPY --from=builder /app/notification-management .
-
-# Expose the port the application listens on (assuming 8080)
 EXPOSE 8080
-
-# Command to run the executable
-CMD ["./notification-management"]
+ENTRYPOINT ["/app"]

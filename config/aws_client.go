@@ -20,6 +20,11 @@ type AWSClient struct {
 }
 
 func NewAWSClient(cnf *AWSConfig) (*AWSClient, error) {
+
+	if os.Getenv(EnvAWSConfigServiceEnabled) == "false" {
+		return nil, fmt.Errorf("aws service not available")
+	}
+
 	var creds aws.CredentialsProvider
 	if cnf.AccessKeyID != "" && cnf.SecretAccessKey != "" {
 		creds = credentials.NewStaticCredentialsProvider(
@@ -94,9 +99,6 @@ func (c *AWSClient) GetConfigurationRecorderStatus(ctx context.Context) (*config
 }
 
 func (c *AWSClient) loadFromSsm() {
-	if os.Getenv(EnvConfigFromSSM) == "false" {
-		return
-	}
 	resp, err := c.ssm.GetParameter(context.TODO(), &ssm.GetParameterInput{
 		Name:           &c.awsConfig.ConfigService.SSM,
 		WithDecryption: aws.Bool(true),

@@ -83,7 +83,7 @@ func registerHooks(telegramAPI domain.TelegramAPI) {
 func NewAsynqServer() *asynq.Server {
 	return asynq.NewServer(
 		asynq.RedisClientOpt{
-			Addr:     config.Asynq().RedisAddr,
+			Addr:     config.GetRedisAddr(),
 			DB:       *config.Asynq().DB,
 			Password: config.Asynq().Pass,
 		},

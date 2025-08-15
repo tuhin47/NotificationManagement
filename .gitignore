@@ -53,6 +53,7 @@ localstack-data/
 tmp/
 temp/
 localstack-data/
+vendor/
 aws/
 sample/
 
