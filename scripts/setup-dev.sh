@@ -14,7 +14,7 @@ if ! docker info > /dev/null 2>&1; then
 fi
 
 echo "📦 Starting LocalStack..."
-docker compose up -d config-server postgres keycloak mailcatcher redis
+docker compose up -d config-server postgres keycloak_svc mailcatcher redis
 
 echo "⏳ Waiting for config-server to be ready..."
 sleep 10
