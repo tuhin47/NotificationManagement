@@ -30,7 +30,7 @@ spec:
       volumes:
         - name: prometheus-config
           hostPath:
-            path: /home/towhidul/GoProjects/NotificationManagement/prometheus
+            path: __PROJECT_BASE_PATH__/prometheus
             type: DirectoryOrCreate
 ---
 apiVersion: v1

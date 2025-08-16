@@ -43,7 +43,7 @@ spec:
       volumes:
         - name: keycloak-import
           hostPath:
-            path: /home/towhidul/GoProjects/NotificationManagement/keycloak/import
+            path: __PROJECT_BASE_PATH__/keycloak/import
             type: DirectoryOrCreate
 ---
 apiVersion: v1

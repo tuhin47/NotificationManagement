@@ -39,7 +39,7 @@ spec:
             claimName: postgres-pv-claim
         - name: postgres-initdb
           hostPath:
-            path: /home/towhidul/GoProjects/NotificationManagement/scripts/db
+            path: __PROJECT_BASE_PATH__/scripts/db
             type: DirectoryOrCreate
 ---
 apiVersion: v1
