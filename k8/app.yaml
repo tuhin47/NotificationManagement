@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  labels:
+    app: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      containers:
+        - name: app
+          image: tuhin47/go-nms:lastest
+          imagePullPolicy: IfNotPresent
+          command: ["/app"]
+          args: ["serve"]
+          ports:
+            - containerPort: 8080
+          env:
+            - name: TELEGRAM_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: nms-secrets
+                  key: TELEGRAM_TOKEN
+            - name: GEMINI_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: nms-secrets
+                  key: GEMINI_KEY
+          envFrom:
+            - configMapRef:
+                name: nms-config
+          volumeMounts:
+            - name: app-log
+              mountPath: /app.log
+      volumes:
+        - name: app-log
+          emptyDir: {} # Or a persistent volume if logs need to persist
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app
+  labels:
+    app: app
+spec:
+  selector:
+    app: app
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP

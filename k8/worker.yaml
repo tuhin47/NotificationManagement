@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  labels:
+    app: worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+        - name: worker
+          image: tuhin47/go-worker:lastest
+          imagePullPolicy: IfNotPresent
+          command: ["/app"]
+          args: ["worker"]
+          env:
+            - name: TELEGRAM_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: nms-secrets
+                  key: TELEGRAM_TOKEN
+            - name: GEMINI_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: nms-secrets
+                  key: GEMINI_KEY
+          envFrom:
+            - configMapRef:
+                name: nms-config
+          volumeMounts:
+            - name: app-log
+              mountPath: /app.log
+      volumes:
+        - name: app-log
+          emptyDir: {} # Or a persistent volume if logs need to persist
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker
+  labels:
+    app: worker
+spec:
+  selector:
+    app: worker
+  ports:
+    - protocol: TCP
+      port: 8080 # Placeholder port, as worker doesn't expose one in docker-compose
+      targetPort: 8080 # Placeholder targetPort
+  type: ClusterIP

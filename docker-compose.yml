@@ -81,7 +81,7 @@ services:
     ports:
       - "6379:6379"
     environment:
-#      - REDIS_PASSWORD=
+      #- REDIS_PASSWORD=
       - ALLOW_EMPTY_PASSWORD=yes
     volumes:
       - nms_redis_local_db:/bitnami/redis/data
@@ -141,9 +141,10 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: go-nms
+    image: tuhin47/go-nms:lastest
     command:
       - serve
-#    restart: unless-stopped
+      #restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
@@ -173,6 +174,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: go-nms-worker
+    image: tuhin47/go-worker:lastest
     command:
       - worker
     restart: unless-stopped
