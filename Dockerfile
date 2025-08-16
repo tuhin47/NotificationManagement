@@ -6,6 +6,7 @@ RUN mkdir /user && \
 RUN apk add --no-cache ca-certificates
 WORKDIR /src
 COPY ./ ./
+RUN go mod vendor
 RUN CGO_ENABLED=0 GOFLAGS=-mod=vendor GOOS=linux go build -a -o /app .
 
 FROM alpine:latest AS final

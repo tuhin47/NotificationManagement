@@ -1,7 +1,8 @@
 #!/bin/bash
 
 PROJECT_BASE_PATH=$(pwd)
-
+kubectl create configmap prometheus-config --from-file=prometheus.yml=prometheus/prometheus.yml
+kubectl create configmap keycloak-import --from-file=gocloak-realm.json=keycloak/import/gocloak-realm.json
 for file in k8/*.yaml; do
   if grep -q "__PROJECT_BASE_PATH__" "$file"; then
     echo "Processing $file..."
@@ -11,5 +12,4 @@ for file in k8/*.yaml; do
     kubectl apply -f "$file"
   fi
 done
-
 echo "All Kubernetes manifests in 'k8' directory processed with dynamic path: $PROJECT_BASE_PATH"

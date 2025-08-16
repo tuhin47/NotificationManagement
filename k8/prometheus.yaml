@@ -21,17 +21,17 @@ spec:
             - containerPort: 9090
           volumeMounts:
             - name: prometheus-config
-              mountPath: /etc/prometheus
-          command:
-            - '--config.file=/etc/prometheus/prometheus.yml'
-            - '--storage.tsdb.path=/prometheus'
-            - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-            - '--web.console.templates=/usr/share/prometheus/consoles'
+              mountPath: /etc/prometheus/
+          command: ["prometheus"]
+          args:
+            - --config.file=/etc/prometheus/prometheus.yml
+            - --storage.tsdb.path=/prometheus
+            - --web.console.libraries=/usr/share/prometheus/console_libraries
+            - --web.console.templates=/usr/share/prometheus/consoles
       volumes:
         - name: prometheus-config
-          hostPath:
-            path: __PROJECT_BASE_PATH__/prometheus
-            type: DirectoryOrCreate
+          configMap:
+            name: prometheus-config
 ---
 apiVersion: v1
 kind: Service

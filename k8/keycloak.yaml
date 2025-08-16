@@ -18,6 +18,7 @@ spec:
         - name: keycloak
           image: keycloak/keycloak:25.0.6
           command:
+            - /opt/keycloak/bin/kc.sh
             - start-dev
             - --import-realm
           env:
@@ -42,9 +43,8 @@ spec:
               mountPath: /opt/keycloak/data/import/
       volumes:
         - name: keycloak-import
-          hostPath:
-            path: __PROJECT_BASE_PATH__/keycloak/import
-            type: DirectoryOrCreate
+          configMap:
+            name: keycloak-import
 ---
 apiVersion: v1
 kind: Service
