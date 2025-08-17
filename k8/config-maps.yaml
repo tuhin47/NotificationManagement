@@ -21,3 +21,6 @@ data:
   DB_HOST: "postgres"
   DB_PORT: "5432"
   KEYCLOAK_SERVER_URL: "http://keycloak:8080"
+  GF_SERVER_ROOT_URL: "http://localhost:3000/grafana"
+  GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+  KC_HTTP_RELATIVE_PATH: "/keycloak"

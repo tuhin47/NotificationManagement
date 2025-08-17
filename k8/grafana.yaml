@@ -1,10 +1,11 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: grafana
   labels:
     app: grafana
 spec:
+  serviceName: "grafana"
   replicas: 1
   selector:
     matchLabels:
@@ -31,10 +32,14 @@ spec:
           volumeMounts:
             - name: grafana-data
               mountPath: /var/lib/grafana
-      volumes:
-        - name: grafana-data
-          persistentVolumeClaim:
-            claimName: grafana-pv-claim
+  volumeClaimTemplates:
+    - metadata:
+        name: grafana-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
 ---
 apiVersion: v1
 kind: Service
@@ -50,16 +55,3 @@ spec:
       port: 3000
       targetPort: 3000
   type: ClusterIP
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: grafana-pv-claim
-  labels:
-    app: grafana
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi

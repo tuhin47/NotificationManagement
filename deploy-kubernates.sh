@@ -2,6 +2,14 @@
 
 PROJECT_BASE_PATH=$(pwd)
 
+# Check for --del argument
+if [[ "$1" == "--del" ]]; then
+  echo "Deleting all Kubernetes resources..."
+  kubectl delete deployment,service,configmap,secret,ingress,statefulset --all -n default
+  echo "Kubernetes resources deleted."
+  exit 0
+fi
+
 SECRETS_SED_COMMANDS=""
 CONFIGMAP_SED_COMMANDS=""
 
@@ -30,8 +38,7 @@ while IFS='=' read -r key value; do
   fi
 
   if grep -q "  $key:" k8/config-maps.yaml; then
-    CONFIGMAP_SED_COMMANDS+=" -e \"s|  $key: \".*\"|  $key: \\\"$value\\\"|g\""
-    CONFIGMAP_SED_COMMANDS+=" -e \"s|  $key: .*|  $key: \\\"$value\\\"|g\""
+    CONFIGMAP_SED_COMMANDS+=" -e \"s|^[[:space:]]*$key:.*$|  $key: \\\"$value\\\"|g\""
   fi
 done < .env
 

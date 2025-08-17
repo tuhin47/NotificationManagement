@@ -1,10 +1,11 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: postgres
   labels:
     app: postgres
 spec:
+  serviceName: "postgres"
   replicas: 1
   selector:
     matchLabels:
@@ -34,13 +35,18 @@ spec:
             - name: postgres-initdb
               mountPath: /docker-entrypoint-initdb.d/
       volumes:
-        - name: postgres-data
-          persistentVolumeClaim:
-            claimName: postgres-pv-claim
         - name: postgres-initdb
           hostPath:
             path: __PROJECT_BASE_PATH__/scripts/db
             type: DirectoryOrCreate
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
 ---
 apiVersion: v1
 kind: Service
