@@ -171,11 +171,8 @@ services:
       - "keycloak:host-gateway"
 
   worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
     container_name: go-nms-worker
-    image: tuhin47/go-worker:lastest
+    image: tuhin47/go-nms:lastest
     command:
       - worker
     restart: unless-stopped
@@ -193,6 +190,8 @@ services:
     networks:
       - nms-network
     depends_on:
+      app:
+        condition: service_started
       redis:
         condition: service_started
 networks:

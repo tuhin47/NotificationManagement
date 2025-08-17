@@ -59,3 +59,5 @@ sample/
 
 keycloak/managed_context
 keycloak/test_suite_analysis
+.prompts/
+app-config-prod.json

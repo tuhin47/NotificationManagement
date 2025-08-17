@@ -21,6 +21,8 @@ spec:
           command: ["/app"]
           args: ["worker"]
           env:
+            - name: TELEGRAM_ENABLED
+              value: "true"
             - name: TELEGRAM_TOKEN
               valueFrom:
                 secretKeyRef:
