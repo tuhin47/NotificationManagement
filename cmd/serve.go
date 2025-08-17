@@ -24,13 +24,13 @@ var serveCmd = &cobra.Command{
 		app := fx.New(
 			server.Module,
 			fx.Invoke(func(lc fx.Lifecycle, e *echo.Echo) {
-				e.GET("/health", func(c echo.Context) error {
+				e.GET("/api/health", func(c echo.Context) error {
 					return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
 				})
 
 				// Add Prometheus middleware
 				e.Use(echoprometheus.NewMiddleware("notification_management"))
-				e.GET("/metrics", echoprometheus.NewHandler())
+				e.GET("/api/metrics", echoprometheus.NewHandler())
 
 				port := *config.App().Port
 				addr := fmt.Sprintf(":%d", port)

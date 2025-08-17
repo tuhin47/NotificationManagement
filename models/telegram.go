@@ -7,7 +7,7 @@ import (
 type Telegram struct {
 	gorm.Model
 	UserID *uint  `gorm:"index"`
-	User   User   `gorm:"foreignKey:UserID"`
+	User   User   `gorm:"foreignKey:UserID" json:"-"`
 	ChatID int64  `gorm:"uniqueIndex;not null"`
 	Otp    string `gorm:"size:255;not null"`
 }
