@@ -100,7 +100,7 @@ func parseBasicCurl(raw string) (method, url string, headers map[string]string, 
 }
 
 func executeCurlCommand(command string) (string, error) {
-	cmd := exec.Command("bash", "-c", command)
+	cmd := exec.Command("sh", "-c", command)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", errutil.NewAppErrorWithMessage(errutil.ErrCurlCommandExecutionFailed, err, fmt.Sprintf("Output: %s", output))

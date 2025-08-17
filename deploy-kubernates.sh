@@ -6,7 +6,20 @@ SECRETS_SED_COMMANDS=""
 CONFIGMAP_SED_COMMANDS=""
 
 while IFS='=' read -r key value; do
-  if [[ -z "$key" || -z "$value" ]]; then
+  if [[ -z "$key" ]]; then
+    continue
+  fi
+
+  if [[ "$key" == "GEMINI_KEY" || "$key" == "TELEGRAM_TOKEN" ]]; then
+    if [[ -n "${!key}" ]]; then
+      value="${!key}"
+      echo "Using environment variable for $key"
+    else
+      echo "Warning: $key not found in environment variables. Using value from .env file."
+    fi
+  fi
+  
+  if [[ -z "$value" ]]; then
     continue
   fi
 
@@ -56,3 +69,17 @@ for file in k8/*.yaml; do
   fi
 done
 echo "All Kubernetes manifests in 'k8' directory processed with dynamic path: $PROJECT_BASE_PATH"
+
+echo "Waiting for config-server deployment to be ready..."
+kubectl wait --for=condition=available deployment/config-server --timeout=300s
+
+CONFIG_SERVER_POD=$(kubectl get pods -l app=config-server -o jsonpath='{.items[0].metadata.name}')
+
+if [ -z "$CONFIG_SERVER_POD" ]; then
+  echo "Error: config-server pod not found."
+  exit 1
+fi
+
+kubectl cp env/app-config-prod.json "$CONFIG_SERVER_POD":/tmp/app-config.json
+kubectl cp env/aws_export.sh "$CONFIG_SERVER_POD":/tmp/aws_export.sh
+kubectl exec "$CONFIG_SERVER_POD" -- bash /tmp/aws_export.sh;
