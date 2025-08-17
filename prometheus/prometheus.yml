@@ -1,11 +1,12 @@
 global:
-  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
-  evaluation_interval: 15s # Evaluate rules every 15 seconds. Default is every 1 minute.
+  scrape_interval: 15s
+  evaluation_interval: 15s
 
 scrape_configs:
   - job_name: 'notification-management'
     static_configs:
-      - targets: ['host.docker.internal:8080'] # Assuming your Go app runs on 8080 and exposes /metrics
+      - targets: ['app:8080']
+    metrics_path: /api/metrics
 
 # Queries
 #  sum(notification_management_requests_total) by (url)

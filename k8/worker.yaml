@@ -16,10 +16,17 @@ spec:
     spec:
       containers:
         - name: worker
-          image: tuhin47/go-worker:lastest
+          image: tuhin47/go-nms:lastest
           imagePullPolicy: IfNotPresent
           command: ["/app"]
           args: ["worker"]
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
           env:
             - name: TELEGRAM_ENABLED
               value: "true"
