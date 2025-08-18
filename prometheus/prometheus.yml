@@ -10,3 +10,50 @@ scrape_configs:
 
 # Queries
 #  sum(notification_management_requests_total) by (url)
+#
+# More queries for Grafana dashboard:
+
+# HTTP Request Performance Reports
+# Request Volume/Rate:
+#  sum(notification_management_requests_total) by (url, method)
+#  rate(notification_management_requests_total[5m]) by (url, method)
+
+# Error Rates:
+#  sum(rate(notification_management_requests_total{code=~"5.."}[5m])) by (url)
+#  sum(rate(notification_management_requests_total{code=~"4.."}[5m])) by (url)
+#  sum(notification_management_requests_total{code=~"5.."}) by (url)
+
+# Request Latency/Duration:
+#  histogram_quantile(0.99, sum(rate(notification_management_request_duration_seconds_bucket[5m])) by (le, url, method))
+#  rate(notification_management_request_duration_seconds_sum[5m]) / rate(notification_management_request_duration_seconds_count[5m])
+
+# Request and Response Sizes:
+#  histogram_quantile(0.99, sum(rate(notification_management_request_size_bytes_bucket[5m])) by (le, url, method))
+#  histogram_quantile(0.99, sum(rate(notification_management_response_size_bytes_bucket[5m])) by (le, url, method))
+
+# Go Application Runtime Reports
+# Goroutine Count:
+#  go_goroutines
+
+# Memory Usage:
+#  go_memstats_alloc_bytes
+#  go_memstats_sys_bytes
+#  rate(go_memstats_alloc_bytes_total[5m])
+
+# Garbage Collection (GC) Performance:
+#  go_gc_duration_seconds{quantile="0.99"}
+#  rate(go_gc_duration_seconds_count[5m])
+
+# Process-Level System Reports
+# CPU Usage:
+#  rate(process_cpu_seconds_total[5m])
+
+# Resident Memory:
+#  process_resident_memory_bytes
+
+# File Descriptors:
+#  process_open_fds
+
+# Network I/O:
+#  rate(process_network_receive_bytes_total[5m])
+#  rate(process_network_transmit_bytes_total[5m])

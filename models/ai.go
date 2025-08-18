@@ -26,7 +26,7 @@ type GeminiModel struct {
 	AIModel   `mapper:"inherit"`
 	Name      string          `gorm:"size:255;not null" json:"name"`
 	ModelName string          `gorm:"size:255;not null;check:model_name <> '';index:idx_ai_model_model_secret,unique" json:"model"`
-	APISecret EncryptedString `gorm:"size:500;index:idx_ai_model_model_secret,unique" json:"api_secret"`
+	APISecret EncryptedString `gorm:"size:500;index:idx_ai_model_model_secret,unique" json:"-"`
 }
 
 func (d *AIModel) GetType() string {
