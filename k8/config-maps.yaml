@@ -8,3 +8,4 @@ data:
   KC_HOSTNAME: "keycloak"
   KEYCLOAK_SERVER_URL: "http://keycloak:8080/keycloak"
   LOG_LEVEL: ""
+  GF_SERVER_ROOT_URL: "http://localhost:3000/grafana"
