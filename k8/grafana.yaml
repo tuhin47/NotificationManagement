@@ -23,6 +23,11 @@ spec:
           env:
             - name: GF_SECURITY_ADMIN_USER
               value: "admin"
+            - name: GF_SERVER_ROOT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: nms-config
+                  key: GF_SERVER_ROOT_URL
             - name: GF_SERVER_SERVE_FROM_SUB_PATH
               value: "true"
             - name: GF_SECURITY_ADMIN_PASSWORD

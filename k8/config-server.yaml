@@ -1,10 +1,11 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: config-server
   labels:
     app: config-server
 spec:
+  serviceName: "config-server"
   replicas: 1
   selector:
     matchLabels:
@@ -33,10 +34,21 @@ spec:
           volumeMounts:
             - name: docker-sock
               mountPath: /var/run/docker.sock
+            - name: config-data
+              mountPath: /var/lib/localstack
       volumes:
         - name: docker-sock
           hostPath:
             path: /var/run/docker.sock
+  volumeClaimTemplates:
+    - metadata:
+        name: config-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
+
 ---
 apiVersion: v1
 kind: Service

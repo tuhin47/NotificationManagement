@@ -1,10 +1,11 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: prometheus
   labels:
     app: prometheus
 spec:
+  serviceName: "prometheus"
   replicas: 1
   selector:
     matchLabels:
@@ -22,6 +23,8 @@ spec:
           volumeMounts:
             - name: prometheus-config
               mountPath: /etc/prometheus
+            - name: prometheus-data
+              mountPath: /prometheus
           resources:
             requests:
               memory: "256Mi"
@@ -41,6 +44,14 @@ spec:
           hostPath:
             path: __PROJECT_BASE_PATH__/prometheus
             type: DirectoryOrCreate
+  volumeClaimTemplates:
+    - metadata:
+        name: prometheus-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 2Gi
 ---
 apiVersion: v1
 kind: Service

@@ -3,9 +3,9 @@ kind: ConfigMap
 metadata:
   name: nms-config
 data:
-#  AWS_CONFIG_SERVICE_ENABLED: "false"
-  AWS_ENDPOINT: "http://config-server:4566"
-  KC_HOSTNAME: "keycloak"
-  KEYCLOAK_SERVER_URL: "http://keycloak:8080/keycloak"
+  AWS_CONFIG_SERVICE_ENABLED: "false"
+  KC_HOSTNAME: "hostname"
+  AWS_ENDPOINT: "http://hostname:4566"
+  KEYCLOAK_SERVER_URL: "http://hostname:8080/keycloak"
   LOG_LEVEL: ""
-  GF_SERVER_ROOT_URL: "http://localhost:3000/grafana"
+  GF_SERVER_ROOT_URL: "http://hostname:3000/grafana"

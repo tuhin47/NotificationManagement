@@ -74,8 +74,8 @@ for file in k8/*.yaml; do
 done
 echo "All Kubernetes manifests in 'k8' directory processed with dynamic path: $PROJECT_BASE_PATH"
 
-echo "Waiting for config-server deployment to be ready..."
-kubectl wait --for=condition=available deployment/config-server --timeout=300s
+echo "Waiting for config-server statefulset to be ready..."
+kubectl rollout status --watch --timeout=300s statefulset/config-server
 
 CONFIG_SERVER_POD=$(kubectl get pods -l app=config-server -o jsonpath='{.items[0].metadata.name}')
 
