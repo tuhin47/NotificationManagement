@@ -33,6 +33,16 @@ spec:
                 secretKeyRef:
                   name: nms-secrets
                   key: KEYCLOAK_ADMIN_PASSWORD
+            - name: KC_FEATURES
+              value: "account-api,account3,authorization,client-policies,impersonation,docker,scripts,admin-fine-grained-authz"
+            - name: KC_HEALTH_ENABLED
+              value: "true"
+            - name: KC_HTTP_RELATIVE_PATH
+              value: "/keycloak"
+            - name: KEYCLOAK_ADMIN
+              value: "admin"
+            - name: KEYCLOAK_USER
+              value: "admin"
           envFrom:
             - configMapRef:
                 name: nms-config

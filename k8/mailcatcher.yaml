@@ -20,6 +20,9 @@ spec:
           ports:
             - containerPort: 1080
             - containerPort: 1025
+          env:
+            - name: HTTPPATH
+              value: "/mails"
           envFrom:
             - configMapRef:
                 name: nms-config

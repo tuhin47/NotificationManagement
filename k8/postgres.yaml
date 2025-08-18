@@ -26,6 +26,10 @@ spec:
                 secretKeyRef:
                   name: nms-secrets
                   key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              value: "notification_management"
+            - name: POSTGRES_USER
+              value: "user"
           envFrom:
             - configMapRef:
                 name: nms-config
