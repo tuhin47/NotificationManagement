@@ -41,11 +41,12 @@ spec:
             - containerPort: 9000
           volumeMounts:
             - name: keycloak-import
-              mountPath: /opt/keycloak/data/import/
+              mountPath: /opt/keycloak/data/import
       volumes:
         - name: keycloak-import
-          configMap:
-            name: keycloak-import
+          hostPath:
+            path: __PROJECT_BASE_PATH__/keycloak/import
+            type: DirectoryOrCreate
 ---
 apiVersion: v1
 kind: Service

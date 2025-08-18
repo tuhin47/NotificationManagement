@@ -58,9 +58,6 @@ else
   kubectl apply -f k8/config-maps.yaml
 fi
 
-kubectl create configmap prometheus-config --from-file=prometheus.yml=prometheus/prometheus.yml
-kubectl create configmap keycloak-import --from-file=gocloak-realm.json=keycloak/import/gocloak-realm.json
-
 for file in k8/*.yaml; do
   if [ "$file" == "k8/secrets.yaml" ] || [ "$file" == "k8/config-maps.yaml" ]; then
     echo "Skipping $file as it's already processed."
