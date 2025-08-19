@@ -12,13 +12,12 @@ import (
 	"NotificationManagement/services/notifier"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/fx"
-	"gorm.io/gorm" // Import gorm
+	"gorm.io/gorm"
 )
 
 func NewEcho(db *gorm.DB) *echo.Echo {
 	e := echo.New()
 	e.Use(interceptLogger)
-	//e.Use(errutil.ErrorHandler())
 	e.Use(middleware.TransactionMiddleware(db))
 	return e
 }
