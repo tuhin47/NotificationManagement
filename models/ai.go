@@ -12,7 +12,8 @@ type AIModelInterface interface {
 
 type AIModel struct {
 	gorm.Model
-	Type string `gorm:"size:10;check:type IN ('local','openai','gemini','deepseek')"`
+	Type    string  `gorm:"size:10;check:type IN ('local','openai','gemini','deepseek')"`
+	BaseURL *string `gorm:"size:500" json:"base_url,omitempty"`
 }
 
 type OpenAIModel struct {
@@ -26,7 +27,6 @@ type DeepseekModel struct {
 	AIModel   `mapper:"inherit"`
 	Name      string `gorm:"size:255;not null" json:"name"`
 	ModelName string `gorm:"size:255;not null;check:model_name <> '';index:idx_ai_model_model_url,unique" json:"model"`
-	BaseURL   string `gorm:"size:500;index:idx_ai_model_model_url,unique" json:"base_url"`
 	Size      int64  `json:"size"`
 }
 
@@ -50,6 +50,13 @@ func (d *GeminiModel) GetAPIKey() string {
 		return config.Development().GeminiKey
 	}
 	return string(d.APISecret)
+}
+
+func (d *AIModel) GetBaseURL() string {
+	if d.BaseURL != nil && *d.BaseURL != "" {
+		return *d.BaseURL
+	}
+	return ""
 }
 
 func (d *OpenAIModel) GetAPIKey() string {

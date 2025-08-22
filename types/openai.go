@@ -43,7 +43,7 @@ type JSONSchema struct {
 }
 
 // MarshalJSON implements json.Marshaler interface
-func (j JSONSchema) MarshalJSON() ([]byte, error) {
+func (j *JSONSchema) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		Type                 string                        `json:"type"`
 		Properties           map[string]JSONSchemaProperty `json:"properties"`

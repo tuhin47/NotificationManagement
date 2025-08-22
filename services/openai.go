@@ -2,7 +2,6 @@ package services
 
 import (
 	"NotificationManagement/domain"
-	"NotificationManagement/logger"
 	"NotificationManagement/models"
 	"NotificationManagement/repositories"
 	"NotificationManagement/types"
@@ -123,8 +122,9 @@ func openAICall(ctx context.Context, model *models.OpenAIModel, response *types.
 	}
 
 	config := openai.DefaultConfig(model.GetAPIKey())
-	// TODO : Here we have to define custom baseurl
-	//config.BaseURL = "https://api.sambanova.ai/v1"
+	if model.GetBaseURL() != "" {
+		config.BaseURL = model.GetBaseURL()
+	}
 	client := openai.NewClientWithConfig(config)
 
 	messages := []openai.ChatCompletionMessage{
@@ -141,8 +141,6 @@ func openAICall(ctx context.Context, model *models.OpenAIModel, response *types.
 	// Create JSON schema from additional fields for structured output
 	jsonSchema := createJSONSchema(req)
 
-	logger.Debug(jsonSchema.Type)
-
 	resp, err := client.CreateChatCompletion(
 		ctx,
 		openai.ChatCompletionRequest{
@@ -154,7 +152,7 @@ func openAICall(ctx context.Context, model *models.OpenAIModel, response *types.
 				JSONSchema: &openai.ChatCompletionResponseFormatJSONSchema{
 					Name:        "response_schema",
 					Description: "Structured response with required fields",
-					Schema:      jsonSchema,
+					Schema:      &jsonSchema, // Pass a pointer to jsonSchema
 					Strict:      true,
 				},
 			},

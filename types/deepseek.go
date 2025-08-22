@@ -19,7 +19,7 @@ func FromDeepseekModel(model *models.DeepseekModel) *DeepseekModelResponse {
 		Name:      model.Name,
 		Type:      model.Type,
 		ModelName: model.ModelName,
-		BaseURL:   model.BaseURL,
+		BaseURL:   model.GetBaseURL(),
 		Size:      model.Size,
 		CreatedAt: model.CreatedAt.Format(ResponseDateFormat),
 		UpdatedAt: model.UpdatedAt.Format(ResponseDateFormat),

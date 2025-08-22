@@ -7,6 +7,7 @@
     * [Non-Functional Features](#non-functional-features)
   * [Quick Start](#quick-start)
     * [Prerequisites](#prerequisites)
+      * [Install awscli and awscli-local](#install-awscli-and-awscli-local)
     * [1. Setup Environment](#1-setup-environment)
     * [2. Build and Run the Application](#2-build-and-run-the-application)
   * [Services](#services)
@@ -46,7 +47,8 @@ This project is a notification management system that leverages AI for processin
 - Docker and Docker Compose (for LocalStack)
 - AWS CLI 
 
-#### If you don't have AWS CLI installed, you can install it using the following command:
+#### Install awscli and awscli-local
+If you don't have AWS CLI installed, you can install it using the following command:
 ```bash
 sudo apt-get install python3-pip -y
 pip3 install awscli awscli-local
@@ -117,8 +119,7 @@ Now you can use the APIs in the collection.
 
 ## Future Plans
 
-- Authentication in requests
-- AI based todo setup
-- Report generation based on periodic results
-- Additional notification formats (e.g., PDF, Excel)
-- Add OPENAI integration for AI processing
+- Sandbox for running curl command
+- Add Front End
+- Generic Pages
+- Complex Search screens
