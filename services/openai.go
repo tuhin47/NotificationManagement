@@ -21,21 +21,24 @@ type JSONSchemaProperty struct {
 
 // JSONSchema represents a JSON schema structure
 type JSONSchema struct {
-	Type       string                        `json:"type"`
-	Properties map[string]JSONSchemaProperty `json:"properties"`
-	Required   []string                      `json:"required"`
+	Type                 string                        `json:"type"`
+	Properties           map[string]JSONSchemaProperty `json:"properties"`
+	Required             []string                      `json:"required"`
+	AdditionalProperties bool                          `json:"additionalProperties"`
 }
 
 // MarshalJSON implements json.Marshaler interface
 func (j JSONSchema) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		Type       string                        `json:"type"`
-		Properties map[string]JSONSchemaProperty `json:"properties"`
-		Required   []string                      `json:"required"`
+		Type                 string                        `json:"type"`
+		Properties           map[string]JSONSchemaProperty `json:"properties"`
+		Required             []string                      `json:"required"`
+		AdditionalProperties bool                          `json:"additionalProperties"`
 	}{
-		Type:       j.Type,
-		Properties: j.Properties,
-		Required:   j.Required,
+		Type:                 j.Type,
+		Properties:           j.Properties,
+		Required:             j.Required,
+		AdditionalProperties: j.AdditionalProperties,
 	})
 }
 
@@ -87,7 +90,11 @@ func (s *OpenAIServiceImpl) GetAIJsonResponse(c context.Context, m *models.AIMod
 	}
 	resp, _ := request.(*openai.ChatCompletionResponse)
 	var aiResp map[string]interface{}
-	if err := json.Unmarshal([]byte(resp.Choices[0].Message.Content), &aiResp); err != nil {
+	if len(resp.Choices) == 0 {
+		return map[string]interface{}{
+			"comment": "Failed",
+		}, nil
+	} else if err := json.Unmarshal([]byte(resp.Choices[0].Message.Content), &aiResp); err != nil {
 		return map[string]interface{}{
 			"comment": resp.Choices[0].Message.Content,
 		}, nil
@@ -131,9 +138,10 @@ func createJSONSchema(req *models.CurlRequest) JSONSchema {
 	}
 
 	return JSONSchema{
-		Type:       "object",
-		Properties: properties,
-		Required:   required,
+		Type:                 "object",
+		Properties:           properties,
+		Required:             required,
+		AdditionalProperties: false,
 	}
 }
 
@@ -144,7 +152,8 @@ func openAICall(ctx context.Context, model *models.OpenAIModel, response *types.
 	}
 
 	config := openai.DefaultConfig(model.GetAPIKey())
-	config.BaseURL = "https://api.closerouter.com/v1"
+	// TODO : Here we have to define custom baseurl
+	//config.BaseURL = "https://api.sambanova.ai/v1"
 	client := openai.NewClientWithConfig(config)
 
 	messages := []openai.ChatCompletionMessage{
@@ -168,6 +177,7 @@ func openAICall(ctx context.Context, model *models.OpenAIModel, response *types.
 		openai.ChatCompletionRequest{
 			Model:    model.ModelName,
 			Messages: messages,
+			Stream:   false,
 			ResponseFormat: &openai.ChatCompletionResponseFormat{
 				Type: openai.ChatCompletionResponseFormatTypeJSONSchema,
 				JSONSchema: &openai.ChatCompletionResponseFormatJSONSchema{
