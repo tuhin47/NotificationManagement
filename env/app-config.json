@@ -65,7 +65,7 @@
     }
   },
   "keycloak": {
-    "serverUrl": "http://localhost:8081",
+    "serverUrl": "http://localhost:8081/keycloak/",
     "realm": "gocloak",
     "clientId": "gocloak",
     "clientSecret": "gocloak-secret"

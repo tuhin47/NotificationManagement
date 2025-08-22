@@ -1,5 +1,7 @@
 package types
 
+import "NotificationManagement/models"
+
 type DeepseekModelResponse struct {
 	ID        uint   `json:"id"`
 	Name      string `json:"name"`
@@ -9,4 +11,17 @@ type DeepseekModelResponse struct {
 	Size      int64  `json:"size"`
 	CreatedAt string `json:"created_at"`
 	UpdatedAt string `json:"updated_at"`
+}
+
+func FromDeepseekModel(model *models.DeepseekModel) *DeepseekModelResponse {
+	return &DeepseekModelResponse{
+		ID:        model.ID,
+		Name:      model.Name,
+		Type:      model.Type,
+		ModelName: model.ModelName,
+		BaseURL:   model.BaseURL,
+		Size:      model.Size,
+		CreatedAt: model.CreatedAt.Format(ResponseDateFormat),
+		UpdatedAt: model.UpdatedAt.Format(ResponseDateFormat),
+	}
 }

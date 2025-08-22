@@ -4,6 +4,7 @@ import (
 	"NotificationManagement/models"
 	"NotificationManagement/utils/errutil"
 	"fmt"
+
 	"gorm.io/gorm"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -77,20 +78,14 @@ func (dr *AIModelRequest) ToModel() (models.AIModelInterface, error) {
 			ModelName: dr.ModelName,
 			APISecret: models.EncryptedString(dr.APISecret),
 		}, nil
+	case "openai":
+		return &models.OpenAIModel{
+			AIModel:   aiModel,
+			Name:      dr.Name,
+			ModelName: dr.ModelName,
+			APISecret: models.EncryptedString(dr.APISecret),
+		}, nil
 	default:
 		return nil, errutil.NewAppError(errutil.ErrUnsupportedAIModelType, fmt.Errorf("unsupported AI model type: %s", dr.Type))
-	}
-}
-
-func FromDeepseekModel(model *models.DeepseekModel) *DeepseekModelResponse {
-	return &DeepseekModelResponse{
-		ID:        model.ID,
-		Name:      model.Name,
-		Type:      model.Type,
-		ModelName: model.ModelName,
-		BaseURL:   model.BaseURL,
-		Size:      model.Size,
-		CreatedAt: model.CreatedAt.Format(ResponseDateFormat),
-		UpdatedAt: model.UpdatedAt.Format(ResponseDateFormat),
 	}
 }

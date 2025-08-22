@@ -12,11 +12,12 @@ type AiDispatcherImpl struct {
 	aiModel  domain.AIModelService
 }
 
-func NewAIDispatcher(geminiService domain.GeminiService, deepseekService domain.DeepseekService, ai domain.AIModelService) domain.AiDispatcher {
+func NewAIDispatcher(geminiService domain.GeminiService, deepseekService domain.DeepseekService, openaiService domain.OpenAIService, ai domain.AIModelService) domain.AiDispatcher {
 	return &AiDispatcherImpl{
 		services: &[]domain.DispatchableAIService{
 			geminiService,
 			deepseekService,
+			openaiService,
 		},
 		aiModel: ai,
 	}
