@@ -1,4 +1,4 @@
-I want to thispackage services
+package services
 
 import (
 	"NotificationManagement/domain"
@@ -11,7 +11,6 @@ import (
 	"encoding/json"
 	"os"
 
-	"google.golang.org/api/option"
 	"google.golang.org/genai"
 )
 
@@ -79,17 +78,15 @@ func geminiCall(ctx context.Context, model *models.GeminiModel, response *types.
 	if err != nil {
 		return nil, err
 	}
-	opts := []option.ClientOption{
-		option.WithAPIKey(model.GetAPIKey()),
-	}
-	if model.GetBaseURL() != "" {
-		opts = append(opts, option.WithEndpoint(model.GetBaseURL()))
-	}
-	client, err := genai.NewClient(ctx, opts...)
+	client, err := genai.NewClient(ctx, &genai.ClientConfig{
+		APIKey: model.GetAPIKey(),
+		HTTPOptions: genai.HTTPOptions{
+			BaseURL: model.GetBaseURL(),
+		},
+	})
 	if err != nil {
 		return nil, err
 	}
-
 	var parts []*genai.Part
 
 	if req.ResponseType == types.ResponseTypeHTML {
