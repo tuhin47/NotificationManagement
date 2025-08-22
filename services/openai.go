@@ -13,35 +13,6 @@ import (
 	"github.com/sashabaranov/go-openai"
 )
 
-// JSONSchemaProperty represents a property in a JSON schema
-type JSONSchemaProperty struct {
-	Type        string `json:"type"`
-	Description string `json:"description,omitempty"`
-}
-
-// JSONSchema represents a JSON schema structure
-type JSONSchema struct {
-	Type                 string                        `json:"type"`
-	Properties           map[string]JSONSchemaProperty `json:"properties"`
-	Required             []string                      `json:"required"`
-	AdditionalProperties bool                          `json:"additionalProperties"`
-}
-
-// MarshalJSON implements json.Marshaler interface
-func (j JSONSchema) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		Type                 string                        `json:"type"`
-		Properties           map[string]JSONSchemaProperty `json:"properties"`
-		Required             []string                      `json:"required"`
-		AdditionalProperties bool                          `json:"additionalProperties"`
-	}{
-		Type:                 j.Type,
-		Properties:           j.Properties,
-		Required:             j.Required,
-		AdditionalProperties: j.AdditionalProperties,
-	})
-}
-
 type OpenAIServiceImpl struct {
 	domain.CommonService[models.OpenAIModel]
 	CurlService domain.CurlService
@@ -107,11 +78,11 @@ func (s *OpenAIServiceImpl) GetModelType() string {
 }
 
 // createJSONSchema creates a JSON schema from the CurlRequest additional fields
-func createJSONSchema(req *models.CurlRequest) JSONSchema {
-	properties := make(map[string]JSONSchemaProperty)
+func createJSONSchema(req *models.CurlRequest) types.JSONSchema {
+	properties := make(map[string]types.JSONSchemaProperty)
 	required := []string{"IsCorrect"}
 
-	properties["IsCorrect"] = JSONSchemaProperty{
+	properties["IsCorrect"] = types.JSONSchemaProperty{
 		Type:        "boolean",
 		Description: "Indicates whether the response is correct",
 	}
@@ -129,7 +100,7 @@ func createJSONSchema(req *models.CurlRequest) JSONSchema {
 				schemaType = "string"
 			}
 
-			properties[field.PropertyName] = JSONSchemaProperty{
+			properties[field.PropertyName] = types.JSONSchemaProperty{
 				Type:        schemaType,
 				Description: field.Description,
 			}
@@ -137,7 +108,7 @@ func createJSONSchema(req *models.CurlRequest) JSONSchema {
 		}
 	}
 
-	return JSONSchema{
+	return types.JSONSchema{
 		Type:                 "object",
 		Properties:           properties,
 		Required:             required,
