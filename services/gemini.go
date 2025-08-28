@@ -80,11 +80,13 @@ func geminiCall(ctx context.Context, model *models.GeminiModel, response *types.
 	}
 	client, err := genai.NewClient(ctx, &genai.ClientConfig{
 		APIKey: model.GetAPIKey(),
+		HTTPOptions: genai.HTTPOptions{
+			BaseURL: model.GetBaseURL(),
+		},
 	})
 	if err != nil {
 		return nil, err
 	}
-
 	var parts []*genai.Part
 
 	if req.ResponseType == types.ResponseTypeHTML {

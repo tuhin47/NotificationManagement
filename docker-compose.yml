@@ -56,7 +56,6 @@ services:
       - --import-realm
     environment:
       KC_HOSTNAME: $KEYCLOAK_SERVER_URL
-      KC_HOSTNAME_STRICT: true
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: secret
       KEYCLOAK_ADMIN: admin

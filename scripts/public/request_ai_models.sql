@@ -8,10 +8,10 @@ CREATE TABLE IF NOT EXISTS public.request_ai_models
     is_active   boolean DEFAULT TRUE,
     ai_model_id bigint,
     PRIMARY KEY (id),
-    CONSTRAINT fk_curl_requests_models
-        FOREIGN KEY (request_id) REFERENCES public.curl_requests,
     CONSTRAINT fk_request_ai_models_ai_model
-        FOREIGN KEY (ai_model_id) REFERENCES public.ai_models
+        FOREIGN KEY (ai_model_id) REFERENCES public.ai_models,
+    CONSTRAINT fk_curl_requests_models
+        FOREIGN KEY (request_id) REFERENCES public.curl_requests
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_request_ai_model

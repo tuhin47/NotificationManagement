@@ -92,7 +92,7 @@ func (s *DeepseekServiceImpl) PullModel(_ context.Context, model *models.Deepsee
 		return errutil.NewAppError(errutil.ErrAIMarshalRequestFailed, err)
 	}
 
-	url := fmt.Sprintf("%s/api/pull", model.BaseURL)
+	url := fmt.Sprintf("%s/api/pull", model.GetBaseURL())
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return errutil.NewAppError(errutil.ErrAICreateRequestFailed, err)
@@ -166,7 +166,7 @@ func deepseekCall(model *models.DeepseekModel, response *types.CurlResponse, cur
 		return nil, err
 	}
 
-	url := fmt.Sprintf("%s/api/chat", model.BaseURL)
+	url := fmt.Sprintf("%s/api/chat", model.GetBaseURL())
 	client := &http.Client{}
 	req, err := http.NewRequest("POST", url, strings.NewReader(string(reqBody)))
 	if err != nil {

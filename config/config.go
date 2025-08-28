@@ -3,9 +3,10 @@ package config
 import (
 	"NotificationManagement/config/helper"
 	"fmt"
-	"github.com/spf13/viper"
 	"os"
 	"reflect"
+
+	"github.com/spf13/viper"
 )
 
 type Config struct {
@@ -22,6 +23,7 @@ type Config struct {
 }
 type DevelopmentConfig struct {
 	GeminiKey string `mapstructure:"geminikey"`
+	OpenAIKey string `mapstructure:"openaikey"`
 }
 type AppConfig struct {
 	Name       string `mapstructure:"name"`
@@ -130,7 +132,7 @@ func LoadConfig() {
 		fmt.Printf("Error unmarshaling config: %v\n", err)
 		os.Exit(1)
 	}
-	printAllVipers()
+	//printAllVipers()
 }
 
 func printAllVipers() {
@@ -222,7 +224,7 @@ func loadDefaults() *Config {
 			Format:   "",
 		},
 		Keycloak: KeycloakConfig{
-			ServerURL:    "http://localhost:8081",
+			ServerURL:    "http://localhost:8081/keycloak/",
 			Realm:        "gocloak",
 			ClientID:     "gocloak",
 			ClientSecret: "gocloak-secret",
@@ -338,6 +340,7 @@ func loadFromEnv() *Config {
 		},
 		Development: DevelopmentConfig{
 			GeminiKey: os.Getenv(EnvGeminiKey),
+			OpenAIKey: os.Getenv(EnvOpenaiKey),
 		},
 	}
 	setViperFields(c, "")

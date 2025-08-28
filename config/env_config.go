@@ -16,6 +16,7 @@ const (
 	EnvAppDomain  = "APP_DOMAIN"
 
 	EnvGeminiKey = "GEMINI_KEY"
+	EnvOpenaiKey = "OPENAI_KEY"
 
 	EnvDBHost     = "DB_HOST"
 	EnvDBPort     = "DB_PORT"

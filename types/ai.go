@@ -4,6 +4,7 @@ import (
 	"NotificationManagement/models"
 	"NotificationManagement/utils/errutil"
 	"fmt"
+
 	"gorm.io/gorm"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -44,7 +45,7 @@ func (r *AIModelRequest) Validate() error {
 		rules = append(rules, validation.Field(&r.BaseURL, validation.Required, validation.Length(1, 500)))
 	case "gemini", "openai":
 		rules = append(rules, validation.Field(&r.APISecret, validation.Required, validation.Length(1, 500)))
-
+		rules = append(rules, validation.Field(&r.BaseURL, validation.Length(0, 500))) // Optional BaseURL
 	}
 
 	return validation.ValidateStruct(r, rules...)
@@ -59,7 +60,8 @@ func (dr *AIModelRequest) ToModel() (models.AIModelInterface, error) {
 		Model: gorm.Model{
 			ID: dr.ID,
 		},
-		Type: dr.Type,
+		Type:    dr.Type,
+		BaseURL: &dr.BaseURL,
 	}
 	switch dr.Type {
 	case "deepseek", "local":
@@ -67,30 +69,25 @@ func (dr *AIModelRequest) ToModel() (models.AIModelInterface, error) {
 			AIModel:   aiModel,
 			Name:      dr.Name,
 			ModelName: dr.ModelName,
-			BaseURL:   dr.BaseURL,
 			Size:      dr.Size,
 		}, nil
 	case "gemini":
-		return &models.GeminiModel{
+		geminiModel := &models.GeminiModel{
 			AIModel:   aiModel,
 			Name:      dr.Name,
 			ModelName: dr.ModelName,
 			APISecret: models.EncryptedString(dr.APISecret),
-		}, nil
+		}
+		return geminiModel, nil
+	case "openai":
+		openaiModel := &models.OpenAIModel{
+			AIModel:   aiModel,
+			Name:      dr.Name,
+			ModelName: dr.ModelName,
+			APISecret: models.EncryptedString(dr.APISecret),
+		}
+		return openaiModel, nil
 	default:
 		return nil, errutil.NewAppError(errutil.ErrUnsupportedAIModelType, fmt.Errorf("unsupported AI model type: %s", dr.Type))
-	}
-}
-
-func FromDeepseekModel(model *models.DeepseekModel) *DeepseekModelResponse {
-	return &DeepseekModelResponse{
-		ID:        model.ID,
-		Name:      model.Name,
-		Type:      model.Type,
-		ModelName: model.ModelName,
-		BaseURL:   model.BaseURL,
-		Size:      model.Size,
-		CreatedAt: model.CreatedAt.Format(ResponseDateFormat),
-		UpdatedAt: model.UpdatedAt.Format(ResponseDateFormat),
 	}
 }
