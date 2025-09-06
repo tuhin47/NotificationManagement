@@ -12,10 +12,8 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
-	"os/exec"
 	"regexp"
 	"strings"
 )
@@ -47,51 +45,55 @@ func parseBasicCurl(raw string) (method, url string, headers map[string]string, 
 	method = "GET"
 	body = ""
 
-	// Trim whitespace and collapse multiple spaces
+	// Trim whitespace
 	raw = strings.TrimSpace(raw)
-	raw = regexp.MustCompile(`\s+`).ReplaceAllString(raw, " ")
 
-	// Match single, double, or escaped single quotes for the URL
-	re := regexp.MustCompile(`curl\s+(?:'([^']+)'|"([^"]+)"|\\'([^\\']+)\\')`)
-	matches := re.FindStringSubmatch(raw)
-	if len(matches) < 2 {
+	// Regex to find the URL. It can be unquoted, single-quoted, or double-quoted.
+	// Also handles the optional -s flag.
+	reURL := regexp.MustCompile(`curl(?:\s+-s)?\s+(?:'([^']+)'|"([^"]+)"|\\'([^\\']+)\\'|([^\s'"]+))`)
+	matchesURL := reURL.FindStringSubmatch(raw)
+
+	if len(matchesURL) < 2 {
 		err = errutil.NewAppError(errutil.ErrCurlParseError, errors.New("could not parse URL from curl command"))
 		return
 	}
-	// Find the first non-empty group
-	for i := 1; i < len(matches); i++ {
-		if matches[i] != "" {
-			url = matches[i]
+
+	// Find the first non-empty group for the URL
+	for i := 1; i < len(matchesURL); i++ {
+		if matchesURL[i] != "" {
+			url = matchesURL[i]
 			break
 		}
 	}
 
 	// Find -X or --request for method
-	if strings.Contains(raw, " -X ") {
-		parts := strings.Split(raw, " -X ")
-		if len(parts) > 1 {
-			methodPart := strings.Fields(parts[1])
-			if len(methodPart) > 0 {
-				method = strings.ToUpper(methodPart[0])
-			}
-		}
+	reMethod := regexp.MustCompile(`(?:-X|--request)\s+([A-Za-z]+)`)
+	methodMatch := reMethod.FindStringSubmatch(raw)
+	if len(methodMatch) > 1 {
+		method = strings.ToUpper(methodMatch[1])
 	}
 
-	// Find all -H 'Header: value'
-	reHeader := regexp.MustCompile(`-H\s+'([^:]+):\s?([^']+)'`)
+	// Find all -H 'Header: value' or -H "Header: value"
+	reHeader := regexp.MustCompile(`-H\s+(?:'([^:]+):\s?([^']+)'|"([^:]+):\s?([^"]+)")`)
 	headersFound := reHeader.FindAllStringSubmatch(raw, -1)
 	for _, h := range headersFound {
-		if len(h) == 3 {
+		if h[1] != "" && h[2] != "" { // Single quoted header
 			headers[h[1]] = h[2]
+		} else if h[3] != "" && h[4] != "" { // Double quoted header
+			headers[h[3]] = h[4]
 		}
 	}
 
-	// Find --data or -d for body
-	if strings.Contains(raw, "--data '") || strings.Contains(raw, "-d '") {
-		reBody := regexp.MustCompile(`(--data|-d)\s+'([^']+)'`)
-		bodyMatch := reBody.FindStringSubmatch(raw)
-		if len(bodyMatch) == 3 {
+	// Find --data 'body' or -d 'body' or --data "body" or -d "body"
+	reBody := regexp.MustCompile(`(--data|-d)\s+(?:'([^']+)'|"([^"]+)")`)
+	bodyMatch := reBody.FindStringSubmatch(raw)
+	if len(bodyMatch) > 1 {
+		if bodyMatch[2] != "" { // Single quoted body
 			body = bodyMatch[2]
+		} else if bodyMatch[3] != "" { // Double quoted body
+			body = bodyMatch[3]
+		}
+		if method == "GET" { // Default to POST if body is present and method is not explicitly set
 			method = "POST"
 		}
 	}
@@ -99,30 +101,7 @@ func parseBasicCurl(raw string) (method, url string, headers map[string]string, 
 	return
 }
 
-func executeCurlCommand(command string) (string, error) {
-	cmd := exec.Command("sh", "-c", command)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return "", errutil.NewAppErrorWithMessage(errutil.ErrCurlCommandExecutionFailed, err, fmt.Sprintf("Output: %s", output))
-	}
-	return string(output), nil
-}
-
 func (s *CurlServiceImpl) ProcessCurlRequest(c context.Context, req *models.CurlRequest) (*types.CurlResponse, error) {
-
-	if req.ResponseType == types.ResponseTypeHTML {
-		resp, err := executeCurlCommand(req.RawCurl)
-		if err != nil {
-			return nil, err
-		}
-		return &types.CurlResponse{
-			Status:     200,
-			Headers:    nil,
-			Body:       resp,
-			ErrMessage: "",
-		}, nil
-
-	}
 
 	var method, urlStr, body string
 	headers := map[string]string{}
